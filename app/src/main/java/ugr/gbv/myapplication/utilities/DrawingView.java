@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
+import ugr.gbv.myapplication.interfaces.LoadContent;
+
 public class DrawingView extends View {
 
     private Path drawPath, temporaryPath;
@@ -24,6 +26,8 @@ public class DrawingView extends View {
     private Canvas drawCanvas;
     private ArrayList<Point> points;
     boolean initialized = false;
+    private LoadContent callBack;
+    private boolean freeDrawing;
 
     public DrawingView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -48,6 +52,7 @@ public class DrawingView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         canvasBitmap = Bitmap.createBitmap(w,h, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
+        callBack.loadContent();
     }
 
     @Override
@@ -58,41 +63,42 @@ public class DrawingView extends View {
         canvas.drawPath(temporaryPath,drawPaint);
     }
 
-    @Override
+   @Override
     public boolean onTouchEvent(MotionEvent event) {
-        int action=event.getAction();
-        float touchX=event.getX();
-        float touchY=event.getY();
+        if(freeDrawing) {
+            int action = event.getAction();
+            float touchX = event.getX();
+            float touchY = event.getY();
 
-        switch (action)
-        {
-            case MotionEvent.ACTION_DOWN:
-                if(initialized) {
+            switch (action) {
+                case MotionEvent.ACTION_DOWN:
+                    if (initialized) {
+                        drawPath.lineTo(touchX, touchY);
+                    } else {
+                        drawPath.moveTo(touchX, touchY);
+                        initialized = true;
+                    }
+
+                    Log.d("ASD", " ( " + touchX + " , " + touchY + " )");
+                    Point newPoint = new Point(touchX, touchY);
+                    points.add(newPoint);
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
                     drawPath.lineTo(touchX, touchY);
-                }
-                else{
-                    drawPath.moveTo(touchX,touchY);
-                    initialized = true;
-                }
+                    break;
 
-                Log.d("ASD"," ( " +touchX+ " , " +touchY + " )");
-                Point newPoint = new Point(touchX,touchY);
-                points.add(newPoint);
-                break;
+                case MotionEvent.ACTION_UP:
+                    drawPath.moveTo(touchX, touchY);
+                    break;
 
-            /*case MotionEvent.ACTION_MOVE:
-                drawPath.lineTo(touchX, touchY);
-                break;*/
-
-            case MotionEvent.ACTION_UP:
-                drawPath.moveTo(touchX,touchY);
-                break;
-
-            default:
-                return false;
+                default:
+                    return false;
+            }
+            drawCanvas.save();
+            invalidate();
         }
-        invalidate();
-        return true;
+       return freeDrawing;
     }
 
     public void clearCanvas()
@@ -122,11 +128,38 @@ public class DrawingView extends View {
             initialized = true;
         }
 
-        Log.d("ASD", punto.getLabel() + " -> ( " + punto.getX() + ", " + punto.getY() +" )" );
+        points.add(punto);
 
 
+
+        drawCanvas.save();
 
 
         invalidate();
+    }
+
+    public void setCallBack(LoadContent callBack,boolean isTaskFreeDrawing){
+        this.callBack = callBack;
+        freeDrawing = isTaskFreeDrawing;
+    }
+
+    public void undoLastOperation(){
+        if(points.size() > 0) {
+            points.remove(points.size() - 1);
+            clearCanvas();
+            drawPath();
+        }
+    }
+
+    private void drawPath(){
+        for (Point point:points){
+            if (initialized) {
+                drawPath.lineTo(point.getX(), point.getY());
+                drawPath.moveTo(point.getX(), point.getY());
+            } else {
+                drawPath.moveTo(point.getX(), point.getY());
+                initialized = true;
+            }
+        }
     }
 }

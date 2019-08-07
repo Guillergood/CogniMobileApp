@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="graphsValues">
+        <item>1</item>
+        <item>A</item>
+        <item>2</item>
+        <item>B</item>
+        <item>3</item>
+        <item>C</item>
+        <item>4</item>
+        <item>D</item>
+        <item>5</item>
+        <item>E</item>
+    </string-array>
+</resources>
