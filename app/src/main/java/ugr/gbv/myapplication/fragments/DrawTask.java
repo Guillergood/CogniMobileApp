@@ -124,6 +124,7 @@ public class DrawTask extends Fragment implements LoadContent {
         if(answer.size() > 0){
             answer.remove(answer.size()-1);
             pressedButtons.get(pressedButtons.size()-1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill,context.getTheme()));
+            pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black,context.getTheme()));
             pressedButtons.remove(pressedButtons.size()-1);
         }
     }
@@ -146,17 +147,20 @@ public class DrawTask extends Fragment implements LoadContent {
                 @Override
                 public void onClick(View v) {
                     Button button = (Button) v;
-                    button.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
                     boolean continua = true;
-                    answer.add(button.getTag().toString());
                     for(int i = 0; i < secuence.size() && continua; ++i){
                         if(button.getTag().equals(secuence.get(i).getLabel())){
-                            drawingView.drawToPoint(secuence.get(i));
-                            continua = false;
+                            if(!answer.contains(button.getTag().toString())){
+                                button.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
+                                button.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
+                                answer.add(button.getTag().toString());
+                                drawingView.drawToPoint(secuence.get(i));
+                                continua = false;
+                                pressedButtons.add(button);
+                            }
                         }
                     }
 
-                    pressedButtons.add(button);
                 }
             });
             layout.addView(button);
