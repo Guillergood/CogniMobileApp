@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -20,7 +19,7 @@ import ugr.gbv.myapplication.interfaces.LoadContent;
 
 public class DrawingView extends View {
 
-    private Path drawPath, temporaryPath;
+    private Path drawPath;
     private Paint drawPaint,canvasPaint;
     private Bitmap canvasBitmap;
     private Canvas drawCanvas;
@@ -28,6 +27,7 @@ public class DrawingView extends View {
     boolean initialized = false;
     private LoadContent callBack;
     private boolean freeDrawing;
+    private ArrayList<Path> paths = new ArrayList<>();
 
     public DrawingView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
@@ -37,7 +37,6 @@ public class DrawingView extends View {
 
     private void setUpDrawing() {
         drawPath = new Path();
-        temporaryPath = new Path();
         drawPaint = new Paint();
         drawPaint.setColor(Color.parseColor("#000000"));
         drawPaint.setAntiAlias(true);
@@ -52,7 +51,6 @@ public class DrawingView extends View {
         super.onSizeChanged(w, h, oldw, oldh);
         canvasBitmap = Bitmap.createBitmap(w,h, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
-        callBack.loadContent();
     }
 
     @Override
@@ -60,7 +58,7 @@ public class DrawingView extends View {
         super.onDraw(canvas);
         canvas.drawBitmap(canvasBitmap,0,0,canvasPaint);
         canvas.drawPath(drawPath,drawPaint);
-        canvas.drawPath(temporaryPath,drawPaint);
+        callBack.loadContent();
     }
 
    @Override
@@ -70,18 +68,11 @@ public class DrawingView extends View {
             float touchX = event.getX();
             float touchY = event.getY();
 
+
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
-                    if (initialized) {
-                        drawPath.lineTo(touchX, touchY);
-                    } else {
-                        drawPath.moveTo(touchX, touchY);
-                        initialized = true;
-                    }
-
-                    Log.d("ASD", " ( " + touchX + " , " + touchY + " )");
-                    Point newPoint = new Point(touchX, touchY);
-                    points.add(newPoint);
+                    drawPath.moveTo(touchX, touchY);
+                    drawPath.lineTo(touchX, touchY);
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -95,7 +86,9 @@ public class DrawingView extends View {
                 default:
                     return false;
             }
-            drawCanvas.save();
+
+            paths.add(drawPath);
+
             invalidate();
         }
        return freeDrawing;
@@ -119,7 +112,6 @@ public class DrawingView extends View {
 
     public void drawToPoint(Point punto) {
 
-
         if (initialized) {
             drawPath.lineTo(punto.getX(), punto.getY());
             drawPath.moveTo(punto.getX(), punto.getY());
@@ -129,7 +121,6 @@ public class DrawingView extends View {
         }
 
         points.add(punto);
-
 
 
         drawCanvas.save();
@@ -144,15 +135,21 @@ public class DrawingView extends View {
     }
 
     public void undoLastOperation(){
-        if(points.size() > 0) {
-            points.remove(points.size() - 1);
+        if(freeDrawing){
             clearCanvas();
-            drawPath();
+        }
+        else {
+            if (points.size() > 0) {
+                points.remove(points.size() - 1);
+                clearCanvas();
+                drawPath();
+            }
         }
     }
 
     private void drawPath(){
-        for (Point point:points){
+
+        for (Point point : points) {
             if (initialized) {
                 drawPath.lineTo(point.getX(), point.getY());
                 drawPath.moveTo(point.getX(), point.getY());
@@ -161,5 +158,6 @@ public class DrawingView extends View {
                 initialized = true;
             }
         }
+
     }
 }

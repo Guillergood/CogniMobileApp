@@ -17,6 +17,8 @@ import java.util.ArrayList;
 
 import ugr.gbv.myapplication.R;
 import ugr.gbv.myapplication.fragments.DrawTask;
+import ugr.gbv.myapplication.fragments.ImageTask;
+import ugr.gbv.myapplication.fragments.TextTask;
 import ugr.gbv.myapplication.interfaces.LoadContent;
 
 /**
@@ -111,6 +113,10 @@ public class Test extends AppCompatActivity implements LoadContent {
         fragments.add(new DrawTask(DrawTask.GRAPH,this));
         fragments.add(new DrawTask(DrawTask.CUBE,this));
         fragments.add(new DrawTask(DrawTask.WATCH,this));
+        fragments.add(new ImageTask(this));
+        fragments.add(new TextTask(TextTask.MEMORY,this));
+        fragments.add(new TextTask(TextTask.ATENTION_NUMBERS,this));
+        fragments.add(new TextTask(TextTask.ATENTION_LETTERS,this));
         index = 0;
 
         mVisible = true;
@@ -216,5 +222,8 @@ public class Test extends AppCompatActivity implements LoadContent {
         if(fragments.size() > index){
             loadFragment(fragments.get(index));
         }
+//        else{
+//            sendData();
+//        }
     }
 }

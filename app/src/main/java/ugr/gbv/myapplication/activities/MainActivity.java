@@ -1,5 +1,6 @@
 package ugr.gbv.myapplication.activities;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -8,14 +9,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.PermissionChecker;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.ArrayList;
+
 import ugr.gbv.myapplication.R;
+import ugr.gbv.myapplication.qr_reader.ReadQR;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
@@ -40,10 +46,17 @@ public class MainActivity extends AppCompatActivity
 
         inicializaMenuInferior();
 
+        //TODO AÑADIR LA NOTIFICACION Y SI ESTÁ ACTIVA NO EMPEZAR EL SERVICIO
+        /*Intent aware = new Intent(this, Aware.class);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ContextCompat.startForegroundService(getApplicationContext(), aware);
+        } else {
+            getBaseContext().startService(aware);
+        }*/
+
+        
 
 
-        /*fragment = new DrawTask();
-        cargarFragmento(fragment);*/
     }
 
     private void inicializaMenuInferior() {
@@ -93,8 +106,7 @@ public class MainActivity extends AppCompatActivity
 
         switch (menuItem.getItemId()){
             case R.id.nav_gallery:
-                //fragment = new DrawTask(DrawTask.GRAPH);
-                //cargarFragmento = true;
+                readQR();
                 break;
             case R.id.nav_home:
                 irATest();
@@ -121,6 +133,26 @@ public class MainActivity extends AppCompatActivity
     private void irATest() {
         Intent intent = new Intent(this, Test.class);
         startActivity(intent);
+    }
+
+    private void readQR() {
+
+        boolean permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED;
+
+        if (permissionNotGranted) {
+            ArrayList<String> permission = new ArrayList<>();
+            permission.add(Manifest.permission.CAMERA);
+
+            Intent permissions = new Intent(this, PermissionsHandler.class);
+            permissions.putExtra(PermissionsHandler.EXTRA_REQUIRED_PERMISSIONS, permission);
+            permissions.putExtra(PermissionsHandler.EXTRA_REDIRECT_ACTIVITY, getPackageName() + "/" + getPackageName() + ".qr_reader.ReadQR");
+            permissions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(permissions);
+        } else {
+            Intent qrcode = new Intent(MainActivity.this, ReadQR.class);
+            qrcode.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(qrcode);
+        }
     }
 
 

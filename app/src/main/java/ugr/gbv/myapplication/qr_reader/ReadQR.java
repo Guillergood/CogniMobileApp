@@ -136,6 +136,7 @@ public class ReadQR extends Activity implements ZBarScannerView.ResultHandler {
 
                     while(!SSLManager.hasCertificate(getApplicationContext(), study_uri.getHost())) {
                         //wait until we have the certificate downloaded
+                        Log.d(Aware.TAG, "NO CARGA!");
                     }
 
                     try {

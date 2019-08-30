@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.Random;
 
 public class PathGenerator {
-    //TODO CAMBIAR TODO ESTO PORQUE YA NO TIENE SENTIDO EL ANGLUIN AND VALIANT
 
     /**
      * Método para generar los puntos en orden que tienen que ser recorridos para formar el grafo
@@ -20,8 +19,6 @@ public class PathGenerator {
 
 
         ArrayList<Point> puntos = new ArrayList<>();
-
-        //TODO CAMBIAR ESTO TAMBIEN PARA QUE ESTE EN VALORES
 
         int[]numbers = new int[10];
         Random r = new Random();
