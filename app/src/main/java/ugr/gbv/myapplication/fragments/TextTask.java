@@ -8,7 +8,11 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.text.TextWatcher;
+import android.text.method.DigitsKeyListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,12 +26,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Locale;
 
 import ugr.gbv.myapplication.R;
@@ -56,10 +61,11 @@ public class TextTask extends Fragment {
     private TextToSpeech tts;
     private int delayTts = 1000;
     private int delayTask = 5000;
-    private boolean initialized = false;
     private boolean providedTask = false;
     private String[] array;
+    private ArrayList<String> answer;
     private int index = 0;
+    private int lastIndex = 0;
     private View mainView;
     private int taskType;
     private RelativeLayout layout;
@@ -67,12 +73,19 @@ public class TextTask extends Fragment {
     private TextView addicionalTaskText;
     private EditText addicionalTaskInput;
     private Button submitAnswerButton;
+    private ConstraintLayout mainLayout;
+
+    private ArrayList<EditText> variousInputs;
+
+    private boolean alredyPressLastLetter;
 
 
 
     public TextTask(int taskType,LoadContent callBack){
         this.callBack = callBack;
         this.taskType = taskType;
+        answer = new ArrayList<>();
+        alredyPressLastLetter = false;
     }
 
 
@@ -86,6 +99,7 @@ public class TextTask extends Fragment {
 
 
         layout = mainView.findViewById(R.id.textSpace);
+        mainLayout = mainView.findViewById(R.id.textTaskLayout);
         addicionalTaskText = mainView.findViewById(R.id.additional_task_text);
         addicionalTaskInput = mainView.findViewById(R.id.additional_task_input);
         submitAnswerButton = mainView.findViewById(R.id.submit_button);
@@ -101,7 +115,6 @@ public class TextTask extends Fragment {
                     if(result!=TextToSpeech.LANG_MISSING_DATA &&
                             result!=TextToSpeech.LANG_NOT_SUPPORTED){
 
-                        initialized = true;
 
                     }
 
@@ -146,7 +159,6 @@ public class TextTask extends Fragment {
                                     break;
                                 case ATENTION_NUMBERS:
                                     repeat("2,1,8,5,4");
-                                    repeatBackwards("7,4,2");
                                     break;
                                 case ATENTION_LETTERS:
                                     tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
@@ -155,15 +167,13 @@ public class TextTask extends Fragment {
                                     serialSubstraction(100, 7, 5);
                                     break;
                                 case LANGUAGE:
-                                    repeatPhrase("I only know that John is the one to help today.");
-                                    repeatPhrase("The cat always hid under the couch when dogs were in the room.");
+                                    repeatPhrase("I only know that John is the one to help today.The cat always hid under the couch when dogs were in the room.");
                                     break;
                                 case FLUENCY:
                                     fluencyWithWords("F", 11);
                                     break;
                                 case ABSTRACTION:
-                                    similarity("train-bicycle,watch-ruler", "transport,speed");
-                                    similarity("watch-ruler", "measurement,numbers");
+                                    similarity();
                                     break;
                                 case RECALL:
                                     recall("FACE,VELVET,CHURCH,DAISY,RED");
@@ -206,9 +216,31 @@ public class TextTask extends Fragment {
         showUserAdditionalTask();
     }
 
-    private void similarity(String words, String acceptedAnswer) {
+    private void similarity() {
         showUserInput();
         showUserAdditionalTask();
+        array = new String[4];
+        array[0] = "train-bicycle";
+        array[1] = "transport,speed";
+        array[2] = "watch-ruler";
+        array[3] = "measurement,numbers";
+        addicionalTaskText.setText("Introduce the similarity of: " + array[index]);
+        index+=2;
+        submitAnswerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(index == 5){
+                    submitAnswerButton.setVisibility(View.GONE);
+                    addicionalTaskText.setText("You have finalizaed the task");
+                }
+                else{
+                    answer.add(addicionalTaskInput.getText().toString());
+                    addicionalTaskText.setText("Introduce the similarity of: " + array[index]);
+                    index+=2;
+                }
+            }
+        });
+
     }
 
     private void fluencyWithWords(String letter, int numberOfWords) {
@@ -222,24 +254,40 @@ public class TextTask extends Fragment {
         showUserAdditionalTask();
     }
 
-    private void serialSubstraction(int startingNumber, int substration, int times) {
+    private void serialSubstraction(int startingNumber, final int substration, final int times) {
+        index = 0;
         showUserInput();
         addicionalTaskText.setText("Introduce the number of the substraction: " + startingNumber + " - " + substration);
         addicionalTaskInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        submitAnswerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(index == times){
+                    submitAnswerButton.setVisibility(View.GONE);
+                    addicionalTaskText.setText("You have finalizaed the task");
+                }
+                else{
+                    answer.add(addicionalTaskInput.getText().toString());
+                    addicionalTaskText.setText("Introduce the number of the substraction: " + addicionalTaskInput.getText().toString() + " - " + substration);
+                    index++;
+                }
+            }
+        });
     }
 
     private void tapLetter(final String target, String words) {
         array = words.split(",");
         index = 0;
+        lastIndex = 0;
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(index > 1) {
-                    if(target.equals(array[index - 1]))
-                        Toast.makeText(context, "TAP ON " + array[index - 1] + " = " + target, Toast.LENGTH_LONG).show();
-                    else
-                        Toast.makeText(context, "TAP ON " + array[index - 1] + " != " + target, Toast.LENGTH_LONG).show();
-                }
+                 if(index > 0 && lastIndex != index) {
+                    answer.add(array[index - 1]);
+                    Toast.makeText(context, "TAP ON " + array[index - 1], Toast.LENGTH_LONG).show();
+                    lastIndex = index;
+                 }
+
             }
         });
 
@@ -248,29 +296,184 @@ public class TextTask extends Fragment {
 
     private void repeatBackwards(String numbers) {
         array = numbers.split(",");
-        Collections.reverse(Arrays.asList(array));
         index = 0;
+        clearLastEnumeration();
+        placeFirstInput();
+        setVariousInputs();
         enumeration();
         showUserInput();
         showUserAdditionalTask();
+        addicionalTaskText.setText("Introduce the secuence backwards");
+        submitAnswerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (EditText editText:variousInputs)
+                    answer.add(editText.getText().toString());
+                Toast.makeText(context, "DONE", Toast.LENGTH_LONG).show();
+                submitAnswerButton.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    private void clearLastEnumeration() {
+        for(int i = 1; i < variousInputs.size(); ++i){
+            mainLayout.removeView(variousInputs.get(i));
+        }
+        variousInputs.clear();
     }
 
     private void repeat(String numbers) {
         array = numbers.split(",");
         index = 0;
+        placeFirstInput();
+        changeInputFilterAndType();
+        setVariousInputs();
         enumeration();
         showUserInput();
         showUserAdditionalTask();
+        addicionalTaskInput.requestFocus();
+        submitAnswerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for (EditText editText:variousInputs)
+                    answer.add(editText.getText().toString());
+                repeatBackwards("7,4,2");
+            }
+        });
+
+    }
+
+    private void setVariousInputs() {
+        int[] numbersId = new int[array.length];
+        numbersId[0] = addicionalTaskInput.getId();
+        variousInputs = new ArrayList<>();
+        variousInputs.add(addicionalTaskInput);
+
+        ConstraintSet set = new ConstraintSet();
+        set.clone(mainLayout);
+
+        int dimens = getResources().getInteger(R.integer.circle);
+        int portion = mainLayout.getWidth()/array.length;
+        int positionX = portion-mainLayout.getWidth()/2;
+
+
+        for(int i = 1; i < array.length; ++i){
+
+            EditText editText = new EditText(context);
+            editText.setId(View.generateViewId());
+            editText.setTag(Integer.toString(i));
+            editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            editText.setKeyListener(DigitsKeyListener.getInstance("123456789"));
+            InputFilter[] inputArray = new InputFilter[1];
+            inputArray[0] = new InputFilter.LengthFilter(1);
+            editText.setFilters(inputArray);
+            editText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    if(count > 0) {
+                        if (variousInputs.size() > index+1) {
+                            variousInputs.get(index+1).requestFocus();
+                        }
+                    }
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+
+            editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if(hasFocus){
+                        index = Integer.parseInt(v.getTag().toString());
+                    }
+                }
+            });
+
+
+            set.connect(editText.getId(), ConstraintSet.LEFT, numbersId[i - 1], ConstraintSet.RIGHT, 8);
+            set.connect(editText.getId(), ConstraintSet.TOP, numbersId[i - 1], ConstraintSet.TOP, 0);
+            set.constrainHeight(editText.getId(), dimens);
+            set.constrainWidth(editText.getId(), dimens);
+            set.setTranslationX(editText.getId(),positionX);
+            mainLayout.addView(editText);
+            set.applyTo(mainLayout);
+
+            numbersId[i] = editText.getId();
+            variousInputs.add(editText);
+        }
+    }
+
+    private void placeFirstInput(){
+        ConstraintSet set = new ConstraintSet();
+        set.clone(mainLayout);
+
+        int dimens = getResources().getInteger(R.integer.circle);
+        set.constrainHeight(addicionalTaskInput.getId(), dimens);
+        set.constrainWidth(addicionalTaskInput.getId(), dimens);
+
+        int portion = mainLayout.getWidth()/array.length;
+        int positionX = portion-mainLayout.getWidth()/2;
+        set.setTranslationX(addicionalTaskInput.getId(),positionX);
+        set.applyTo(mainLayout);
+
+        addicionalTaskInput.setScrollContainer(true);
+        addicionalTaskInput.setTag("0");
+
+        addicionalTaskInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(count > 0) {
+                    index=1;
+                    if (variousInputs.size() > index) {
+                        variousInputs.get(index).requestFocus();
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        addicionalTaskInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus){
+                    index = Integer.parseInt(v.getTag().toString());
+                }
+            }
+        });
+
+    }
+
+    private void changeInputFilterAndType(){
+        addicionalTaskInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        addicionalTaskInput.setKeyListener(DigitsKeyListener.getInstance("123456789"));
+        InputFilter[] inputArray = new InputFilter[1];
+        inputArray[0] = new InputFilter.LengthFilter(1);
+        addicionalTaskInput.setFilters(inputArray);
     }
 
     private void showUserAdditionalTask() {
         switch (taskType){
             case ATENTION_NUMBERS:
                 addicionalTaskText.setText("Introduce the secuence");
-                addicionalTaskInput.setInputType(InputType.TYPE_CLASS_NUMBER);
                 break;
             case ATENTION_SUBSTRACTION:
-
                 break;
             case LANGUAGE:
                 addicionalTaskText.setText("Repeat the sentence");
