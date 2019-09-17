@@ -47,12 +47,53 @@ public class MainActivity extends AppCompatActivity
         inicializaMenuInferior();
 
         //TODO AÑADIR LA NOTIFICACION Y SI ESTÁ ACTIVA NO EMPEZAR EL SERVICIO
-        /*Intent aware = new Intent(this, Aware.class);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            ContextCompat.startForegroundService(getApplicationContext(), aware);
-        } else {
-            getBaseContext().startService(aware);
-        }*/
+
+/*
+        boolean permissionNotGranted = false;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PermissionChecker.PERMISSION_GRANTED;
+
+
+            if (permissionNotGranted) {
+                ArrayList<String> permission = new ArrayList<>();
+                permission.add(Manifest.permission.FOREGROUND_SERVICE);
+
+                Intent permissions = new Intent(this, PermissionsHandler.class);
+                permissions.putExtra(PermissionsHandler.EXTRA_REQUIRED_PERMISSIONS, permission);
+                permissions.putExtra(PermissionsHandler.EXTRA_REDIRECT_ACTIVITY, getPackageName() + "/" + getPackageName() + ".qr_reader.ReadQR");
+                permissions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(permissions);
+            }
+        }
+
+
+        boolean isRunning = false;
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        assert mNotificationManager != null;
+        StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == NotificationUtils.ARTICLE_NOTIFICATION_ID) {
+                isRunning = true;
+            }
+        }
+
+
+        if(!isRunning) {
+            Intent aware = new Intent(this, Aware.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(aware);
+            } else {
+                getBaseContext().startService(aware);
+            }
+            NotificationUtils.notifyCorrectUpdate(getApplicationContext());
+
+        }
+
+ */
+
+
+
+
 
         
 

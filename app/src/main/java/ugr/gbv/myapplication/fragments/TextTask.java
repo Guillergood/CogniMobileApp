@@ -167,7 +167,8 @@ public class TextTask extends Fragment {
                                     serialSubstraction(100, 7, 5);
                                     break;
                                 case LANGUAGE:
-                                    repeatPhrase("I only know that John is the one to help today.The cat always hid under the couch when dogs were in the room.");
+                                    //I only know that John is the one to help today.
+                                    repeatPhrase("The cat always hid under the couch when dogs were in the room.");
                                     break;
                                 case FLUENCY:
                                     fluencyWithWords("F", 11);
@@ -244,8 +245,10 @@ public class TextTask extends Fragment {
     }
 
     private void fluencyWithWords(String letter, int numberOfWords) {
+        addicionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
         showUserAdditionalTask();
+
     }
 
     private void repeatPhrase(String statement) {

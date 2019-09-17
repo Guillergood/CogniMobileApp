@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 import ugr.gbv.myapplication.R;
 import ugr.gbv.myapplication.fragments.DrawTask;
-import ugr.gbv.myapplication.fragments.ImageTask;
 import ugr.gbv.myapplication.fragments.TextTask;
 import ugr.gbv.myapplication.interfaces.LoadContent;
 
@@ -110,15 +109,15 @@ public class Test extends AppCompatActivity implements LoadContent {
         }
 
         fragments = new ArrayList<>();
-        fragments.add(new DrawTask(DrawTask.GRAPH,this));
+        /*fragments.add(new DrawTask(DrawTask.GRAPH,this));*/
         fragments.add(new DrawTask(DrawTask.CUBE,this));
-        fragments.add(new DrawTask(DrawTask.WATCH,this));
+        /*fragments.add(new DrawTask(DrawTask.WATCH,this));
         fragments.add(new ImageTask(this));
         fragments.add(new TextTask(TextTask.MEMORY,this));
         fragments.add(new TextTask(TextTask.ATENTION_NUMBERS,this));
         fragments.add(new TextTask(TextTask.ATENTION_LETTERS,this));
         fragments.add(new TextTask(TextTask.ATENTION_SUBSTRACTION,this));
-        fragments.add(new TextTask(TextTask.LANGUAGE,this));
+        fragments.add(new TextTask(TextTask.LANGUAGE,this));*/
         fragments.add(new TextTask(TextTask.FLUENCY,this));
         fragments.add(new TextTask(TextTask.ABSTRACTION,this));
         fragments.add(new TextTask(TextTask.RECALL,this));
