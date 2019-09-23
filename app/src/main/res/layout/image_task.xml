@@ -69,21 +69,43 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:alpha="0.9"
         app:cardBackgroundColor="#CFCFCF"
         app:cardCornerRadius="5dp"
         app:cardElevation="10dp"
         app:cardMaxElevation="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/helpButton"
+        app:layout_constraintBottom_toTopOf="@+id/image_task_input"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/banner">
 
     </androidx.cardview.widget.CardView>
 
+    <EditText
+        android:id="@+id/image_task_input"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:minWidth="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/idk_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
-
+    <Button
+        android:id="@+id/idk_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="I do not know"
+        app:layout_constraintBottom_toTopOf="@+id/helpButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

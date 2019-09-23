@@ -74,6 +74,7 @@ public class TextTask extends Fragment {
     private EditText addicionalTaskInput;
     private Button submitAnswerButton;
     private ConstraintLayout mainLayout;
+    private TextView bannerText;
 
     private ArrayList<EditText> variousInputs;
 
@@ -103,6 +104,7 @@ public class TextTask extends Fragment {
         addicionalTaskText = mainView.findViewById(R.id.additional_task_text);
         addicionalTaskInput = mainView.findViewById(R.id.additional_task_input);
         submitAnswerButton = mainView.findViewById(R.id.submit_button);
+        bannerText = mainView.findViewById(R.id.banner_text);
 
 
         tts=new TextToSpeech(context, new TextToSpeech.OnInitListener() {
@@ -155,12 +157,15 @@ public class TextTask extends Fragment {
                             countdownText.setVisibility(View.GONE);
                             switch (taskType) {
                                 case MEMORY:
+                                    bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
                                     memorization("FACE,VELVET,CHURCH,DAISY,RED");
                                     break;
                                 case ATENTION_NUMBERS:
+                                    bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
                                     repeat("2,1,8,5,4");
                                     break;
                                 case ATENTION_LETTERS:
+                                    
                                     tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
                                     break;
                                 case ATENTION_SUBSTRACTION:
@@ -171,6 +176,7 @@ public class TextTask extends Fragment {
                                     repeatPhrase("The cat always hid under the couch when dogs were in the room.");
                                     break;
                                 case FLUENCY:
+                                    bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
                                     fluencyWithWords("F", 11);
                                     break;
                                 case ABSTRACTION:
@@ -338,8 +344,12 @@ public class TextTask extends Fragment {
         submitAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for (EditText editText:variousInputs)
+                for (EditText editText:variousInputs) {
                     answer.add(editText.getText().toString());
+                    editText.getText().clear();
+                }
+                addicionalTaskInput.requestFocus();
+                bannerText.setText("Now I am going to say some more numbers, but when I am through you must repeat them to me in the backwards order.");
                 repeatBackwards("7,4,2");
             }
         });
@@ -355,7 +365,7 @@ public class TextTask extends Fragment {
         ConstraintSet set = new ConstraintSet();
         set.clone(mainLayout);
 
-        int dimens = getResources().getInteger(R.integer.circle);
+        int dimens = getResources().getDimensionPixelSize(R.dimen.input_dimen);
         int portion = mainLayout.getWidth()/array.length;
         int positionX = portion-mainLayout.getWidth()/2;
 
@@ -418,7 +428,7 @@ public class TextTask extends Fragment {
         ConstraintSet set = new ConstraintSet();
         set.clone(mainLayout);
 
-        int dimens = getResources().getInteger(R.integer.circle);
+        int dimens = getResources().getDimensionPixelSize(R.dimen.input_dimen);
         set.constrainHeight(addicionalTaskInput.getId(), dimens);
         set.constrainWidth(addicionalTaskInput.getId(), dimens);
 
@@ -528,9 +538,6 @@ public class TextTask extends Fragment {
                 tts.playSilentUtterance(delayTts, TextToSpeech.QUEUE_ADD, null);
                 if(index < array.length) {
                     tts.speak(array[index], TextToSpeech.QUEUE_ADD, null, Integer.toString(index));
-                }
-                else if(index == array.length){
-                    tts.speak("END", TextToSpeech.QUEUE_ADD, null,null);
                 }
 
             }

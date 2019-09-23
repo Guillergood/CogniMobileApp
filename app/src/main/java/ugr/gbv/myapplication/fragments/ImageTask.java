@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -31,11 +32,13 @@ public class ImageTask extends Fragment {
     private Context context;
     private Dialog builder;
     private LoadContent callBack;
-    private ImageView selected;
-
+    private int selected;
+    private int[] imagesId;
+    private View mainView;
 
     public ImageTask(LoadContent callBack){
         this.callBack = callBack;
+        selected = 0;
     }
 
 
@@ -43,17 +46,18 @@ public class ImageTask extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.image_task, container, false);
+        mainView = inflater.inflate(R.layout.image_task, container, false);
 
         context = getContext();
 
 
-        final RelativeLayout layout = view.findViewById(R.id.imageContainer);
+        final CardView layout = mainView.findViewById(R.id.cardView);
 
         final String[] imagesArray = context.getResources().getStringArray(R.array.images);
 
 
-        int[] imagesId = new int[imagesArray.length];
+        imagesId = new int[imagesArray.length];
+
 
 
         for (int i = 0; i < imagesArray.length; ++i) {
@@ -64,15 +68,15 @@ public class ImageTask extends Fragment {
             imageView.setImageBitmap(decodedByte);
 
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
 
             lp.addRule(RelativeLayout.CENTER_HORIZONTAL);
             if (i > 0) {
-                lp.addRule(RelativeLayout.BELOW, imagesId[i - 1]);
+                imageView.setVisibility(View.INVISIBLE);
             }
 
-            imageView.setOnClickListener(new View.OnClickListener() {
+            /*imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     ImageView imageView = (ImageView) v;
@@ -88,7 +92,7 @@ public class ImageTask extends Fragment {
                     }
 
                 }
-            });
+            });*/
 
 
             layout.addView(imageView, lp);
@@ -100,15 +104,23 @@ public class ImageTask extends Fragment {
         buildDialog();
 
 
-        Button nextButton = view.findViewById(R.id.nextTaskButton);
+        Button nextButton = mainView.findViewById(R.id.nextTaskButton);
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                callBack.loadContent();
+                nextTask();
             }
         });
 
-        FloatingActionButton helpButton = view.findViewById(R.id.helpButton);
+        Button idkButton = mainView.findViewById(R.id.idk_button);
+        idkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                nextTask();
+            }
+        });
+
+        FloatingActionButton helpButton = mainView.findViewById(R.id.helpButton);
         helpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,11 +131,23 @@ public class ImageTask extends Fragment {
         });
 
 
-        return view;
+        return mainView;
     }
 
-
-
+    private void nextTask() {
+        if(selected == imagesId.length-1) {
+            callBack.loadContent();
+        }
+        else{
+            selected++;
+            ImageView imageView = mainView.findViewById(imagesId[selected]);
+            imageView.setVisibility(View.VISIBLE);
+            if(selected > 0){
+                imageView = mainView.findViewById(imagesId[selected-1]);
+                imageView.setVisibility(View.INVISIBLE);
+            }
+        }
+    }
 
 
     private void buildDialog(){
@@ -154,7 +178,7 @@ public class ImageTask extends Fragment {
 
     }
 
-    private void removeAllImagesModifications(){
+    /*private void removeAllImagesModifications(){
         selected.clearColorFilter();
         selected.setBackground(null);
     }
@@ -163,7 +187,7 @@ public class ImageTask extends Fragment {
         selected = imageView;
         selected.setColorFilter(R.color.blue, android.graphics.PorterDuff.Mode.SRC_OVER);
         selected.setBackground(context.getResources().getDrawable(R.drawable.background_selected_image, context.getTheme()));
-    }
+    }*/
 
 
 

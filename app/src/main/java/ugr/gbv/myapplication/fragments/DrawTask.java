@@ -10,14 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -130,9 +130,7 @@ public class DrawTask extends Fragment implements LoadContent {
     }
 
     private void drawButtons(ArrayList<Point> points) {
-        ConstraintLayout layout = view.findViewById(R.id.drawTaskLayout);
-        ConstraintSet set = new ConstraintSet();
-        set.clone(layout);
+        CardView layout = view.findViewById(R.id.cardView);
 
         String[] tags = context.getResources().getStringArray(R.array.graphsValues);
 
@@ -164,16 +162,13 @@ public class DrawTask extends Fragment implements LoadContent {
                 }
             });
             layout.addView(button);
-            int dimens = getResources().getInteger(R.integer.circle);
+            int dimens = getResources().getDimensionPixelSize(R.dimen.circle);
             int halfDimen = dimens/2;
-            set.connect(button.getId(), ConstraintSet.LEFT, ConstraintSet.PARENT_ID, ConstraintSet.LEFT, 0);
-            set.connect(button.getId(), ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP, 0);
-            set.setTranslation(button.getId(),points.get(i).getX()-halfDimen, points.get(i).getY()-halfDimen);
-            set.constrainHeight(button.getId(), dimens);
-            set.constrainWidth(button.getId(), dimens);
+            FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dimens, dimens);
+            button.setLayoutParams(lp);
+            button.setX(points.get(i).getX()-halfDimen);
+            button.setY(points.get(i).getY()-halfDimen);
 
-
-            set.applyTo(layout);
 
         }
 
@@ -183,6 +178,11 @@ public class DrawTask extends Fragment implements LoadContent {
     @Override
     public void loadContent() {
         if(!loaded) {
+
+            ImageView imageView = view.findViewById(R.id.banner_image);
+            TextView textView = view.findViewById(R.id.banner_text);
+            Button button = view.findViewById(R.id.undoButton);
+
             switch (taskType) {
                 case GRAPH:
                     int height = drawingView.getCanvasHeight();
@@ -190,11 +190,16 @@ public class DrawTask extends Fragment implements LoadContent {
                     PathGenerator pathGenerator = new PathGenerator();
                     secuence = pathGenerator.makePath(height, width);
                     drawButtons(secuence);
+                    textView.setText("Please draw a line, going from a number to a letter in ascending order. Begin from (1) and  then to A then to 2 and so on. The last one is E");
                     break;
                 case CUBE:
-                case WATCH:
-                    Button button = view.findViewById(R.id.undoButton);
                     button.setText("CLEAR");
+                    textView.setText("Copy this drawing as accurately as you can, in the space below");
+                    imageView.setVisibility(View.VISIBLE);
+                    break;
+                case WATCH:
+                    button.setText("CLEAR");
+                    textView.setText("Draw a clock. Put in all the numbers and set the time to 10 past 11");
                     break;
                 default:
                     throw new RuntimeException("Task type not supported");

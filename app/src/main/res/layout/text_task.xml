@@ -112,6 +112,7 @@ loving. I will tell you to stop after one minute. Are you ready?" />
         android:inputType="textAutoComplete"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp"
+        android:minWidth="150dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
