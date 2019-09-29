@@ -59,12 +59,8 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_toStartOf="@+id/banner_image"
-            android:text="Tell me as many words as you
-can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You
-can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or
-words that begin with the same sound but have a different suffix, for example, love, lover,
-loving. I will tell you to stop after one minute. Are you ready?" />
+            android:textSize="@dimen/banner_text"
+            android:layout_toStartOf="@+id/banner_image" />
     </RelativeLayout>
 
 
@@ -114,6 +110,7 @@ loving. I will tell you to stop after one minute. Are you ready?" />
         android:layout_marginTop="32dp"
         android:minWidth="150dp"
         android:visibility="gone"
+        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/additional_task_text" />

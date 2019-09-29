@@ -67,6 +67,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
+            android:textSize="@dimen/banner_text"
             android:layout_toStartOf="@+id/banner_image" />
     </RelativeLayout>
 

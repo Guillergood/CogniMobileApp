@@ -33,7 +33,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import ugr.gbv.myapplication.R;
 import ugr.gbv.myapplication.interfaces.LoadContent;
@@ -106,23 +105,9 @@ public class TextTask extends Fragment {
         submitAnswerButton = mainView.findViewById(R.id.submit_button);
         bannerText = mainView.findViewById(R.id.banner_text);
 
-
-        tts=new TextToSpeech(context, new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-                if(status == TextToSpeech.SUCCESS){
-
-                    int result=tts.setLanguage(Locale.UK);
-
-                    if(result!=TextToSpeech.LANG_MISSING_DATA &&
-                            result!=TextToSpeech.LANG_NOT_SUPPORTED){
+        showUserAdditionalTask();
 
 
-                    }
-
-                }
-            }
-        });
 
         countdownText = mainView.findViewById(R.id.countDownText);
 
@@ -157,15 +142,14 @@ public class TextTask extends Fragment {
                             countdownText.setVisibility(View.GONE);
                             switch (taskType) {
                                 case MEMORY:
-                                    bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
+                                    //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
                                     memorization("FACE,VELVET,CHURCH,DAISY,RED");
                                     break;
                                 case ATENTION_NUMBERS:
-                                    bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
+                                    //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
                                     repeat("2,1,8,5,4");
                                     break;
                                 case ATENTION_LETTERS:
-                                    
                                     tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
                                     break;
                                 case ATENTION_SUBSTRACTION:
@@ -215,17 +199,17 @@ public class TextTask extends Fragment {
 
     private void orientation() {
         showUserInput();
-        showUserAdditionalTask();
+
     }
 
     private void recall(String words) {
         showUserInput();
-        showUserAdditionalTask();
+
     }
 
     private void similarity() {
         showUserInput();
-        showUserAdditionalTask();
+
         array = new String[4];
         array[0] = "train-bicycle";
         array[1] = "transport,speed";
@@ -253,14 +237,12 @@ public class TextTask extends Fragment {
     private void fluencyWithWords(String letter, int numberOfWords) {
         addicionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
-        showUserAdditionalTask();
-
     }
 
     private void repeatPhrase(String statement) {
         speakPhrase(statement);
         showUserInput();
-        showUserAdditionalTask();
+
     }
 
     private void serialSubstraction(int startingNumber, final int substration, final int times) {
@@ -311,7 +293,7 @@ public class TextTask extends Fragment {
         setVariousInputs();
         enumeration();
         showUserInput();
-        showUserAdditionalTask();
+
         addicionalTaskText.setText("Introduce the secuence backwards");
         submitAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -339,7 +321,7 @@ public class TextTask extends Fragment {
         setVariousInputs();
         enumeration();
         showUserInput();
-        showUserAdditionalTask();
+
         addicionalTaskInput.requestFocus();
         submitAnswerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -483,24 +465,33 @@ public class TextTask extends Fragment {
 
     private void showUserAdditionalTask() {
         switch (taskType){
+            case MEMORY:
+                bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
+                break;
             case ATENTION_NUMBERS:
-                addicionalTaskText.setText("Introduce the secuence");
+                bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
+                break;
+            case ATENTION_LETTERS:
+                bannerText.setText("I am going to read a sequence of letters. Every time I say the letter A, tap your hand once. If I say a different letter, do not tap");
                 break;
             case ATENTION_SUBSTRACTION:
+                bannerText.setText("Now, I will ask you to count by subtracting seven from 100, and then, keep subtracting seven from your answer until I tell you to stop ");
                 break;
             case LANGUAGE:
-                addicionalTaskText.setText("Repeat the sentence");
+                //I only know that John is the one to help today.
+                bannerText.setText("I am going to read you a sentence. Repeat it after me, exactly as I say it. ");
                 break;
             case FLUENCY:
-                addicionalTaskText.setText("Introduce words starting with: F");
+                bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
                 break;
             case ABSTRACTION:
-                addicionalTaskText.setText("Introduce the similarity of:");
+                bannerText.setText("I am going to read you a sentence. Repeat it after me, exactly as I say it. ");
                 break;
             case RECALL:
-                addicionalTaskText.setText("Introduce the secuence of the words that you remind:");
+                bannerText.setText("I read some words to you earlier, which I asked you to remember. Tell me as many of those words as you can remember");
                 break;
             case ORIENTATION:
+
                 break;
             default:
                 throw new RuntimeException("INVALID TASKTYPE");
