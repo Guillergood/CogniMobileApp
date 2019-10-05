@@ -2,10 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
+    android:id="@+id/textTaskLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/textTaskLayout">
+    android:orientation="vertical">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/helpButton"
@@ -23,9 +23,9 @@
         android:id="@+id/nextTaskButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/next_button"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:text="@string/next_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -49,8 +49,8 @@
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="0dp"
-            android:visibility="gone"
-            android:src="@drawable/cube" />
+            android:src="@drawable/cube"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/banner_text"
@@ -59,8 +59,8 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:textSize="@dimen/banner_text"
-            android:layout_toStartOf="@+id/banner_image" />
+            android:layout_toStartOf="@+id/banner_image"
+            android:textSize="@dimen/banner_text" />
     </RelativeLayout>
 
 
@@ -73,7 +73,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/banner" />
+        app:layout_constraintTop_toBottomOf="@+id/banner" >
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/countDownText"
@@ -105,27 +107,54 @@
         android:id="@+id/additional_task_input"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:inputType="textAutoComplete"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp"
+        android:gravity="center"
+        android:inputType="textAutoComplete"
         android:minWidth="150dp"
         android:visibility="gone"
-        android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/additional_task_text" />
+
+    <Button
+        android:id="@+id/stt_button"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:drawableStart="@drawable/ic_mic_grey_24dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/additional_task_input" />
 
     <Button
         android:id="@+id/submit_button"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="Submit answer"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/additional_task_input" />
+        app:layout_constraintTop_toBottomOf="@+id/stt_button" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/words_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:scrollbars="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/textSpace"
+        app:layout_constraintEnd_toEndOf="@+id/textSpace"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/submit_button" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

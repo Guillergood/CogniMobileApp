@@ -1,12 +1,10 @@
 package ugr.gbv.myapplication.activities;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -15,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.core.view.GravityCompat;
@@ -27,7 +26,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import ugr.gbv.myapplication.R;
 import ugr.gbv.myapplication.qr_reader.ReadQR;
@@ -38,7 +36,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener{
 
     private final int QR_CODE = 1;
-    private final int STT_CODE = 2;
+    private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
+    private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
     private Fragment fragment;
 
     @Override
@@ -63,6 +62,18 @@ public class MainActivity extends AppCompatActivity
         //startService();
         Context context = getApplicationContext();
         Aware.startAWARE(context); //initialise core AWARE service
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
 
         /*Aware.setSetting(context, Aware_Preferences.FREQUENCY_ACCELEROMETER, 200000); //20Hz
         Aware.setSetting(context, Aware_Preferences.THRESHOLD_ACCELEROMETER, 0.02f); // [x,y,z] > 0.02 to log
@@ -198,9 +209,11 @@ public class MainActivity extends AppCompatActivity
                 irATest();
                 break;
             case R.id.nav_slideshow:
-                Aware.debug(getApplicationContext(), "Conectando");
+                //speechToText();
+                /*Aware.debug(getApplicationContext(), "Conectando");
                 Aware.joinStudy(getApplicationContext(),
-                        "https://api.awareframework.com/index.php/webservice/index/2501/ZbTIjeyGPlxc");
+                        "https://api.awareframework.com/index.php/webservice/index/2501/ZbTIjeyGPlxc");*/
+
                 break;
 
         }
@@ -260,16 +273,7 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this,"Could not get the study link", Toast.LENGTH_LONG).show();
             }
         }
-        else if (requestCode == STT_CODE){
-            if (resultCode == RESULT_OK && null != data) {
-                ArrayList result = data
-                        .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                for(int i = 0; i < result.size(); ++i){
-                    Log.d("STT", result.get(i).toString());
-                }
-            }
 
-        }
         super.onActivityResult(requestCode,resultCode,data);
     }
 
@@ -293,20 +297,6 @@ public class MainActivity extends AppCompatActivity
         TextView descripcion = headerView.findViewById(R.id.descripcion_hamburgesa);*/
     }
 
-    public void speechToText(){
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Need to speak");
-        try {
-            startActivityForResult(intent, STT_CODE);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(getBaseContext(),
-                    "Sorry your device not supported",
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
 
 
 

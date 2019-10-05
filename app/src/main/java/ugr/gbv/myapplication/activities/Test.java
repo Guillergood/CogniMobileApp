@@ -14,10 +14,9 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 
 import ugr.gbv.myapplication.R;
-import ugr.gbv.myapplication.fragments.DrawTask;
-import ugr.gbv.myapplication.fragments.ImageTask;
 import ugr.gbv.myapplication.fragments.TextTask;
 import ugr.gbv.myapplication.interfaces.LoadContent;
+import ugr.gbv.myapplication.utilities.TextToSpeechLocal;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -46,14 +45,14 @@ public class Test extends AppCompatActivity implements LoadContent {
         hideNavBar();
 
         fragments = new ArrayList<>();
-        fragments.add(new DrawTask(DrawTask.GRAPH,this));
+        /*fragments.add(new DrawTask(DrawTask.GRAPH,this));
         fragments.add(new DrawTask(DrawTask.CUBE,this));
         fragments.add(new DrawTask(DrawTask.WATCH,this));
         fragments.add(new ImageTask(this));
         fragments.add(new TextTask(TextTask.MEMORY,this));
         fragments.add(new TextTask(TextTask.ATENTION_NUMBERS,this));
         fragments.add(new TextTask(TextTask.ATENTION_LETTERS,this));
-        fragments.add(new TextTask(TextTask.ATENTION_SUBSTRACTION,this));
+        fragments.add(new TextTask(TextTask.ATENTION_SUBSTRACTION,this));*/
         fragments.add(new TextTask(TextTask.LANGUAGE,this));
         fragments.add(new TextTask(TextTask.FLUENCY,this));
         fragments.add(new TextTask(TextTask.ABSTRACTION,this));
@@ -70,6 +69,8 @@ public class Test extends AppCompatActivity implements LoadContent {
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
         loadFragment(fragments.get(index));
+
+
 
     }
 
@@ -112,8 +113,12 @@ public class Test extends AppCompatActivity implements LoadContent {
         if(fragments.size() > index){
             loadFragment(fragments.get(index));
         }
+        else{
+            TextToSpeechLocal.getInstance(getApplicationContext()).clear();
+        }
 //        else{
 //            sendData();
 //        }
     }
+
 }

@@ -13,6 +13,7 @@
         <activity
             android:name=".activities.Test"
             android:configChanges="orientation|keyboardHidden|screenSize"
+            android:windowSoftInputMode="adjustPan"
             android:label="@string/title_activity_test"
             android:parentActivityName=".activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -32,6 +33,9 @@
         <activity android:name=".qr_reader.ReadQR" />
 
         <service android:name=".utilities.ExampleService" />
+        <provider
+            android:authorities="ugr.gbv.myapplication.provider.aware"
+            android:name="com.aware.providers.Aware_Provider"/>
     </application>
     <uses-permission android:name="com.aware.READ_CONTEXT_DATA" />
     <uses-permission android:name="com.aware.WRITE_CONTEXT_DATA" />

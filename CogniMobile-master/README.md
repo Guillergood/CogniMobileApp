@@ -1,2 +1,0 @@
-# CogniMobile
-Proyecto de TFG
