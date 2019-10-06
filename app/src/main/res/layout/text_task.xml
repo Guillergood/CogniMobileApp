@@ -96,6 +96,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:visibility="gone"
+        android:textSize="@dimen/banner_text"
         app:layout_constraintBottom_toBottomOf="@+id/textSpace"
         app:layout_constraintEnd_toEndOf="@+id/textSpace"
         app:layout_constraintHorizontal_bias="0.51"

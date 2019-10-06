@@ -20,4 +20,8 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="undo_button">UNDO</string>
     <string name="next_button">NEXT</string>
+    <string name="leave_task">Are you sure you want to leave the task?</string>
+    <string name="leave">Leave</string>
+    <string name="cancel">Cancel</string>
+    <string name="alert">Alert</string>
 </resources>

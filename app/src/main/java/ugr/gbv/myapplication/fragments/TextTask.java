@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
@@ -171,11 +172,19 @@ public class TextTask extends Fragment implements TTSHandler {
         nextButton.setOnClickListener(view -> {
 
             if (providedTask) {
-                TextToSpeechLocal.getInstance(context).stop();
-                callBack.loadContent();
+                loadNextTask();
             }
             else{
-                //TODO DIALOG
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+                builder.setTitle(getString(R.string.alert));
+                builder.setMessage(getText(R.string.leave_task));
+                builder.setCancelable(false);
+                builder.setPositiveButton(getString(R.string.leave), (dialog, which) -> {
+                    loadNextTask();
+                });
+                builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
+                builder.show();
 
             }
         });
@@ -191,9 +200,32 @@ public class TextTask extends Fragment implements TTSHandler {
         });
     }
 
+    private void loadNextTask(){
+        callBack.loadContent();
+        TextToSpeechLocal.getInstance(context).stop();
+    }
+
     private void orientation() {
+        String[] questions = {"Tell me the year we are now.",
+                "Tell me the exact date we are now.",
+                "Tell which city you are now."};
 
+        showUserInput();
 
+        submitAnswerButton.setOnClickListener(v -> {
+            clearInputs();
+            ++index;
+            if(index >= questions.length){
+                setNextButtonStandardBehaviour();
+                hideInputs();
+            }
+            else{
+                setNextButtonLoopTask();
+                addicionalTaskText.setText(questions[index]);
+            }
+        });
+
+        addicionalTaskText.setText(questions[index]);
     }
 
     private void recall(String words) {
@@ -532,7 +564,7 @@ public class TextTask extends Fragment implements TTSHandler {
     private void showUserAdditionalTask() {
         switch (taskType){
             case MEMORY:
-                bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
+                bannerText.setText("I am going to read a list of words that you will have to remember now and later on. Tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
                 break;
             case ATENTION_NUMBERS:
                 bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
@@ -544,22 +576,19 @@ public class TextTask extends Fragment implements TTSHandler {
                 bannerText.setText("Now, I will ask you to count by subtracting seven from 100, and then, keep subtracting seven from your answer until I tell you to stop ");
                 break;
             case LANGUAGE:
-                //I only know that John is the one to help today.
                 bannerText.setText("I am going to read you a sentence. Repeat it after me, exactly as I say it. ");
                 break;
             case FLUENCY:
                 bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
-                delayTask = 0;
                 break;
             case ABSTRACTION:
                 bannerText.setText("I am going to give you two words and I want you to introduce the similarity of them. ");
                 break;
             case RECALL:
                 bannerText.setText("I read some words to you earlier, which I asked you to remember. Tell me as many of those words as you can remember");
-                delayTask = 0;
                 break;
             case ORIENTATION:
-
+                bannerText.setText("I am going to ask you some question about the date and place you are now.");
                 break;
             default:
                 throw new RuntimeException("INVALID TASKTYPE");
@@ -711,12 +740,13 @@ public class TextTask extends Fragment implements TTSHandler {
 
                     if(answer !=null) {
                         if (variousInputs != null && variousInputs.size() > 0) {
+                            if(index > variousInputs.size() ) index = 0;
                             String[] tokens = answer.split("(?!^)");
-                            for (int i = 0, k = 0; k < tokens.length && i < variousInputs.size(); ++i, ++k) {
+                            for (int k = 0; k < tokens.length && index < variousInputs.size(); ++index, ++k) {
                                 if (tokens[k].isEmpty() || tokens[k].equals("")) {
                                     ++k;
                                 } else {
-                                    variousInputs.get(i).setText(tokens[k]);
+                                    variousInputs.get(index).setText(tokens[k]);
                                 }
                             }
                         } else {

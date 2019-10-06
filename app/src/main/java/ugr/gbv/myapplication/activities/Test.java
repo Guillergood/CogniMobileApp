@@ -49,11 +49,11 @@ public class Test extends AppCompatActivity implements LoadContent {
         fragments.add(new TextTask(TextTask.MEMORY,this));
         fragments.add(new TextTask(TextTask.ATENTION_NUMBERS,this));
         fragments.add(new TextTask(TextTask.ATENTION_LETTERS,this));
-        fragments.add(new TextTask(TextTask.ATENTION_SUBSTRACTION,this));*/
+        fragments.add(new TextTask(TextTask.ATENTION_SUBSTRACTION,this));
         fragments.add(new TextTask(TextTask.LANGUAGE,this));
         fragments.add(new TextTask(TextTask.FLUENCY,this));
         fragments.add(new TextTask(TextTask.ABSTRACTION,this));
-        fragments.add(new TextTask(TextTask.RECALL,this));
+        fragments.add(new TextTask(TextTask.RECALL,this));*/
         fragments.add(new TextTask(TextTask.ORIENTATION,this));
         index = 0;
 
