@@ -87,6 +87,9 @@ public class TextTask extends Fragment implements TTSHandler {
     private WordListAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     private Button nextButton;
+    private Button startButton;
+    private int timesCompleted;
+    private boolean onlyNumbersInputAccepted;
 
     private ArrayList<EditText> variousInputs;
     private final int STT_CODE = 2;
@@ -98,6 +101,7 @@ public class TextTask extends Fragment implements TTSHandler {
         this.callBack = callBack;
         this.taskType = taskType;
         answer = new ArrayList<>();
+        timesCompleted = 0;
     }
 
 
@@ -109,6 +113,8 @@ public class TextTask extends Fragment implements TTSHandler {
 
         context = getContext();
 
+        onlyNumbersInputAccepted = false;
+
 
         layout = mainView.findViewById(R.id.textSpace);
         mainLayout = mainView.findViewById(R.id.textTaskLayout);
@@ -117,6 +123,8 @@ public class TextTask extends Fragment implements TTSHandler {
         submitAnswerButton = mainView.findViewById(R.id.submit_button);
         bannerText = mainView.findViewById(R.id.banner_text);
         sttButton = mainView.findViewById(R.id.stt_button);
+        startButton = mainLayout.findViewById(R.id.startButton);
+        nextButton = mainView.findViewById(R.id.nextTaskButton);
         recyclerView = mainView.findViewById(R.id.words_list);
         recyclerView.setNestedScrollingEnabled(false);
 
@@ -140,69 +148,10 @@ public class TextTask extends Fragment implements TTSHandler {
 
         buildDialog();
 
+        startButton.setOnClickListener(v -> startTask());
 
-        nextButton = mainView.findViewById(R.id.nextTaskButton);
-        nextButton.setOnClickListener(view -> {
 
-            if (providedTask) {
-                TextToSpeechLocal.getInstance(context).stop();
-                callBack.loadContent();
-            }
-            else{
-
-                new CountDownTimer(delayTask, 1000) {
-
-                    public void onTick(long millisUntilFinished) {
-
-                        String display = Long.toString(millisUntilFinished / 1000, 10);
-                        countdownText.setText(display);
-                        nextButton.setClickable(false);
-                    }
-
-                    public void onFinish() {
-                        countdownText.setVisibility(View.GONE);
-                        nextButton.setClickable(true);
-                        switch (taskType) {
-                            case MEMORY:
-                                //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
-                                memorization("FACE,VELVET,CHURCH,DAISY,RED", 1);
-                                break;
-                            case ATENTION_NUMBERS:
-                                //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
-                                repeat("2,1,8,5,4");
-                                break;
-                            case ATENTION_LETTERS:
-                                tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
-                                break;
-                            case ATENTION_SUBSTRACTION:
-                                serialSubstraction(100, 7, 5);
-                                break;
-                            case LANGUAGE:
-                                //I only know that John is the one to help today.
-                                repeatPhrase("The cat always hid under the couch when dogs were in the room.");
-                                break;
-                            case FLUENCY:
-                                bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
-                                fluencyWithWords("F", 11);
-                                break;
-                            case ABSTRACTION:
-                                similarity();
-                                break;
-                            case RECALL:
-                                recall("FACE,VELVET,CHURCH,DAISY,RED");
-                                break;
-                            case ORIENTATION:
-                                orientation();
-                                break;
-                            default:
-                                throw new RuntimeException("INVALID TASKTYPE");
-                        }
-
-                    }
-                }.start();
-                providedTask = true;
-            }
-        });
+        setNextButtonStandardBehaviour();
 
         FloatingActionButton helpButton = mainView.findViewById(R.id.helpButton);
         helpButton.setOnClickListener(view -> {
@@ -217,14 +166,106 @@ public class TextTask extends Fragment implements TTSHandler {
         return mainView;
     }
 
+    private void setNextButtonStandardBehaviour() {
+
+        nextButton.setOnClickListener(view -> {
+
+            if (providedTask) {
+                TextToSpeechLocal.getInstance(context).stop();
+                callBack.loadContent();
+            }
+            else{
+                //TODO DIALOG
+
+            }
+        });
+    }
+
+    private void setNextButtonLoopTask(){
+        nextButton.setOnClickListener(v -> {
+            hideInputs();
+            clearInputs();
+            showCountdownAgain();
+            clearRecyclerView();
+            startTask();
+        });
+    }
+
     private void orientation() {
 
 
     }
 
     private void recall(String words) {
+        showUserInput();
+        enableWordList();
+    }
 
+    private void startTask(){
+        if(taskType != RECALL && taskType != ATENTION_SUBSTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
+            new CountDownTimer(delayTask, 1000) {
 
+                public void onTick(long millisUntilFinished) {
+                    String display = Long.toString(millisUntilFinished / 1000, 10);
+                    countdownText.setText(display);
+                    nextButton.setClickable(false);
+                }
+
+                public void onFinish() {
+                    countdownText.setVisibility(View.GONE);
+                    nextButton.setClickable(true);
+                    switch (taskType) {
+                        case MEMORY:
+                            //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
+                            memorization("FACE,VELVET,CHURCH,DAISY,RED", 2);
+                            break;
+                        case ATENTION_NUMBERS:
+                            //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
+                            repeat("2,1,8,5,4");
+                            onlyNumbersInputAccepted = true;
+                            break;
+                        case ATENTION_LETTERS:
+                            tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
+                            break;
+                        case LANGUAGE:
+                            String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
+                            repeatPhrase(phrases);
+                            break;
+                        case FLUENCY:
+                            bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
+                            fluencyWithWords("F", 11);
+                            break;
+
+                        default:
+                            throw new RuntimeException("INVALID TASKTYPE");
+                    }
+
+                }
+            }.start();
+        }
+        else{
+            switch (taskType){
+                case RECALL:
+                    recall("FACE,VELVET,CHURCH,DAISY,RED");
+                    break;
+                case ORIENTATION:
+                    orientation();
+                    break;
+                case ATENTION_SUBSTRACTION:
+                    serialSubstraction(100, 7, 5);
+                    onlyNumbersInputAccepted = true;
+                    break;
+                case ABSTRACTION:
+                    similarity();
+                    break;
+                default:
+                    throw new RuntimeException("INVALID TASKTYPE");
+            }
+        }
+
+        startButton.setVisibility(View.GONE);
+        providedTask = true;
+        timesCompleted++;
     }
 
     private void similarity() {
@@ -235,13 +276,14 @@ public class TextTask extends Fragment implements TTSHandler {
         array[3] = "measurement,numbers";
         addicionalTaskText.setText(array[index]);
         index+=2;
+        showUserInput();
         submitAnswerButton.setOnClickListener(v -> {
-            if(index == 5){
-                submitAnswerButton.setVisibility(View.GONE);
-                addicionalTaskText.setText("You have finalizaed the task");
+            if(index >= array.length){
+                hideInputs();
             }
             else{
                 answer.add(addicionalTaskInput.getText().toString());
+                clearInputs();
                 addicionalTaskText.setText(array[index]);
                 index+=2;
             }
@@ -253,14 +295,32 @@ public class TextTask extends Fragment implements TTSHandler {
         addicionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
         addicionalTaskInput.requestFocus();
-        if(!addicionalTaskInput.getText().toString().isEmpty())
-            adapter.addWord(addicionalTaskInput.getText().toString());
-        else
-            Toast.makeText(context,"PROVIDE DATA",Toast.LENGTH_LONG).show();
+        enableWordList();
+        countDownTask(60000);
     }
 
-    private void repeatPhrase(String statement) {
-        speakPhrase(statement);
+    private void countDownTask(int millis) {
+        Handler handler = new Handler();
+        handler.postDelayed(this::hideInputs,millis);
+    }
+
+    private void repeatPhrase(String[] phrases) {
+        submitAnswerButton.setOnClickListener(v -> {
+            clearInputs();
+            ++index;
+            if(index >= phrases.length){
+                setNextButtonStandardBehaviour();
+                hideInputs();
+            }
+            else{
+                setNextButtonLoopTask();
+                speakPhrase(phrases[index]);
+            }
+        });
+
+        speakPhrase(phrases[index]);
+
+
     }
 
     private void serialSubstraction(int startingNumber, final int substration, final int times) {
@@ -277,6 +337,7 @@ public class TextTask extends Fragment implements TTSHandler {
                 addicionalTaskText.setText(addicionalTaskInput.getText().toString() + " - " + substration);
                 index++;
             }
+            clearInputs();
         });
 
         showUserInput();
@@ -301,28 +362,28 @@ public class TextTask extends Fragment implements TTSHandler {
     private void repeatBackwards(String numbers) {
         array = numbers.split(",");
         index = 0;
-        clearLastEnumeration();
+        clearInputs();
         hideInputs();
         placeFirstInput();
         setVariousInputs();
         enumeration();
-
-
-        addicionalTaskText.setText("Introduce the secuence backwards");
         submitAnswerButton.setOnClickListener(v -> {
-            for (EditText editText:variousInputs)
-                answer.add(editText.getText().toString());
-            Toast.makeText(context, "DONE", Toast.LENGTH_LONG).show();
-            submitAnswerButton.setVisibility(View.GONE);
+            /*for (EditText editText:variousInputs)
+                answer.add(editText.getText().toString());*/
+            hideInputs();
+            clearInputs();
         });
     }
 
-    private void clearLastEnumeration() {
+
+    private void clearInputs() {
         addicionalTaskInput.getText().clear();
-        for(int i = 1; i < variousInputs.size(); ++i){
-            mainLayout.removeView(variousInputs.get(i));
+        if(variousInputs != null) {
+            for (int i = 1; i < variousInputs.size(); ++i) {
+                mainLayout.removeView(variousInputs.get(i));
+            }
+            variousInputs.clear();
         }
-        variousInputs.clear();
     }
 
     private void repeat(String numbers) {
@@ -332,15 +393,14 @@ public class TextTask extends Fragment implements TTSHandler {
         changeInputFilterAndType();
         setVariousInputs();
         enumeration();
-        //showUserInput();
-
 
         addicionalTaskInput.requestFocus();
         submitAnswerButton.setOnClickListener(v -> {
-            for (EditText editText:variousInputs) {
+            /*for (EditText editText:variousInputs) {
                 answer.add(editText.getText().toString());
                 editText.getText().clear();
-            }
+            }*/
+            clearInputs();
             addicionalTaskInput.requestFocus();
             bannerText.setText("Now I am going to say some more numbers, but when I am through you must repeat them to me in the backwards order.");
             repeatBackwards("7,4,2");
@@ -489,12 +549,14 @@ public class TextTask extends Fragment implements TTSHandler {
                 break;
             case FLUENCY:
                 bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
+                delayTask = 0;
                 break;
             case ABSTRACTION:
                 bannerText.setText("I am going to give you two words and I want you to introduce the similarity of them. ");
                 break;
             case RECALL:
                 bannerText.setText("I read some words to you earlier, which I asked you to remember. Tell me as many of those words as you can remember");
+                delayTask = 0;
                 break;
             case ORIENTATION:
 
@@ -531,15 +593,26 @@ public class TextTask extends Fragment implements TTSHandler {
         }
     }
 
+    private void showCountdownAgain(){
+        countdownText.setVisibility(View.VISIBLE);
+    }
+    private void clearRecyclerView() {
+        adapter.removeAllWords();
+    }
+
     private void memorization(String words, int times) {
         array = words.split(",");
         index = 0;
         enumeration();
+        setNextButtonLoopTask();
         addicionalTaskInput.requestFocus();
-        if(times > 0) {
-
+        enableWordList();
+        if(timesCompleted == times){
+            setNextButtonStandardBehaviour();
         }
+
     }
+
 
 
     private void enumeration() {
@@ -579,19 +652,26 @@ public class TextTask extends Fragment implements TTSHandler {
 
     @Override
     public void startTTS() {
-        Toast.makeText(context,"AHORA",Toast.LENGTH_LONG).show();
+        startButton.setClickable(true);
     }
 
     @Override
     public void TTSEnded() {
         Handler handler = new Handler(Looper.getMainLooper());
-        handler.post(() -> showUserInput());
+        handler.post(this::showUserInput);
 
     }
 
     @Override
     public void setIndex(int index) {
         this.index = index;
+    }
+
+
+    @Override
+    public void onPause() {
+        TextToSpeechLocal.getInstance(context,this).stop();
+        super.onPause();
     }
 
     @Override
@@ -601,9 +681,10 @@ public class TextTask extends Fragment implements TTSHandler {
     }
 
     @Override
-    public void onPause() {
-        TextToSpeechLocal.getInstance(context,this).stop();
-        super.onPause();
+    public void onStop() {
+        TextToSpeechLocal.getInstance(context).stop();
+        TextToSpeechLocal.getInstance(context).clear();
+        super.onStop();
     }
 
 
@@ -613,24 +694,37 @@ public class TextTask extends Fragment implements TTSHandler {
             if (resultCode == RESULT_OK && null != data) {
                 ArrayList results = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                Object result = results.get(0);
-                    if(variousInputs != null && variousInputs.size() > 0){
-                        String[] tokens = result.toString().split("");
-                        for(int i = 0, k = 0; k < tokens.length && i < variousInputs.size(); ++i, ++k){
-                            if(tokens[k].isEmpty() || tokens[k].equals("")){
-                                ++k;
-                                if(k < tokens.length)
-                                    variousInputs.get(i).setText(tokens[k]);
-                            }
-                            else{
-                                variousInputs.get(i).setText(tokens[k]);
-                            }
+                if (results != null) {
+                    String answer = null;
+                    for (Object result : results) {
+                        String option = result.toString();
+                        if(onlyNumbersInputAccepted){
+                            if(answer == null || answer.isEmpty())
+                                answer = option.replaceAll("\\D","");
                         }
-                    }
-                    else {
-                        addicionalTaskInput.setText(result.toString());
+                        else{
+                            if(answer == null || answer.isEmpty())
+                                answer = option.replaceAll("\\d","");
+                        }
+
                     }
 
+                    if(answer !=null) {
+                        if (variousInputs != null && variousInputs.size() > 0) {
+                            String[] tokens = answer.split("(?!^)");
+                            for (int i = 0, k = 0; k < tokens.length && i < variousInputs.size(); ++i, ++k) {
+                                if (tokens[k].isEmpty() || tokens[k].equals("")) {
+                                    ++k;
+                                } else {
+                                    variousInputs.get(i).setText(tokens[k]);
+                                }
+                            }
+                        } else {
+                            addicionalTaskInput.setText(answer);
+                        }
+                    }
+
+                }
             }
 
         }
@@ -654,4 +748,17 @@ public class TextTask extends Fragment implements TTSHandler {
                     Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void enableWordList(){
+        submitAnswerButton.setOnClickListener(v -> {
+            if(!addicionalTaskInput.getText().toString().isEmpty())
+                adapter.addWord(addicionalTaskInput.getText().toString());
+            else
+                Toast.makeText(context,"PROVIDE DATA",Toast.LENGTH_LONG).show();
+
+            clearInputs();
+        });
+    }
+
+
 }

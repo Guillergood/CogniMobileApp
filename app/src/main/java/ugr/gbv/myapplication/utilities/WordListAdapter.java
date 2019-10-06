@@ -20,6 +20,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
 
 
 
+
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
@@ -137,5 +138,9 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
         removeWord(position);
         addWordInIndex(replace,position);
         notifyItemChanged(position);
+    }
+
+    public void removeAllWords() {
+        mDataset = new ArrayList<>();
     }
 }

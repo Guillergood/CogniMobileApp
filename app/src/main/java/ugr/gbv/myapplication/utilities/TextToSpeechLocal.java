@@ -14,6 +14,7 @@ public class TextToSpeechLocal implements Serializable {
     private static volatile TextToSpeechLocal instanced;
     private static volatile TextToSpeech textToSpeech;
     private static volatile TTSHandler callback;
+    private static volatile boolean shuttedDown;
     private int delayTts = 1000;
     private static int index;
 
@@ -34,24 +35,34 @@ public class TextToSpeechLocal implements Serializable {
                 if (instanced == null) {
                     instanced = new TextToSpeechLocal();
                     index = 0;
-                    textToSpeech=new TextToSpeech(context, status -> {
-                        if(status == TextToSpeech.SUCCESS){
-
-                            int result=textToSpeech.setLanguage(Locale.getDefault());
-
-                            if(result == TextToSpeech.LANG_MISSING_DATA ||
-                                    result== TextToSpeech.LANG_NOT_SUPPORTED){
-                                throw new RuntimeException("Wrong TextToSpeech initialization, result = " + result);
-
-                            }
-                            callback.startTTS();
-                        }
-                    });
+                    shuttedDown = false;
+                    initializeTts(context);
                 }
+
             }
+        }
+        else if(shuttedDown){
+            initializeTts(context);
         }
 
         return instanced;
+    }
+
+    private static synchronized void initializeTts(Context context){
+        textToSpeech=new TextToSpeech(context, status -> {
+            if(status == TextToSpeech.SUCCESS){
+
+                int result=textToSpeech.setLanguage(Locale.getDefault());
+
+                if(result == TextToSpeech.LANG_MISSING_DATA ||
+                        result== TextToSpeech.LANG_NOT_SUPPORTED){
+                    throw new RuntimeException("Wrong TextToSpeech initialization, result = " + result);
+
+                }
+                shuttedDown = false;
+                callback.startTTS();
+            }
+        });
     }
 
     public void readOutLoud(String phrase){
@@ -65,8 +76,7 @@ public class TextToSpeechLocal implements Serializable {
             @Override
             // this method will always called from a background thread.
             public void onDone(String utteranceId) {
-                if(utteranceId.equals("unique"))
-                    callback.TTSEnded();
+                callback.TTSEnded();
             }
 
 
@@ -75,8 +85,8 @@ public class TextToSpeechLocal implements Serializable {
 
             }
         });
-
-        textToSpeech.speak(phrase,TextToSpeech.QUEUE_ADD,null, "unique");
+        // utteranceId MUST NOT BE null, otherwise callback is not called.(line 79)
+        textToSpeech.speak(phrase,TextToSpeech.QUEUE_ADD,null, "onePhrase");
     }
 
     public void enumerate(final String[] array){
@@ -118,6 +128,8 @@ public class TextToSpeechLocal implements Serializable {
         }
     }
     public void clear(){
+        clearBuffer();
+        shuttedDown = true;
         textToSpeech.shutdown();
     }
     private void clearBuffer(){

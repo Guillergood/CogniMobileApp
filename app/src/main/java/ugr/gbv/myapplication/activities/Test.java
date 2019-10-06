@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import ugr.gbv.myapplication.R;
 import ugr.gbv.myapplication.fragments.TextTask;
 import ugr.gbv.myapplication.interfaces.LoadContent;
-import ugr.gbv.myapplication.utilities.TextToSpeechLocal;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -28,8 +27,6 @@ public class Test extends AppCompatActivity implements LoadContent {
     private int index;
 
     private View mContentView;
-
-
 
 
     @Override
@@ -114,7 +111,7 @@ public class Test extends AppCompatActivity implements LoadContent {
             loadFragment(fragments.get(index));
         }
         else{
-            TextToSpeechLocal.getInstance(getApplicationContext()).clear();
+            onBackPressed();
         }
 //        else{
 //            sendData();
