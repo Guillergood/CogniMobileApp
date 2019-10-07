@@ -24,7 +24,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
     // you provide access to all the views for a data item in a view holder
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
         // each data item is just a string in this case
         TextView word;
         EditText editableWord;
@@ -66,6 +66,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
 
     // Create new views (invoked by the layout manager)
     @Override
+    @NonNull
     public WordListAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent,
                                                            int viewType) {
 
@@ -94,9 +95,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
             }
         };
 
-        View.OnClickListener deleteBehaviour = v -> {
-            removeWord(position);
-        };
+        View.OnClickListener deleteBehaviour = v -> removeWord(position);
 
         if(mDataset.get(position) != null && !mDataset.get(position).isEmpty()){
             holder.word.setText(mDataset.get(position));
@@ -119,12 +118,12 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
         }
     }
 
-    public void addWordInIndex(String word, int index){
+    private void addWordInIndex(String word, int index){
         mDataset.add(index, word);
         notifyItemInserted(index);
     }
 
-    public void removeWord(int position){
+    private void removeWord(int position){
         if(mDataset.size() > position) {
             mDataset.remove(position);
             notifyItemRemoved(position);
@@ -133,7 +132,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
             notifyDataSetChanged();
         }
     }
-    public void editWord(String original, String replace){
+    private void editWord(String original, String replace){
         int position = mDataset.indexOf(original);
         removeWord(position);
         addWordInIndex(replace,position);

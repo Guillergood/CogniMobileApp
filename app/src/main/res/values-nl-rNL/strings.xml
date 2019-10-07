@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cognimobile App</string>
+    <string name="graph_instructions">Teken een lijn, van een cijfer naar een letter en in oplopende volgorde. Begin hier [wijs naar (1)] en teken een lijn van 1 naar A, dan naar 2 en zo verder. Stop hier [wijs naar (E)].</string>
+    <string name="cube_instructions">Teken dit figuur zo nauwkeurig mogelijk na, in de ruimte hieronder</string>
+    <string name="clock_instructions">Teken een klok. Plaats er alle cijfers in en zet de wijzers op 10 over 11</string>
+    <string name="animal_instructions">Hoe heet dit dier?</string>
+    <string name="memory_instructions">Ik ga een rij woorden voorlezen die u moet onthouden, nu maar ook straks. Luister goed. Als ik klaar ben, vertelt u me alle woorden die u hebt onthouden. Het maakt niet uit in welke volgorde u ze opnoemt</string>
+    <string name="numbers_instructions">Ik ga een aantal cijfers opnoemen en als ik klaar ben, moet u ze in dezelfde volgorde nazeggen als ik ze heb gezegd</string>
+    <string name="backwards_instructions">Nu ga ik weer cijfers opnoemen, maar zodra ik klaar ben, moet u ze in omgekeerde volgorde nazeggen</string>
+    <string name="letters_instructions">Ik ga u een reeks letters voorlezen. Iedere keer dat ik de letter A noem, tikt u eenmaal met uw hand op tafel. Wanneer ik een andere letter noem, tikt u niet met uw hand op tafel</string>
+    <string name="substraction_instructions">Wilt u van 100 zeven aftrekken en van wat overblijft weer zeven aftrekken en zo doorgaan tot ik stop zeg?</string>
+    <string name="language_instructions">"Ik ga u een zin voorlezen. Zeg deze na zodra ik klaar ben, precies zoals ik hem heb gezegd "</string>
+    <string name="fluency_instructions">Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met een bepaalde letter van het alfabet. Ik zal u de letters straks vertellen. U mag ieder woord noemen dat u wilt, behalve namen, cijfers, of woorden die met hetzelfde voorstukje (voorvoegsel) beginnen, zoals bijvoorbeeld lief, liefde, liefdevol. Na één minuut vraag ik u te stoppen. Bent u er klaar voor? [pauze] Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met de letter D</string>
+    <string name="abstraction_instruction">Vertel me nu in welk opzicht een en een aan elkaar gelijk zijn</string>
+    <string name="recall_instructions">Ik heb u eerder een rij met woorden voorgelezen, en ik vroeg u ze te onthouden. Vertel me zo veel mogelijk woorden die u zich kunt herinneren</string>
+</resources>

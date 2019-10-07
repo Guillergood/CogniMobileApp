@@ -2,7 +2,6 @@ package ugr.gbv.myapplication.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -82,33 +81,22 @@ public class DrawTask extends Fragment implements LoadContent {
 
 
         Button nextButton = view.findViewById(R.id.nextTaskButton);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callBack.loadContent();
-            }
-        });
+        nextButton.setOnClickListener(view -> callBack.loadContent());
 
         FloatingActionButton helpButton = view.findViewById(R.id.helpButton);
-        helpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(builder != null){
-                    builder.show();
-                }
+        helpButton.setOnClickListener(view -> {
+            if(builder != null){
+                builder.show();
             }
         });
 
 
 
         Button undoButton = view.findViewById(R.id.undoButton);
-        undoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                drawingView.undoLastOperation();
-                if(taskType == GRAPH) {
-                    undoLastButton();
-                }
+        undoButton.setOnClickListener(view -> {
+            drawingView.undoLastOperation();
+            if(taskType == GRAPH) {
+                undoLastButton();
             }
         });
 
@@ -141,25 +129,22 @@ public class DrawTask extends Fragment implements LoadContent {
             button.setBackground(getResources().getDrawable(R.drawable.circle_no_fill,context.getTheme()));
             button.setText(tags[i]);
             button.setTag(points.get(i).getLabel());
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Button button = (Button) v;
-                    boolean continua = true;
-                    for(int i = 0; i < secuence.size() && continua; ++i){
-                        if(button.getTag().equals(secuence.get(i).getLabel())){
-                            if(!answer.contains(button.getTag().toString())){
-                                button.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
-                                button.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
-                                answer.add(button.getTag().toString());
-                                drawingView.drawToPoint(secuence.get(i));
-                                continua = false;
-                                pressedButtons.add(button);
-                            }
+            button.setOnClickListener(v -> {
+                Button button1 = (Button) v;
+                boolean continua = true;
+                for(int i1 = 0; i1 < secuence.size() && continua; ++i1){
+                    if(button1.getTag().equals(secuence.get(i1).getLabel())){
+                        if(!answer.contains(button1.getTag().toString())){
+                            button1.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
+                            button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
+                            answer.add(button1.getTag().toString());
+                            drawingView.drawToPoint(secuence.get(i1));
+                            continua = false;
+                            pressedButtons.add(button1);
                         }
                     }
-
                 }
+
             });
             layout.addView(button);
             int dimens = getResources().getDimensionPixelSize(R.dimen.circle);
@@ -190,16 +175,16 @@ public class DrawTask extends Fragment implements LoadContent {
                     PathGenerator pathGenerator = new PathGenerator();
                     secuence = pathGenerator.makePath(height, width);
                     drawButtons(secuence);
-                    textView.setText("Please draw a line, going from a number to a letter in ascending order. Begin from (1) and  then to A then to 2 and so on. The last one is E");
+                    textView.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
-                    button.setText("CLEAR");
-                    textView.setText("Copy this drawing as accurately as you can, in the space below");
+                    button.setText(R.string.clear_title_button);
+                    textView.setText(R.string.cube_instructions);
                     imageView.setVisibility(View.VISIBLE);
                     break;
                 case WATCH:
-                    button.setText("CLEAR");
-                    textView.setText("Draw a clock. Put in all the numbers and set the time to 10 past 11");
+                    button.setText(R.string.clear_title_button);
+                    textView.setText(R.string.clock_instructions);
                     break;
                 default:
                     throw new RuntimeException("Task type not supported");
@@ -217,11 +202,8 @@ public class DrawTask extends Fragment implements LoadContent {
                     new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
 
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                //nothing;
-            }
+        builder.setOnDismissListener(dialogInterface -> {
+            //nothing;
         });
 
 
@@ -245,13 +227,13 @@ public class DrawTask extends Fragment implements LoadContent {
                 );
                 break;
             case WATCH:
-                TextView message = new TextView(context);
+                /*TextView message = new TextView(context);
                 message.setText(getResources().getText(R.string.app_name));
                 message.setBackgroundColor(getResources().getColor(R.color.white,context.getTheme()));
                 builder.addContentView(message, new RelativeLayout.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT)
-                );
+                );*/
                 break;
             default:
                 throw new RuntimeException("Unsupported Task Type");

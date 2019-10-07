@@ -203,10 +203,10 @@ public class MainActivity extends AppCompatActivity
 
         switch (menuItem.getItemId()){
             case R.id.nav_gallery:
-                readQR();
+                //readQR();
                 break;
             case R.id.nav_home:
-                irATest();
+                //irATest();
                 break;
             case R.id.nav_slideshow:
                 //speechToText();

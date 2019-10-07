@@ -2,7 +2,6 @@ package ugr.gbv.myapplication.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
@@ -76,23 +75,6 @@ public class ImageTask extends Fragment {
                 imageView.setVisibility(View.INVISIBLE);
             }
 
-            /*imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    ImageView imageView = (ImageView) v;
-                    if (selected != null) {
-                        removeAllImagesModifications();
-                        if (selected.getId() != imageView.getId()) {
-                            addImageModifications(imageView);
-                        } else {
-                            selected = null;
-                        }
-                    } else {
-                        addImageModifications(imageView);
-                    }
-
-                }
-            });*/
 
 
             layout.addView(imageView, lp);
@@ -105,28 +87,15 @@ public class ImageTask extends Fragment {
 
 
         Button nextButton = mainView.findViewById(R.id.nextTaskButton);
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nextTask();
-            }
-        });
+        nextButton.setOnClickListener(view -> nextTask());
 
         Button idkButton = mainView.findViewById(R.id.idk_button);
-        idkButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nextTask();
-            }
-        });
+        idkButton.setOnClickListener(view -> nextTask());
 
         FloatingActionButton helpButton = mainView.findViewById(R.id.helpButton);
-        helpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(builder != null){
-                    builder.show();
-                }
+        helpButton.setOnClickListener(view -> {
+            if(builder != null){
+                builder.show();
             }
         });
 
@@ -159,11 +128,8 @@ public class ImageTask extends Fragment {
                     new ColorDrawable(android.graphics.Color.TRANSPARENT));
         }
 
-        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                //nothing;
-            }
+        builder.setOnDismissListener(dialogInterface -> {
+            //nothing;
         });
 
 

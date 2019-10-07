@@ -22,7 +22,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,7 +53,6 @@ public class TextTask extends Fragment implements TTSHandler {
     private Context context;
     private Dialog builder;
     private LoadContent callBack;
-    private ImageView selected;
 
 
     public static final int MEMORY = 5;
@@ -86,7 +84,6 @@ public class TextTask extends Fragment implements TTSHandler {
     private Button sttButton;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
     private Button nextButton;
     private Button startButton;
     private int timesCompleted;
@@ -131,7 +128,7 @@ public class TextTask extends Fragment implements TTSHandler {
 
 
         // use a linear layout manager
-        layoutManager = new LinearLayoutManager(context);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
         recyclerView.setLayoutManager(layoutManager);
 
         // specify an adapter (see also next example)
@@ -180,9 +177,7 @@ public class TextTask extends Fragment implements TTSHandler {
                 builder.setTitle(getString(R.string.alert));
                 builder.setMessage(getText(R.string.leave_task));
                 builder.setCancelable(false);
-                builder.setPositiveButton(getString(R.string.leave), (dialog, which) -> {
-                    loadNextTask();
-                });
+                builder.setPositiveButton(getString(R.string.leave), (dialog, which) -> loadNextTask());
                 builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
                 builder.show();
 
@@ -264,7 +259,7 @@ public class TextTask extends Fragment implements TTSHandler {
                             repeatPhrase(phrases);
                             break;
                         case FLUENCY:
-                            bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
+                            bannerText.setText(R.string.fluency_instructions);
                             fluencyWithWords("F", 11);
                             break;
 
@@ -434,7 +429,7 @@ public class TextTask extends Fragment implements TTSHandler {
             }*/
             clearInputs();
             addicionalTaskInput.requestFocus();
-            bannerText.setText("Now I am going to say some more numbers, but when I am through you must repeat them to me in the backwards order.");
+            bannerText.setText(R.string.backwards_instructions);
             repeatBackwards("7,4,2");
         });
 
@@ -564,31 +559,31 @@ public class TextTask extends Fragment implements TTSHandler {
     private void showUserAdditionalTask() {
         switch (taskType){
             case MEMORY:
-                bannerText.setText("I am going to read a list of words that you will have to remember now and later on. Tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
+                bannerText.setText(R.string.memory_instructions);
                 break;
             case ATENTION_NUMBERS:
-                bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
+                bannerText.setText(R.string.numbers_instructions);
                 break;
             case ATENTION_LETTERS:
-                bannerText.setText("I am going to read a sequence of letters. Every time I say the letter A, tap your hand once. If I say a different letter, do not tap");
+                bannerText.setText(R.string.letters_instructions);
                 break;
             case ATENTION_SUBSTRACTION:
-                bannerText.setText("Now, I will ask you to count by subtracting seven from 100, and then, keep subtracting seven from your answer until I tell you to stop ");
+                bannerText.setText(R.string.substraction_instructions);
                 break;
             case LANGUAGE:
-                bannerText.setText("I am going to read you a sentence. Repeat it after me, exactly as I say it. ");
+                bannerText.setText(R.string.language_instructions);
                 break;
             case FLUENCY:
-                bannerText.setText("Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute");
+                bannerText.setText(R.string.fluency_instructions);
                 break;
             case ABSTRACTION:
-                bannerText.setText("I am going to give you two words and I want you to introduce the similarity of them. ");
+                bannerText.setText(R.string.abstraction_instruction);
                 break;
             case RECALL:
-                bannerText.setText("I read some words to you earlier, which I asked you to remember. Tell me as many of those words as you can remember");
+                bannerText.setText(R.string.recall_instructions);
                 break;
             case ORIENTATION:
-                bannerText.setText("I am going to ask you some question about the date and place you are now.");
+                bannerText.setText(R.string.orientation_instructions);
                 break;
             default:
                 throw new RuntimeException("INVALID TASKTYPE");
@@ -763,7 +758,7 @@ public class TextTask extends Fragment implements TTSHandler {
 
 
 
-    public void callSTT() {
+    private void callSTT() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);

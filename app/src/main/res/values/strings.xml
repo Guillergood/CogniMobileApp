@@ -1,27 +1,41 @@
 <resources>
-    <string name="app_name">My Application</string>
-    <string name="navigation_drawer_open">Drawer opened</string>
-    <string name="navigation_drawer_close">Drawer closed</string>
-    <string name="title_activity_navigation_drawer">NavigationDrawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
+    <string name="app_name" translatable="false">Cognimobile App</string>
+    <string name="navigation_drawer_open" translatable="false">Drawer opened</string>
+    <string name="navigation_drawer_close" translatable="false">Drawer closed</string>
+    <string name="title_activity_navigation_drawer" translatable="false">NavigationDrawer</string>
+    <string name="nav_header_title" translatable="false">Android Studio</string>
+    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
+    <string name="nav_header_desc" translatable="false">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-    <string name="menu_tools">Tools</string>
-    <string name="menu_share">Share</string>
-    <string name="menu_send">Send</string>
+    <string name="menu_home" translatable="false">Home</string>
+    <string name="menu_gallery" translatable="false">Gallery</string>
+    <string name="menu_slideshow" translatable="false">Slideshow</string>
+    <string name="menu_tools" translatable="false">Tools</string>
+    <string name="menu_share" translatable="false">Share</string>
+    <string name="menu_send" translatable="false">Send</string>
 
-    <string name="title_activity_test">Test</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
-    <string name="undo_button">UNDO</string>
+    <string name="title_activity_test" translatable="false">Test</string>
+    <string name="undo_button" translatable="false">UNDO</string>
     <string name="next_button">NEXT</string>
     <string name="leave_task">Are you sure you want to leave the task?</string>
     <string name="leave">Leave</string>
     <string name="cancel">Cancel</string>
     <string name="alert">Alert</string>
+    <string name="graph_instructions">Please draw a line, going from a number to a letter in ascending order. Begin from (1) and  then to A then to 2 and so on. The last one is E</string>
+    <string name="cube_instructions">Copy this drawing as accurately as you can, in the space below</string>
+    <string name="clock_instructions">Draw a clock. Put in all the numbers and set the time to 10 past 11</string>
+    <string name="clear_title_button">CLEAR</string>
+    <string name="fluency_instructions">Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute</string>
+    <string name="backwards_instructions">Now I am going to say some more numbers, but when I am through you must repeat them to me in the backwards order.</string>
+    <string name="memory_instructions">I am going to read a list of words that you will have to remember now and later on. Tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.</string>
+    <string name="numbers_instructions">I am going to say some numbers and when I am through, type them to me exactly as I said them</string>
+    <string name="letters_instructions">I am going to read a sequence of letters. Every time I say the letter A, tap your hand once. If I say a different letter, do not tap</string>
+    <string name="substraction_instructions">Now, I will ask you to count by subtracting seven from 100, and then, keep subtracting seven from your answer until I tell you to stop</string>
+    <string name="language_instructions">I am going to read you a sentence. Repeat it after me, exactly as I say it.</string>
+    <string name="abstraction_instruction">I am going to give you two words and I want you to introduce the similarity of them.</string>
+    <string name="recall_instructions">I read some words to you earlier, which I asked you to remember. Tell me as many of those words as you can remember</string>
+    <string name="orientation_instructions">I am going to ask you some question about the date and place you are now.</string>
+    <string name="do_not_know">I do not know</string>
+    <string name="animal_instructions">Can you tell me the name of this animal?</string>
 </resources>
