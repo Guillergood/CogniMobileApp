@@ -244,7 +244,9 @@ public class TextTask extends Fragment implements TTSHandler {
                     switch (taskType) {
                         case MEMORY:
                             //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
-                            memorization("FACE,VELVET,CHURCH,DAISY,RED", 2);
+                            //String words = "FACE,VELVET,CHURCH,DAISY,RED";
+                            String words = "GEZICHT,FLUWEEL,KERK,MADELIEF,ROOD";
+                            memorization(words, 2);
                             break;
                         case ATENTION_NUMBERS:
                             //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
@@ -255,7 +257,8 @@ public class TextTask extends Fragment implements TTSHandler {
                             tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
                             break;
                         case LANGUAGE:
-                            String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
+                            //String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
+                            String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
                             repeatPhrase(phrases);
                             break;
                         case FLUENCY:
@@ -297,9 +300,13 @@ public class TextTask extends Fragment implements TTSHandler {
 
     private void similarity() {
         array = new String[4];
-        array[0] = "train-bicycle";
+        /*array[0] = "train-bicycle";
         array[1] = "transport,speed";
         array[2] = "watch-ruler";
+        array[3] = "measurement,numbers";*/
+        array[0] = "trein-fiets";
+        array[1] = "transport,speed";
+        array[2] = "horloge-liniaal";
         array[3] = "measurement,numbers";
         addicionalTaskText.setText(array[index]);
         index+=2;
@@ -357,7 +364,8 @@ public class TextTask extends Fragment implements TTSHandler {
         submitAnswerButton.setOnClickListener(v -> {
             if(index == times){
                 submitAnswerButton.setVisibility(View.GONE);
-                addicionalTaskText.setText("You have finalizaed the task");
+                hideInputs();
+                //addicionalTaskText.setText("You have finalizaed the task");
             }
             else{
                 answer.add(addicionalTaskInput.getText().toString());
@@ -377,7 +385,7 @@ public class TextTask extends Fragment implements TTSHandler {
         layout.setOnClickListener(v -> {
              if(index > 0 && lastIndex != index) {
                 answer.add(array[index - 1]);
-                Toast.makeText(context, "TAP ON " + array[index - 1], Toast.LENGTH_LONG).show();
+                //Toast.makeText(context, "TAP ON " + array[index - 1], Toast.LENGTH_LONG).show();
                 lastIndex = index;
              }
 
@@ -764,7 +772,6 @@ public class TextTask extends Fragment implements TTSHandler {
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,1000);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Need to speak");
         try {
             startActivityForResult(intent, STT_CODE);
         } catch (ActivityNotFoundException a) {

@@ -13,6 +13,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:src="@drawable/ic_action_nav_placeholder"
+        android:clickable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -87,16 +88,27 @@
         android:id="@+id/image_task_input"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:minWidth="150dp"
-        android:inputType="textVisiblePassword"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="16dp"
         android:gravity="center"
-        app:layout_constraintBottom_toTopOf="@+id/idk_button"
+        android:inputType="textVisiblePassword"
+        android:minWidth="150dp"
+        app:layout_constraintBottom_toTopOf="@+id/stt_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+    <Button
+        android:id="@+id/stt_button"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:drawableStart="@drawable/ic_mic_grey_24dp"
+        app:layout_constraintBottom_toTopOf="@+id/idk_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/idk_button"

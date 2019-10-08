@@ -1,20 +1,25 @@
 package ugr.gbv.myapplication.fragments;
 
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,17 +28,24 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.Locale;
+
 import ugr.gbv.myapplication.R;
 import ugr.gbv.myapplication.interfaces.LoadContent;
 
+import static android.app.Activity.RESULT_OK;
+
 public class ImageTask extends Fragment {
 
+    private static final int STT_CODE = 2;
     private Context context;
     private Dialog builder;
     private LoadContent callBack;
     private int selected;
     private int[] imagesId;
     private View mainView;
+    private EditText input;
 
     public ImageTask(LoadContent callBack){
         this.callBack = callBack;
@@ -56,6 +68,11 @@ public class ImageTask extends Fragment {
 
 
         imagesId = new int[imagesArray.length];
+
+        input = mainView.findViewById(R.id.image_task_input);
+        Button sttButton = mainView.findViewById(R.id.stt_button);
+
+        sttButton.setOnClickListener(v -> callSTT());
 
 
 
@@ -144,17 +161,50 @@ public class ImageTask extends Fragment {
 
     }
 
-    /*private void removeAllImagesModifications(){
-        selected.clearColorFilter();
-        selected.setBackground(null);
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == STT_CODE){
+            if (resultCode == RESULT_OK && null != data) {
+                ArrayList results = data
+                        .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                if (results != null) {
+                    String answer = null;
+                    for (Object result : results) {
+                        String option = result.toString();
+
+                        if(answer == null || answer.isEmpty())
+                            answer = option.replaceAll("\\d","");
+
+
+                    }
+
+                    if(answer !=null) {
+                        input.setText(answer);
+                    }
+
+                }
+            }
+
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void addImageModifications(ImageView imageView){
-        selected = imageView;
-        selected.setColorFilter(R.color.blue, android.graphics.PorterDuff.Mode.SRC_OVER);
-        selected.setBackground(context.getResources().getDrawable(R.drawable.background_selected_image, context.getTheme()));
-    }*/
 
+
+    private void callSTT() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,1000);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        try {
+            startActivityForResult(intent, STT_CODE);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(context,
+                    "Sorry your device not supported",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
 
 
 }

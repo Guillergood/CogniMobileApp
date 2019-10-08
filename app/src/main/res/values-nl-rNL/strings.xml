@@ -14,4 +14,16 @@
     <string name="fluency_instructions">Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met een bepaalde letter van het alfabet. Ik zal u de letters straks vertellen. U mag ieder woord noemen dat u wilt, behalve namen, cijfers, of woorden die met hetzelfde voorstukje (voorvoegsel) beginnen, zoals bijvoorbeeld lief, liefde, liefdevol. Na één minuut vraag ik u te stoppen. Bent u er klaar voor? [pauze] Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met de letter D</string>
     <string name="abstraction_instruction">Vertel me nu in welk opzicht een en een aan elkaar gelijk zijn</string>
     <string name="recall_instructions">Ik heb u eerder een rij met woorden voorgelezen, en ik vroeg u ze te onthouden. Vertel me zo veel mogelijk woorden die u zich kunt herinneren</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="alert">Alarm</string>
+    <string name="cancel">Annuleren</string>
+    <string name="clear_title_button">DUIDELIJK</string>
+    <string name="do_not_know">" Ik weet het niet"</string>
+    <string name="leave_task">" Weet je zeker dat je huiswerk wilt achterlaten?"</string>
+    <string name="leave">Vertrekken</string>
+    <string name="next_button">VOLGENDE</string>
+    <string name="orientation_instructions">Ik ga je wat vragen stellen over de datum en plaats waar je nu bent.</string>
+    <string name="submit_answer">" Antwoord geven"</string>
+    <string name="start_task">" Start Taak"</string>
+    <string name="undo_button">Ongedaan maken</string>
 </resources>

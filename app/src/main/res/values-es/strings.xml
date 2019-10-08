@@ -19,4 +19,11 @@
     <string name="language_instructions">Ahora le voy a leer una frase y me gustaría que la repitiera a continuación</string>
     <string name="fluency_instructions">Me gustaría que me diga el mayor número posible de palabras que comiencen por la letra que le diga. Puede decir cualquier tipo de palabra, excepto nombres propios, números, conjugaciones verbales (p. ej. ‘meto’, ‘metes’, ‘mete’) y palabras de la misma familia (p.ej. ‘manzana’, ‘manzano’). Le pediré que pare al minuto. Está preparado? Ahora, diga el mayor número posible de palabras que comiencen por la letra F</string>
     <string name="recall_instructions">Antes le leí una serie de palabras y le pedí que las recordase. Dígame ahora todas las palabras de las que se acuerde</string>
+    <string name="leave_task">¿Estás seguro de querer abandonar la tarea?</string>
+    <string name="leave">Abandonar</string>
+    <string name="next_button">SIGUIENTE</string>
+    <string name="orientation_instructions">Voy a hacerte unas preguntas sobre la fecha y el lugar donde estás ahora.</string>
+    <string name="submit_answer">Enviar respuesta</string>
+    <string name="start_task">Empezar Tarea</string>
+    <string name="undo_button">Deshacer</string>
 </resources>

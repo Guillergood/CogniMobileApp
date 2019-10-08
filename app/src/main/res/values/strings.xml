@@ -16,7 +16,7 @@
     <string name="menu_send" translatable="false">Send</string>
 
     <string name="title_activity_test" translatable="false">Test</string>
-    <string name="undo_button" translatable="false">UNDO</string>
+    <string name="undo_button">UNDO</string>
     <string name="next_button">NEXT</string>
     <string name="leave_task">Are you sure you want to leave the task?</string>
     <string name="leave">Leave</string>
@@ -38,4 +38,7 @@
     <string name="orientation_instructions">I am going to ask you some question about the date and place you are now.</string>
     <string name="do_not_know">I do not know</string>
     <string name="animal_instructions">Can you tell me the name of this animal?</string>
+    <string name="submit_answer">Submit answer</string>
+    <string name="start_task">Start Task</string>
+    <string name="test" translatable="false">test</string>
 </resources>
