@@ -92,7 +92,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/banner">
 
-        <ugr.gbv.myapplication.utilities.DrawingView
+        <ugr.gbv.cognimobile.utilities.DrawingView
             android:id="@+id/drawingSpace"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

@@ -1,28 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="ugr.gbv.myapplication">
+    package="ugr.gbv.cognimobile">
 
     <application
-        android:name=".utilities.ChannelManager"
+        android:name="ugr.gbv.cognimobile.utilities.ChannelManager"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:replace="android:icon, android:theme">
         <activity
-            android:name=".activities.Test"
+            android:name="ugr.gbv.cognimobile.activities.Test"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:windowSoftInputMode="adjustPan"
             android:label="@string/title_activity_test"
-            android:parentActivityName=".activities.MainActivity"
+            android:parentActivityName="ugr.gbv.cognimobile.activities.MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="ugr.gbv.myapplication.activities.MainActivity" />
+                android:value="ugr.gbv.cognimobile.activities.MainActivity" />
         </activity>
         <activity
-            android:name=".activities.MainActivity"
+            android:name="ugr.gbv.cognimobile.activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -31,11 +31,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".qr_reader.ReadQR" />
+        <activity android:name="ugr.gbv.cognimobile.qr_reader.ReadQR" />
 
-        <service android:name=".utilities.ExampleService" />
+        <service android:name="ugr.gbv.cognimobile.utilities.ExampleService" />
         <provider
-            android:authorities="ugr.gbv.myapplication.provider.aware"
+            android:authorities="ugr.gbv.cognimobile.provider.aware"
             android:name="com.aware.providers.Aware_Provider"/>
     </application>
     <uses-permission android:name="com.aware.READ_CONTEXT_DATA" />
