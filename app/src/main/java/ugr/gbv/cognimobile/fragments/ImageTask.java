@@ -1,32 +1,25 @@
 package ugr.gbv.cognimobile.fragments;
 
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -36,12 +29,9 @@ import ugr.gbv.cognimobile.interfaces.LoadContent;
 
 import static android.app.Activity.RESULT_OK;
 
-public class ImageTask extends Fragment {
+public class ImageTask extends Task {
 
     private static final int STT_CODE = 2;
-    private Context context;
-    private Dialog builder;
-    private LoadContent callBack;
     private int selected;
     private int[] imagesId;
     private View mainView;
@@ -50,6 +40,7 @@ public class ImageTask extends Fragment {
     public ImageTask(LoadContent callBack){
         this.callBack = callBack;
         selected = 0;
+        taskType = Task.IMAGE;
     }
 
 
@@ -61,6 +52,8 @@ public class ImageTask extends Fragment {
 
         context = getContext();
 
+        bannerText = mainView.findViewById(R.id.banner_text);
+
 
         final CardView layout = mainView.findViewById(R.id.cardView);
 
@@ -70,6 +63,18 @@ public class ImageTask extends Fragment {
         imagesId = new int[imagesArray.length];
 
         input = mainView.findViewById(R.id.image_task_input);
+
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                nextTask();
+                handled = true;
+            }
+            return handled;
+        });
+
+
+
         Button sttButton = mainView.findViewById(R.id.stt_button);
 
         sttButton.setOnClickListener(v -> callSTT());
@@ -98,7 +103,7 @@ public class ImageTask extends Fragment {
             imagesId[i] = imageView.getId();
         }
 
-
+        helpButton = mainView.findViewById(R.id.helpButton);
 
         buildDialog();
 
@@ -109,12 +114,8 @@ public class ImageTask extends Fragment {
         Button idkButton = mainView.findViewById(R.id.idk_button);
         idkButton.setOnClickListener(view -> nextTask());
 
-        FloatingActionButton helpButton = mainView.findViewById(R.id.helpButton);
-        helpButton.setOnClickListener(view -> {
-            if(builder != null){
-                builder.show();
-            }
-        });
+
+
 
 
         return mainView;
@@ -131,35 +132,17 @@ public class ImageTask extends Fragment {
             if(selected > 0){
                 imageView = mainView.findViewById(imagesId[selected-1]);
                 imageView.setVisibility(View.INVISIBLE);
+                clearInputs();
             }
         }
     }
 
-
-    private void buildDialog(){
-        builder = new Dialog(context);
-        builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        Window window = builder.getWindow();
-        if(window != null) {
-            window.setBackgroundDrawable(
-                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        }
-
-        builder.setOnDismissListener(dialogInterface -> {
-            //nothing;
-        });
-
-
-        TextView content = new TextView(context);
-        content.setText(getResources().getText(R.string.app_name));
-        content.setBackgroundColor(getResources().getColor(R.color.white,context.getTheme()));
-        builder.addContentView(content, new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-        );
-
-
+    private void clearInputs() {
+        input.getText().clear();
     }
+
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

@@ -1,10 +1,8 @@
 package ugr.gbv.cognimobile.fragments;
 
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -19,7 +17,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -31,11 +29,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -48,22 +43,9 @@ import ugr.gbv.cognimobile.utilities.WordListAdapter;
 
 import static android.app.Activity.RESULT_OK;
 
-public class TextTask extends Fragment implements TTSHandler {
-
-    private Context context;
-    private Dialog builder;
-    private LoadContent callBack;
+public class TextTask extends Task implements TTSHandler {
 
 
-    public static final int MEMORY = 5;
-    public static final int ATENTION_NUMBERS = 6;
-    public static final int ATENTION_LETTERS = 7;
-    public static final int ATENTION_SUBSTRACTION = 8;
-    public static final int LANGUAGE = 9;
-    public static final int FLUENCY = 10;
-    public static final int ABSTRACTION = 11;
-    public static final int RECALL = 12;
-    public static final int ORIENTATION = 13;
 
 
     private int delayTask = 5000;
@@ -73,24 +55,24 @@ public class TextTask extends Fragment implements TTSHandler {
     private int index = 0;
     private int lastIndex = 0;
     private View mainView;
-    private int taskType;
     private RelativeLayout layout;
     private TextView countdownText;
     private TextView addicionalTaskText;
     private EditText addicionalTaskInput;
     private Button submitAnswerButton;
     private ConstraintLayout mainLayout;
-    private TextView bannerText;
     private Button sttButton;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
     private Button nextButton;
     private Button startButton;
+    private Button quitButton;
     private int timesCompleted;
     private boolean onlyNumbersInputAccepted;
 
     private ArrayList<EditText> variousInputs;
     private final int STT_CODE = 2;
+    private boolean firstDone;
 
 
 
@@ -100,6 +82,7 @@ public class TextTask extends Fragment implements TTSHandler {
         this.taskType = taskType;
         answer = new ArrayList<>();
         timesCompleted = 0;
+        firstDone = false;
     }
 
 
@@ -126,6 +109,8 @@ public class TextTask extends Fragment implements TTSHandler {
         recyclerView = mainView.findViewById(R.id.words_list);
         recyclerView.setNestedScrollingEnabled(false);
 
+        quitButton = mainView.findViewById(R.id.quit_button);
+
 
         // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(context);
@@ -142,7 +127,7 @@ public class TextTask extends Fragment implements TTSHandler {
 
         countdownText = mainView.findViewById(R.id.countDownText);
 
-
+        helpButton = mainView.findViewById(R.id.helpButton);
 
         buildDialog();
 
@@ -151,11 +136,10 @@ public class TextTask extends Fragment implements TTSHandler {
 
         setNextButtonStandardBehaviour();
 
-        FloatingActionButton helpButton = mainView.findViewById(R.id.helpButton);
-        helpButton.setOnClickListener(view -> {
-            if(builder != null){
-                builder.show();
-            }
+
+
+        quitButton.setOnClickListener(v -> {
+            loadNextTask();
         });
 
         sttButton.setOnClickListener(view -> callSTT());
@@ -224,11 +208,27 @@ public class TextTask extends Fragment implements TTSHandler {
         });
 
         addicionalTaskText.setText(questions[index]);
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
     }
 
     private void recall(String words) {
         showUserInput();
         enableWordList();
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
     }
 
     private void startTask(){
@@ -253,7 +253,12 @@ public class TextTask extends Fragment implements TTSHandler {
                             break;
                         case ATENTION_NUMBERS:
                             //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
-                            repeat("2,1,8,5,4");
+                            if(firstDone){
+                                repeatBackwards("7,4,2");
+                            }
+                            else{
+                                repeat("2,1,8,5,4");
+                            }
                             onlyNumbersInputAccepted = true;
                             break;
                         case ATENTION_LETTERS:
@@ -314,6 +319,14 @@ public class TextTask extends Fragment implements TTSHandler {
         addicionalTaskText.setText(array[index]);
         index+=2;
         showUserInput();
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
         submitAnswerButton.setOnClickListener(v -> {
             if(index >= array.length){
                 hideInputs();
@@ -331,7 +344,16 @@ public class TextTask extends Fragment implements TTSHandler {
     private void fluencyWithWords(String letter, int numberOfWords) {
         addicionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
+        quitButton.setVisibility(View.VISIBLE);
         addicionalTaskInput.requestFocus();
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
         enableWordList();
         countDownTask(60000);
     }
@@ -364,7 +386,14 @@ public class TextTask extends Fragment implements TTSHandler {
     }
 
     private void repeatPhrase(String[] phrases) {
-        //TODO DEPURAR
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
         submitAnswerButton.setOnClickListener(v -> {
             clearInputs();
             ++index;
@@ -388,6 +417,14 @@ public class TextTask extends Fragment implements TTSHandler {
         index = 0;
         addicionalTaskText.setText(startingNumber + " - " + substration);
         addicionalTaskInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
         submitAnswerButton.setOnClickListener(v -> {
             if(index == times){
                 submitAnswerButton.setVisibility(View.GONE);
@@ -401,6 +438,7 @@ public class TextTask extends Fragment implements TTSHandler {
             }
             clearInputs();
         });
+
 
         showUserInput();
     }
@@ -432,8 +470,6 @@ public class TextTask extends Fragment implements TTSHandler {
         setVariousInputs();
         enumeration();
         submitAnswerButton.setOnClickListener(v -> {
-            /*for (EditText editText:variousInputs)
-                answer.add(editText.getText().toString());*/
             hideInputs();
             clearInputs();
         });
@@ -460,14 +496,17 @@ public class TextTask extends Fragment implements TTSHandler {
 
         addicionalTaskInput.requestFocus();
         submitAnswerButton.setOnClickListener(v -> {
-            /*for (EditText editText:variousInputs) {
-                answer.add(editText.getText().toString());
-                editText.getText().clear();
-            }*/
             clearInputs();
             addicionalTaskInput.requestFocus();
             bannerText.setText(R.string.backwards_instructions);
-            repeatBackwards("7,4,2");
+            hideInputs();
+            firstDone = true;
+
+            startButton.setVisibility(View.VISIBLE);
+            startButton.setOnClickListener(v1 -> {
+                showCountdownAgain();
+                startTask();
+            });
         });
 
     }
@@ -492,6 +531,7 @@ public class TextTask extends Fragment implements TTSHandler {
             editText.setId(View.generateViewId());
             editText.setTag(Integer.toString(i));
             editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             editText.setGravity(Gravity.CENTER_HORIZONTAL);
             editText.setKeyListener(DigitsKeyListener.getInstance("123456789"));
             InputFilter[] inputArray = new InputFilter[1];
@@ -639,6 +679,7 @@ public class TextTask extends Fragment implements TTSHandler {
                 editText.setVisibility(View.VISIBLE);
             }
         }
+        quitButton.setVisibility(View.VISIBLE);
     }
 
     private void hideInputs() {
@@ -651,6 +692,10 @@ public class TextTask extends Fragment implements TTSHandler {
             for (EditText editText:variousInputs){
                 editText.setVisibility(View.INVISIBLE);
             }
+        }
+        callBack.hideKeyboard();
+        if(quitButton != null){
+            quitButton.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -667,6 +712,14 @@ public class TextTask extends Fragment implements TTSHandler {
         enumeration();
         setNextButtonLoopTask();
         addicionalTaskInput.requestFocus();
+        addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
+            boolean handled = false;
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                submitAnswerButton.performClick();
+                handled = true;
+            }
+            return handled;
+        });
         enableWordList();
         if(timesCompleted == times){
             setNextButtonStandardBehaviour();
@@ -684,32 +737,6 @@ public class TextTask extends Fragment implements TTSHandler {
         TextToSpeechLocal.getInstance(context, this).readOutLoud(phrase);
     }
 
-
-
-    private void buildDialog(){
-        builder = new Dialog(context);
-        builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        Window window = builder.getWindow();
-        if(window != null) {
-            window.setBackgroundDrawable(
-                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        }
-
-        builder.setOnDismissListener(dialogInterface -> {
-            //nothing;
-        });
-
-
-        TextView content = new TextView(context);
-        content.setText(getResources().getText(R.string.app_name));
-        content.setBackgroundColor(getResources().getColor(R.color.white,context.getTheme()));
-        builder.addContentView(content, new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-        );
-
-
-    }
 
     @Override
     public void startTTS() {

@@ -1,9 +1,11 @@
 package ugr.gbv.cognimobile.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.fragments.DrawTask;
 import ugr.gbv.cognimobile.fragments.ImageTask;
+import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 
@@ -44,19 +47,19 @@ public class Test extends AppCompatActivity implements LoadContent {
         hideNavBar();
 
         fragments = new ArrayList<>();
-        fragments.add(new DrawTask(DrawTask.GRAPH,this));
-        fragments.add(new DrawTask(DrawTask.CUBE,this));
-        fragments.add(new DrawTask(DrawTask.WATCH,this));
+        fragments.add(new DrawTask(Task.GRAPH,this));
+        fragments.add(new DrawTask(Task.CUBE,this));
+        fragments.add(new DrawTask(Task.WATCH,this));
         fragments.add(new ImageTask(this));
-        fragments.add(new TextTask(TextTask.MEMORY,this));
-        fragments.add(new TextTask(TextTask.ATENTION_NUMBERS,this));
-        fragments.add(new TextTask(TextTask.ATENTION_LETTERS,this));
-        fragments.add(new TextTask(TextTask.ATENTION_SUBSTRACTION,this));
-        fragments.add(new TextTask(TextTask.LANGUAGE,this));
-        fragments.add(new TextTask(TextTask.FLUENCY,this));
-        fragments.add(new TextTask(TextTask.ABSTRACTION,this));
-        fragments.add(new TextTask(TextTask.RECALL,this));
-        fragments.add(new TextTask(TextTask.ORIENTATION,this));
+        fragments.add(new TextTask(Task.MEMORY,this));
+        fragments.add(new TextTask(Task.ATENTION_NUMBERS,this));
+        fragments.add(new TextTask(Task.ATENTION_LETTERS,this));
+        fragments.add(new TextTask(Task.ATENTION_SUBSTRACTION,this));
+        fragments.add(new TextTask(Task.LANGUAGE,this));
+        fragments.add(new TextTask(Task.FLUENCY,this));
+        fragments.add(new TextTask(Task.ABSTRACTION,this));
+        fragments.add(new TextTask(Task.RECALL,this));
+        fragments.add(new TextTask(Task.ORIENTATION,this));
         index = 0;
 
 
@@ -118,6 +121,18 @@ public class Test extends AppCompatActivity implements LoadContent {
 //        else{
 //            sendData();
 //        }
+    }
+
+    @Override
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        //Find the currently focused view, so we can grab the correct window token from it.
+        View view = this.getCurrentFocus();
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null && imm != null) {
+            view = new View(this);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
 }

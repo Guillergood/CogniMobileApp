@@ -2,7 +2,9 @@ package ugr.gbv.cognimobile.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,17 +31,14 @@ import ugr.gbv.cognimobile.utilities.DrawingView;
 import ugr.gbv.cognimobile.utilities.PathGenerator;
 import ugr.gbv.cognimobile.utilities.Point;
 
-public class DrawTask extends Fragment implements LoadContent {
+public class DrawTask extends Task implements LoadContent {
 
-    private Context context;
-    private View view;
+
     private DrawingView drawingView;
     private ArrayList<Point> secuence;
     private ArrayList<String> answer;
-    private int taskType;
+    private View view;
     private boolean loaded;
-    private Dialog builder;
-    private LoadContent callBack;
 
     // Constants
     public static final int GRAPH = 0;
@@ -77,18 +76,16 @@ public class DrawTask extends Fragment implements LoadContent {
 
         context = getContext();
 
+        helpButton = view.findViewById(R.id.helpButton);
+
         buildDialog();
 
 
         Button nextButton = view.findViewById(R.id.nextTaskButton);
         nextButton.setOnClickListener(view -> callBack.loadContent());
 
-        FloatingActionButton helpButton = view.findViewById(R.id.helpButton);
-        helpButton.setOnClickListener(view -> {
-            if(builder != null){
-                builder.show();
-            }
-        });
+
+
 
 
 
@@ -112,7 +109,12 @@ public class DrawTask extends Fragment implements LoadContent {
         if(answer.size() > 0){
             answer.remove(answer.size()-1);
             pressedButtons.get(pressedButtons.size()-1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill,context.getTheme()));
-            pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black,context.getTheme()));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black,context.getTheme()));
+            }
+            else{
+                pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black));
+            }
             pressedButtons.remove(pressedButtons.size()-1);
         }
     }
@@ -136,7 +138,12 @@ public class DrawTask extends Fragment implements LoadContent {
                     if(button1.getTag().equals(secuence.get(i1).getLabel())){
                         if(!answer.contains(button1.getTag().toString())){
                             button1.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
-                            button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
+                            }
+                            else{
+                                button1.setTextColor(getResources().getColor(R.color.white));
+                            }
                             answer.add(button1.getTag().toString());
                             drawingView.drawToPoint(secuence.get(i1));
                             continua = false;
@@ -165,7 +172,7 @@ public class DrawTask extends Fragment implements LoadContent {
         if(!loaded) {
 
             ImageView imageView = view.findViewById(R.id.banner_image);
-            TextView textView = view.findViewById(R.id.banner_text);
+            bannerText = view.findViewById(R.id.banner_text);
             Button button = view.findViewById(R.id.undoButton);
 
             switch (taskType) {
@@ -175,72 +182,29 @@ public class DrawTask extends Fragment implements LoadContent {
                     PathGenerator pathGenerator = new PathGenerator();
                     secuence = pathGenerator.makePath(height, width);
                     drawButtons(secuence);
-                    textView.setText(R.string.graph_instructions);
+                    bannerText.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
                     button.setText(R.string.clear_title_button);
-                    textView.setText(R.string.cube_instructions);
+                    bannerText.setText(R.string.cube_instructions);
                     imageView.setVisibility(View.VISIBLE);
                     break;
                 case WATCH:
                     button.setText(R.string.clear_title_button);
-                    textView.setText(R.string.clock_instructions);
+                    bannerText.setText(R.string.clock_instructions);
                     break;
                 default:
                     throw new RuntimeException("Task type not supported");
             }
 
+
             loaded = true;
         }
     }
-    private void buildDialog(){
-        builder = new Dialog(context);
-        builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        Window window = builder.getWindow();
-        if(window != null) {
-            window.setBackgroundDrawable(
-                    new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        }
 
-        builder.setOnDismissListener(dialogInterface -> {
-            //nothing;
-        });
-
-
-        switch (taskType){
-            case GRAPH:
-                TextView content = new TextView(context);
-                content.setText(getResources().getText(R.string.app_name));
-                content.setBackgroundColor(getResources().getColor(R.color.white,context.getTheme()));
-                builder.addContentView(content, new RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT)
-                );
-                break;
-            case CUBE:
-                ImageView imageView = new ImageView(context);
-                imageView.setImageDrawable(getResources().getDrawable(R.drawable.cube,context.getTheme()));
-                imageView.setBackgroundColor(getResources().getColor(R.color.white,context.getTheme()));
-                builder.addContentView(imageView, new RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT)
-                );
-                break;
-            case WATCH:
-                /*TextView message = new TextView(context);
-                message.setText(getResources().getText(R.string.app_name));
-                message.setBackgroundColor(getResources().getColor(R.color.white,context.getTheme()));
-                builder.addContentView(message, new RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT)
-                );*/
-                break;
-            default:
-                throw new RuntimeException("Unsupported Task Type");
-
-        }
-
-
+    @Override
+    public void hideKeyboard() {
+        callBack.hideKeyboard();
     }
 
 

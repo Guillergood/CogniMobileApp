@@ -15,7 +15,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
         android:clickable="false"
-        android:src="@drawable/ic_action_nav_placeholder"
+        android:src="@drawable/ic_help"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -114,6 +114,7 @@
         android:layout_marginTop="32dp"
         android:gravity="center"
         android:inputType="textAutoComplete"
+        android:imeOptions="actionDone"
         android:minWidth="150dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
@@ -143,6 +144,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stt_button" />
+
+    <Button
+        android:id="@+id/quit_button"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/do_not_know"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/submit_button" />
 
     <Button
         android:id="@+id/startButton"

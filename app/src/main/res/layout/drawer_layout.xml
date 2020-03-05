@@ -13,14 +13,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/panel_lateral"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/cabecera_barra_lateral"
-        app:menu="@menu/navigation" />
+        android:layout_gravity="start" />
+
+
 
 
 </androidx.drawerlayout.widget.DrawerLayout>

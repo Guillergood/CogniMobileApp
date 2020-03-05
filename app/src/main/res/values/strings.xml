@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Cognimobile App</string>
+    <string name="app_name" translatable="false">Cognimobile</string>
     <string name="navigation_drawer_open" translatable="false">Drawer opened</string>
     <string name="navigation_drawer_close" translatable="false">Drawer closed</string>
     <string name="title_activity_navigation_drawer" translatable="false">NavigationDrawer</string>
@@ -41,4 +41,5 @@
     <string name="submit_answer">Submit answer</string>
     <string name="start_task">Start Task</string>
     <string name="test" translatable="false">test</string>
+    <string name="provider_cognimobile" translatable="false">ugr.gbv.cognimobile.provider</string>
 </resources>

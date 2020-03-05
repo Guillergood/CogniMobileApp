@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cognimobile App</string>
+    <string name="app_name">Cognimobile</string>
     <string name="abstraction_instruction">Voy a darte dos palabras y quiero que me digas la similitud que tienen</string>
     <string name="action_settings">Ajustes</string>
     <string name="alert">Alerta</string>

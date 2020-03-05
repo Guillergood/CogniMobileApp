@@ -1,9 +1,15 @@
 package ugr.gbv.cognimobile.activities;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.app.NotificationManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.service.notification.StatusBarNotification;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
@@ -14,31 +20,47 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.aware.Aware;
+import com.aware.Aware_Preferences;
+import com.aware.Battery;
 import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
-import ugr.gbv.cognimobile.utilities.ExampleService;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener{
 
     private final int QR_CODE = 1;
-    private final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
-    private final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 3;
-    private Fragment fragment;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 998;
+    private static final String[] REQUIRED_PERMISSIONS ={(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+            (Manifest.permission.ACCESS_WIFI_STATE),
+            (Manifest.permission.CAMERA),
+            (Manifest.permission.BLUETOOTH),
+            (Manifest.permission.BLUETOOTH_ADMIN),
+            (Manifest.permission.ACCESS_COARSE_LOCATION),
+            (Manifest.permission.ACCESS_FINE_LOCATION),
+            (Manifest.permission.READ_PHONE_STATE),
+            (Manifest.permission.GET_ACCOUNTS),
+            (Manifest.permission.WRITE_SYNC_SETTINGS),
+            (Manifest.permission.READ_SYNC_SETTINGS),
+            (Manifest.permission.READ_SYNC_STATS),
+            (Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS),
+            (Manifest.permission.FOREGROUND_SERVICE)};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,25 +86,40 @@ public class MainActivity extends AppCompatActivity
         Button test = findViewById(R.id.testButton);
         test.setOnClickListener(v -> irATest());
 
-        //TODO AÑADIR LA NOTIFICACION Y SI ESTÁ ACTIVA NO EMPEZAR EL SERVICIO
-        Context context = getApplicationContext();
-        Aware.startAWARE(context);
 
-        //startService();
-        /*Context context = getApplicationContext();
-        Aware.startAWARE(context); //initialise core AWARE service
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+
+
+        ActivityCompat.requestPermissions(this,
+                REQUIRED_PERMISSIONS,
+                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+
+
+
+        /*boolean isRunning = false;
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        assert mNotificationManager != null;
+        StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
+        for (StatusBarNotification notification : notifications) {
+            if (notification.getId() == NotificationUtils.ARTICLE_NOTIFICATION_ID) {
+                isRunning = true;
+            }
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+
+        if(!isRunning) {
+            NotificationUtils.notifyCorrectUpdate(getApplicationContext());
+            Intent aware = new Intent(this, Aware.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(aware);
+            } else {
+                startService(aware);
+            }
         }*/
+
+        //Aware.setSetting(context,Aware_Preferences.FREQUENCY_WIFI,60000);
+        //Aware.startWiFi(context);
 
         /*Aware.setSetting(context, Aware_Preferences.FREQUENCY_ACCELEROMETER, 200000); //20Hz
         Aware.setSetting(context, Aware_Preferences.THRESHOLD_ACCELEROMETER, 0.02f); // [x,y,z] > 0.02 to log
@@ -152,22 +189,55 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void startService() {
-        Intent aware = new Intent(this, ExampleService.class);
-        //Intent serviceIntent = new Intent(this, ExampleService.class);
 
-        ContextCompat.startForegroundService(this, aware);
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
 
-    }
+        if(permissions.length > 0 && grantResults.length == permissions.length){
 
-    public void stopService() {
-        Intent serviceIntent = new Intent(this, ExampleService.class);
-        stopService(serviceIntent);
+            Aware.startAWARE(getApplicationContext());
+
+            boolean isRunning = false;
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            assert mNotificationManager != null;
+            StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
+            for (StatusBarNotification notification : notifications) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_ID) ) {
+                        isRunning = true;
+                    }
+                }
+                else{
+                    isRunning = isMyServiceRunning(Aware.class);
+                }
+            }
+
+
+            if(!isRunning) {
+                Intent aware = new Intent(this, Aware.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(aware);
+                } else {
+                    startService(aware);
+                }
+            }
+        }
     }
 
     private void inicializaMenuInferior() {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(this);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 
@@ -204,7 +274,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-        boolean cargarFragmento = false;
+
 
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -213,39 +283,88 @@ public class MainActivity extends AppCompatActivity
         switch (menuItem.getItemId()){
             case R.id.nav_gallery:
                 //readQR();
+                Aware.joinStudy(getApplicationContext(),"https://api.awareframework.com/index.php/webservice/index/2501/ZbTIjeyGPlxc");
                 break;
             case R.id.nav_home:
                 //irATest();
+                comenzarBateria();
                 break;
             case R.id.nav_slideshow:
                 //speechToText();
-                /*Aware.debug(getApplicationContext(), "Conectando");
-                Aware.joinStudy(getApplicationContext(),
-                        "https://api.awareframework.com/index.php/webservice/index/2501/ZbTIjeyGPlxc");*/
-
+                //Aware.startBattery(getApplicationContext());
+                pararBateria();
                 break;
 
         }
 
-        if(cargarFragmento) {
-            return cargarFragmento(fragment);
-        }
-        else{
-            return true;
-        }
+
+        return true;
+
 
 
     }
 
 
-    private void irPreferenciasUsuario() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivityForResult(intent,1);
+    private void comenzarBateria() {
+        Aware.startBattery(this);
+        Battery.setSensorObserver(new Battery.AWARESensorObserver() {
+            @Override
+            public void onBatteryChanged(ContentValues data) {
+                Log.d("AWARE","CAMBIO LA BATERIA");
+            }
+
+            @Override
+            public void onPhoneReboot() {
+
+            }
+
+            @Override
+            public void onPhoneShutdown() {
+
+            }
+
+            @Override
+            public void onBatteryLow() {
+                Log.d("AWARE","BATERIA BAJA");
+            }
+
+            @Override
+            public void onBatteryCharging() {
+                Log.d("AWARE","BATERIA CARGANDO");
+            }
+
+            @Override
+            public void onBatteryDischarging() {
+                Log.d("AWARE","BATERIA DESCARGANDO");
+            }
+        });
     }
 
-    private void irATest() {
-        Intent intent = new Intent(this, Test.class);
-        startActivity(intent);
+
+
+    private void pararBateria() {
+
+        Aware.stopBattery(this);
+
+    }
+
+    private void crearDatos(){
+        ContentValues new_data = new ContentValues();
+
+
+        if (Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID).length() == 0) {
+            UUID uuid = UUID.randomUUID();
+            Aware.setSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID, uuid.toString());
+
+        }
+
+        new_data.put(Provider.DEVICE_ID, Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID));
+        new_data.put(Provider.TIMESTAMP, System.currentTimeMillis());
+        //put the rest of the columns you defined
+
+        //Insert the data to the ContentProvider
+        getContentResolver().insert(Provider.CONTENT_URI, new_data);
+
     }
 
     private void readQR() {
@@ -285,6 +404,18 @@ public class MainActivity extends AppCompatActivity
 
         super.onActivityResult(requestCode,resultCode,data);
     }
+
+
+    private void irPreferenciasUsuario() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivityForResult(intent,1);
+    }
+
+    private void irATest() {
+        Intent intent = new Intent(this, Test.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public void onBackPressed() {
