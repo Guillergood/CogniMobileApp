@@ -32,4 +32,31 @@
         <item name="android:background">@color/black_overlay</item>
     </style>
 
+    <style name="QuickActionButtonContainer">
+        <item name="android:padding">@dimen/small_padding</item>
+        <item name="android:layout_width">@dimen/floating_button_width</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">25</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="QuickActionButton" parent="Widget.Design.FloatingActionButton">
+        <item name="borderWidth">0dp</item>
+        <item name="elevation">@dimen/fab_elevation</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:tint">@color/gray_60</item>
+    </style>
+
+    <style name="QuickActionButtonLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_sz_small</item>
+        <item name="android:layout_marginTop">@dimen/margin_medium</item>
+    </style>
+
+
+    <dimen name="floating_button_width">76dp</dimen>
 </resources>

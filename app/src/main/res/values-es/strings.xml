@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cognimobile</string>
     <string name="abstraction_instruction">Voy a darte dos palabras y quiero que me digas la similitud que tienen</string>
     <string name="action_settings">Ajustes</string>
     <string name="alert">Alerta</string>
     <string name="backwards_instructions">Le voy a leer una serie de números, y cuando haya terminado, me gustaría que repita los números en el orden inverso al que yo los he dado.</string>
     <string name="cancel">Cancelar</string>
-    <string name="clear_title_button">BORRAR</string>
+    <string name="clear_title_button">Borrar</string>
     <string name="clock_instructions">Dibuja un reloj. Pon todos los números y dibuja las 10 y 11 minutos.</string>
     <string name="cube_instructions">Copia este dibujo lo mejor posible que puedas en el espacio dado abajo.</string>
     <string name="graph_instructions">Dibuje una línea alternando entre cifras y letras, respetando el orden numérico y el orden alfabético. Comience aquí (señale el 1) y dibuje una línea hacia la letra A, y a continuación hacia el 2, etc. Termine aquí (señale la E).</string>
@@ -21,9 +20,10 @@
     <string name="recall_instructions">Antes le leí una serie de palabras y le pedí que las recordase. Dígame ahora todas las palabras de las que se acuerde</string>
     <string name="leave_task">¿Estás seguro de querer abandonar la tarea?</string>
     <string name="leave">Abandonar</string>
-    <string name="next_button">SIGUIENTE</string>
+    <string name="next_button">Siguiente</string>
     <string name="orientation_instructions">Voy a hacerte unas preguntas sobre la fecha y el lugar donde estás ahora.</string>
     <string name="submit_answer">Enviar respuesta</string>
     <string name="start_task">Empezar Tarea</string>
     <string name="undo_button">Deshacer</string>
+    <string name="help_button">Ayuda</string>
 </resources>

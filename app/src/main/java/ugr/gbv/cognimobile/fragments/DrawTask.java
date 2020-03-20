@@ -76,12 +76,12 @@ public class DrawTask extends Task implements LoadContent {
 
         context = getContext();
 
-        helpButton = view.findViewById(R.id.helpButton);
+        helpButton = view.findViewById(R.id.centerButton);
 
         buildDialog();
 
 
-        Button nextButton = view.findViewById(R.id.nextTaskButton);
+        FloatingActionButton nextButton = view.findViewById(R.id.rightButton);
         nextButton.setOnClickListener(view -> callBack.loadContent());
 
 
@@ -89,7 +89,7 @@ public class DrawTask extends Task implements LoadContent {
 
 
 
-        Button undoButton = view.findViewById(R.id.undoButton);
+        FloatingActionButton undoButton = view.findViewById(R.id.leftButton);
         undoButton.setOnClickListener(view -> {
             drawingView.undoLastOperation();
             if(taskType == GRAPH) {
@@ -173,8 +173,8 @@ public class DrawTask extends Task implements LoadContent {
 
             ImageView imageView = view.findViewById(R.id.banner_image);
             bannerText = view.findViewById(R.id.banner_text);
-            Button button = view.findViewById(R.id.undoButton);
-
+            FloatingActionButton button = view.findViewById(R.id.leftButton);
+            TextView label = view.findViewById(R.id.leftButtonLabel);
             switch (taskType) {
                 case GRAPH:
                     int height = drawingView.getCanvasHeight();
@@ -185,12 +185,14 @@ public class DrawTask extends Task implements LoadContent {
                     bannerText.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
-                    button.setText(R.string.clear_title_button);
+                    button.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
+                    label.setText(R.string.clear_title_button);
                     bannerText.setText(R.string.cube_instructions);
                     imageView.setVisibility(View.VISIBLE);
                     break;
                 case WATCH:
-                    button.setText(R.string.clear_title_button);
+                    button.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
+                    label.setText(R.string.clear_title_button);
                     bannerText.setText(R.string.clock_instructions);
                     break;
                 default:

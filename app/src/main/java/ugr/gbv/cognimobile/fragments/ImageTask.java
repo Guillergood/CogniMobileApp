@@ -11,7 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -20,6 +19,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -75,9 +76,7 @@ public class ImageTask extends Task {
 
 
 
-        Button sttButton = mainView.findViewById(R.id.stt_button);
 
-        sttButton.setOnClickListener(v -> callSTT());
 
 
 
@@ -103,16 +102,14 @@ public class ImageTask extends Task {
             imagesId[i] = imageView.getId();
         }
 
-        helpButton = mainView.findViewById(R.id.helpButton);
+        helpButton = mainView.findViewById(R.id.centerButton);
 
         buildDialog();
 
 
-        Button nextButton = mainView.findViewById(R.id.nextTaskButton);
+        FloatingActionButton nextButton = mainView.findViewById(R.id.rightButton);
         nextButton.setOnClickListener(view -> nextTask());
 
-        Button idkButton = mainView.findViewById(R.id.idk_button);
-        idkButton.setOnClickListener(view -> nextTask());
 
 
 

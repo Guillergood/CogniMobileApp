@@ -1,7 +1,6 @@
 package ugr.gbv.cognimobile.fragments;
 
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -31,6 +30,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -64,7 +65,7 @@ public class TextTask extends Task implements TTSHandler {
     private Button sttButton;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
-    private Button nextButton;
+    private FloatingActionButton nextButton;
     private Button startButton;
     private Button quitButton;
     private int timesCompleted;
@@ -105,7 +106,7 @@ public class TextTask extends Task implements TTSHandler {
         bannerText = mainView.findViewById(R.id.banner_text);
         sttButton = mainView.findViewById(R.id.stt_button);
         startButton = mainLayout.findViewById(R.id.startButton);
-        nextButton = mainView.findViewById(R.id.nextTaskButton);
+        nextButton = mainView.findViewById(R.id.rightButton);
         recyclerView = mainView.findViewById(R.id.words_list);
         recyclerView.setNestedScrollingEnabled(false);
 
@@ -127,7 +128,7 @@ public class TextTask extends Task implements TTSHandler {
 
         countdownText = mainView.findViewById(R.id.countDownText);
 
-        helpButton = mainView.findViewById(R.id.helpButton);
+        helpButton = mainView.findViewById(R.id.centerButton);
 
         buildDialog();
 

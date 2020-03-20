@@ -5,38 +5,62 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/helpButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/ic_help"
-        android:clickable="false"
+
+    <LinearLayout
+        android:id="@+id/centerButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <Button
-        android:id="@+id/nextTaskButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/next_button"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/centerButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/help_button_24dp" />
+
+        <TextView
+            android:id="@+id/centerButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/help_button" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/rightButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/centerButtonContainer">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/rightButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/next_button_24dp" />
+
+        <TextView
+            android:id="@+id/rightButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/next_button" />
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/banner"
-        android:padding="16dp"
+        android:padding="@dimen/small_padding"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@+id/cardView"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/cardView">
 
         <ImageView
             android:id="@+id/banner_image"
@@ -63,20 +87,20 @@
             android:text="@string/animal_instructions" />
     </RelativeLayout>
 
+
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
         style="@style/CardView.Light"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_margin="24dp"
         android:alpha="0.9"
         app:cardBackgroundColor="#CFCFCF"
-        app:cardCornerRadius="5dp"
-        app:cardElevation="10dp"
-        app:cardMaxElevation="10dp"
+        app:cardCornerRadius="@dimen/corner_radius"
+        app:strokeColor="@color/gray_5"
+        app:strokeWidth="@dimen/border_width"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp"
         app:layout_constraintBottom_toTopOf="@+id/image_task_input"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -84,44 +108,25 @@
 
     </androidx.cardview.widget.CardView>
 
+
     <EditText
         android:id="@+id/image_task_input"
+
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:gravity="center"
+        android:imeOptions="actionDone"
         android:inputType="textVisiblePassword"
         android:minWidth="150dp"
-        android:imeOptions="actionDone"
-        app:layout_constraintBottom_toTopOf="@+id/stt_button"
+        app:layout_constraintBottom_toTopOf="@+id/centerButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        android:autofillHints="@string/animalHint" />
 
-    <Button
-        android:id="@+id/stt_button"
-        style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:drawableStart="@drawable/ic_mic_grey_24dp"
-        app:layout_constraintBottom_toTopOf="@+id/idk_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/idk_button"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="@string/do_not_know"
-        app:layout_constraintBottom_toTopOf="@+id/helpButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

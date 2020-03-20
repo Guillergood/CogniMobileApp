@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Cognimobile</string>
     <string name="graph_instructions">Tik achtereenvolgens een cijfer en een letter aan, begin bij 1, ga naar A, vervolgens naar 2 enzovoort. Er zal een lijn ontstaan tussen twee opeenvolgende stappen. U eindigt dan bij E. Als u klaar bent tikt u op ‘volgende</string>
     <string name="cube_instructions">Teken deze figuur zo nauwkeurig mogelijk na, in de ruimte hieronder</string>
     <string name="clock_instructions">Teken een klok. Plaats er alle cijfers in en zet de wijzers op 10 over 11</string>
@@ -21,9 +20,10 @@
     <string name="do_not_know">" Ik weet het niet"</string>
     <string name="leave_task">Weet je zeker dat je deze opdracht wilt overslaan?</string>
     <string name="leave">Ja</string>
-    <string name="next_button">VOLGENDE</string>
+    <string name="next_button">Volgende</string>
     <string name="orientation_instructions">Ik ga je wat vragen stellen over de datum en plaats waar je nu bent.</string>
     <string name="submit_answer">" Antwoord geven"</string>
     <string name="start_task">" Start Taak"</string>
     <string name="undo_button">Ongedaan maken</string>
+    <string name="help_button">Hulp</string>
 </resources>

@@ -16,8 +16,8 @@
     <string name="menu_send" translatable="false">Send</string>
 
     <string name="title_activity_test" translatable="false">Test</string>
-    <string name="undo_button">UNDO</string>
-    <string name="next_button">NEXT</string>
+    <string name="undo_button">Undo</string>
+    <string name="next_button">Next</string>
     <string name="leave_task">Are you sure you want to leave the task?</string>
     <string name="leave">Leave</string>
     <string name="cancel">Cancel</string>
@@ -25,7 +25,7 @@
     <string name="graph_instructions">Please draw a line, going from a number to a letter in ascending order. Begin from (1) and  then to A then to 2 and so on. The last one is E</string>
     <string name="cube_instructions">Copy this drawing as accurately as you can, in the space below</string>
     <string name="clock_instructions">Draw a clock. Put in all the numbers and set the time to 10 past 11</string>
-    <string name="clear_title_button">CLEAR</string>
+    <string name="clear_title_button">Clear</string>
     <string name="fluency_instructions">Tell me as many words as you can think of that begin with a certain letter of the alphabet that I will tell you in a moment. You can say any kind of word you want, except for proper nouns (like Bob or Boston), numbers, or words that begin with the same sound but have a different suffix, for example, love, lover, loving. I will tell you to stop after one minute</string>
     <string name="backwards_instructions">Now I am going to say some more numbers, but when I am through you must repeat them to me in the backwards order.</string>
     <string name="memory_instructions">I am going to read a list of words that you will have to remember now and later on. Tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.</string>
@@ -42,4 +42,6 @@
     <string name="start_task">Start Task</string>
     <string name="test" translatable="false">test</string>
     <string name="provider_cognimobile" translatable="false">ugr.gbv.cognimobile.provider</string>
+    <string name="help_button">Help</string>
+    <string name="animalHint">Animal Name</string>
 </resources>

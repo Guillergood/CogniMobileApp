@@ -7,34 +7,55 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/helpButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:clickable="false"
-        android:src="@drawable/ic_help"
+    <LinearLayout
+        android:id="@+id/centerButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent">
 
-    <Button
-        android:id="@+id/nextTaskButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:text="@string/next_button"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/centerButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/help_button_24dp" />
+
+        <TextView
+            android:id="@+id/centerButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/help_button" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/rightButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/centerButtonContainer">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/rightButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/next_button_24dp" />
+
+        <TextView
+            android:id="@+id/rightButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/next_button" />
+    </LinearLayout>
     <RelativeLayout
         android:id="@+id/banner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="8dp"
+        android:padding="@dimen/small_padding"
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,7 +94,7 @@
         android:foreground="?attr/selectableItemBackground"
         android:clickable="false"
         android:focusable="false"
-        app:layout_constraintBottom_toTopOf="@+id/helpButton"
+        app:layout_constraintBottom_toTopOf="@+id/centerButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
