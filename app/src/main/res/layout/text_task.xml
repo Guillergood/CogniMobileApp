@@ -91,14 +91,15 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginBottom="8dp"
-        android:foreground="?attr/selectableItemBackground"
         android:clickable="false"
         android:focusable="false"
+        android:foreground="?attr/selectableItemBackground"
         app:layout_constraintBottom_toTopOf="@+id/centerButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/banner" >
+        app:layout_constraintTop_toBottomOf="@+id/banner"
+        app:layout_constraintVertical_bias="0.0">
 
     </RelativeLayout>
 
@@ -120,71 +121,83 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="24dp"
         android:textSize="@dimen/banner_text"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/additional_task_input"
         app:layout_constraintEnd_toEndOf="@+id/textSpace"
         app:layout_constraintHorizontal_bias="0.51"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/startButton" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/additional_task_input"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="32dp"
         android:gravity="center"
-        android:inputType="textAutoComplete"
         android:imeOptions="actionDone"
+        android:inputType="textVisiblePassword"
         android:minWidth="150dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/submitButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/additional_task_text" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/stt_button"
-        style="@style/Widget.AppCompat.Button.Small"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+
+    <LinearLayout
+        android:id="@+id/sttButtonContainer"
+        style="@style/QuickActionButtonContainer"
         android:drawableStart="@drawable/ic_mic_grey_24dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/additional_task_input" />
+        app:layout_constraintEnd_toStartOf="@+id/submitButtonContainer"
+        app:layout_constraintTop_toTopOf="@+id/submitButtonContainer">
 
-    <Button
-        android:id="@+id/submit_button"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/submit_answer"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/sttButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/ic_mic_grey_24dp" />
+
+        <TextView
+            android:id="@+id/sttButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/sttLabel" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/submitButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:drawableStart="@drawable/ic_mic_grey_24dp"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stt_button" />
+        app:layout_constraintStart_toStartOf="@+id/halfScreen"
+        app:layout_constraintTop_toTopOf="@+id/countDownText">
 
-    <Button
-        android:id="@+id/quit_button"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/do_not_know"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/submit_button" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/submitButton"
+            style="@style/QuickActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/add_word_24dp" />
 
-    <Button
+        <TextView
+            android:id="@+id/submitButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/submit_answer" />
+    </LinearLayout>
+
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/startButton"
+        style="@style/ExtendedFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:clickable="false"
         android:text="@string/start_task"
+        app:iconTint="@color/white"
+        app:icon="@drawable/play_24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/banner" />
@@ -202,9 +215,23 @@
         app:layout_constraintBottom_toBottomOf="@+id/textSpace"
         app:layout_constraintEnd_toEndOf="@+id/textSpace"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/submit_button" >
+        app:layout_constraintTop_toBottomOf="@+id/submitButtonContainer">
 
     </androidx.recyclerview.widget.RecyclerView>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/halfScreen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="206dp"
+        android:layout_marginEnd="205dp"
+        android:layout_marginBottom="731dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_begin="206dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -38,10 +38,11 @@
     <string name="orientation_instructions">I am going to ask you some question about the date and place you are now.</string>
     <string name="do_not_know">I do not know</string>
     <string name="animal_instructions">Can you tell me the name of this animal?</string>
-    <string name="submit_answer">Submit answer</string>
+    <string name="submit_answer">Submit</string>
     <string name="start_task">Start Task</string>
     <string name="test" translatable="false">test</string>
     <string name="provider_cognimobile" translatable="false">ugr.gbv.cognimobile.provider</string>
     <string name="help_button">Help</string>
     <string name="animalHint">Animal Name</string>
+    <string name="sttLabel">Microphone</string>
 </resources>

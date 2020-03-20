@@ -22,8 +22,9 @@
     <string name="leave">Abandonar</string>
     <string name="next_button">Siguiente</string>
     <string name="orientation_instructions">Voy a hacerte unas preguntas sobre la fecha y el lugar donde estás ahora.</string>
-    <string name="submit_answer">Enviar respuesta</string>
+    <string name="submit_answer">Enviar</string>
     <string name="start_task">Empezar Tarea</string>
     <string name="undo_button">Deshacer</string>
     <string name="help_button">Ayuda</string>
+    <string name="sttLabel">Micrófono</string>
 </resources>

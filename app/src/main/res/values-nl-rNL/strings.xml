@@ -22,8 +22,9 @@
     <string name="leave">Ja</string>
     <string name="next_button">Volgende</string>
     <string name="orientation_instructions">Ik ga je wat vragen stellen over de datum en plaats waar je nu bent.</string>
-    <string name="submit_answer">" Antwoord geven"</string>
+    <string name="submit_answer">Verstuur</string>
     <string name="start_task">" Start Taak"</string>
     <string name="undo_button">Ongedaan maken</string>
     <string name="help_button">Hulp</string>
+    <string name="sttLabel">Microfoon</string>
 </resources>

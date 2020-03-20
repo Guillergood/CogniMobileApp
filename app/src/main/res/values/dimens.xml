@@ -17,4 +17,6 @@
     <color name="neutral_60">#50575e</color>
     <dimen name="small_padding">5dp</dimen>
     <dimen name="fab_elevation">4dp</dimen>
+    <dimen name="floating_button_width">76dp</dimen>
+    <dimen name="tiny_floating_button_width">60dp</dimen>
 </resources>

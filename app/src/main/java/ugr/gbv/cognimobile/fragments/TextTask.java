@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +32,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -60,14 +62,15 @@ public class TextTask extends Task implements TTSHandler {
     private TextView countdownText;
     private TextView addicionalTaskText;
     private EditText addicionalTaskInput;
-    private Button submitAnswerButton;
+    private FloatingActionButton submitAnswerButton;
+    private LinearLayout submitAnswerContainer;
     private ConstraintLayout mainLayout;
-    private Button sttButton;
+    private FloatingActionButton sttButton;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
     private FloatingActionButton nextButton;
-    private Button startButton;
-    private Button quitButton;
+    private LinearLayout sttButtonContainer;
+    private ExtendedFloatingActionButton startButton;
     private int timesCompleted;
     private boolean onlyNumbersInputAccepted;
 
@@ -102,15 +105,15 @@ public class TextTask extends Task implements TTSHandler {
         mainLayout = mainView.findViewById(R.id.textTaskLayout);
         addicionalTaskText = mainView.findViewById(R.id.additional_task_text);
         addicionalTaskInput = mainView.findViewById(R.id.additional_task_input);
-        submitAnswerButton = mainView.findViewById(R.id.submit_button);
+        submitAnswerButton = mainView.findViewById(R.id.submitButton);
         bannerText = mainView.findViewById(R.id.banner_text);
-        sttButton = mainView.findViewById(R.id.stt_button);
+        sttButton = mainView.findViewById(R.id.sttButton);
         startButton = mainLayout.findViewById(R.id.startButton);
+        sttButtonContainer = mainLayout.findViewById(R.id.sttButtonContainer);
+        submitAnswerContainer = mainLayout.findViewById(R.id.submitButtonContainer);
         nextButton = mainView.findViewById(R.id.rightButton);
         recyclerView = mainView.findViewById(R.id.words_list);
         recyclerView.setNestedScrollingEnabled(false);
-
-        quitButton = mainView.findViewById(R.id.quit_button);
 
 
         // use a linear layout manager
@@ -137,11 +140,6 @@ public class TextTask extends Task implements TTSHandler {
 
         setNextButtonStandardBehaviour();
 
-
-
-        quitButton.setOnClickListener(v -> {
-            loadNextTask();
-        });
 
         sttButton.setOnClickListener(view -> callSTT());
 
@@ -345,7 +343,6 @@ public class TextTask extends Task implements TTSHandler {
     private void fluencyWithWords(String letter, int numberOfWords) {
         addicionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
-        quitButton.setVisibility(View.VISIBLE);
         addicionalTaskInput.requestFocus();
         addicionalTaskInput.setOnEditorActionListener((v, actionId, event) -> {
             boolean handled = false;
@@ -672,22 +669,21 @@ public class TextTask extends Task implements TTSHandler {
         addicionalTaskText.setVisibility(View.VISIBLE);
         addicionalTaskInput.setVisibility(View.VISIBLE);
         addicionalTaskInput.requestFocus();
-        submitAnswerButton.setVisibility(View.VISIBLE);
-        sttButton.setVisibility(View.VISIBLE);
+        submitAnswerContainer.setVisibility(View.VISIBLE);
+        sttButtonContainer.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         if(variousInputs != null && variousInputs.size() > 0){
             for (EditText editText:variousInputs){
                 editText.setVisibility(View.VISIBLE);
             }
         }
-        quitButton.setVisibility(View.VISIBLE);
     }
 
     private void hideInputs() {
         addicionalTaskText.setVisibility(View.INVISIBLE);
         addicionalTaskInput.setVisibility(View.INVISIBLE);
-        submitAnswerButton.setVisibility(View.INVISIBLE);
-        sttButton.setVisibility(View.INVISIBLE);
+        submitAnswerContainer.setVisibility(View.INVISIBLE);
+        sttButtonContainer.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         if(variousInputs != null && variousInputs.size() > 0){
             for (EditText editText:variousInputs){
@@ -695,9 +691,7 @@ public class TextTask extends Task implements TTSHandler {
             }
         }
         callBack.hideKeyboard();
-        if(quitButton != null){
-            quitButton.setVisibility(View.INVISIBLE);
-        }
+
     }
 
     private void showCountdownAgain(){
