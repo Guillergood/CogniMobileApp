@@ -1,14 +1,13 @@
 package ugr.gbv.cognimobile.fragments;
 
-import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -17,14 +16,21 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 public abstract class Task extends Fragment {
     protected Context context;
     Dialog builder;
     LoadContent callBack;
-    FloatingActionButton helpButton;
+    FloatingActionButton centerButton;
     TextView bannerText;
     int taskType;
+    boolean loaded;
+    boolean providedTask;
+
+    FloatingActionButton leftButton;
+    FloatingActionButton rightButton;
+
 
     public static final int GRAPH = 0;
     public static final int CUBE = 1;
@@ -42,7 +48,34 @@ public abstract class Task extends Fragment {
 
 
 
+    public Task(){
+        loaded = false;
+        providedTask = false;
+    }
 
+    void loadNextTask(){
+        callBack.loadContent();
+        if(TextToSpeechLocal.isInitialized())
+            TextToSpeechLocal.getInstance(context).stop();
+    }
+
+    void setNextButtonStandardBehaviour() {
+
+        rightButton.setOnClickListener(view -> {
+
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+            builder.setTitle(getString(R.string.alert));
+            builder.setMessage(getText(R.string.leave_task));
+            builder.setCancelable(false);
+            builder.setPositiveButton(getString(R.string.leave), (dialog, which) -> loadNextTask());
+            builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
+            builder.show();
+
+
+        });
+    }
 
 
 
@@ -60,7 +93,7 @@ public abstract class Task extends Fragment {
 
         dialog.setOnClickListener(v -> builder.dismiss());
 
-        helpButton.setOnClickListener(dialogInterface -> showDialog());
+        centerButton.setOnClickListener(dialogInterface -> showDialog());
     }
 
     private void showDialog(){

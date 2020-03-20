@@ -20,8 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -102,16 +100,16 @@ public class ImageTask extends Task {
             imagesId[i] = imageView.getId();
         }
 
-        helpButton = mainView.findViewById(R.id.centerButton);
+        centerButton = mainView.findViewById(R.id.centerButton);
 
         buildDialog();
 
 
-        FloatingActionButton nextButton = mainView.findViewById(R.id.rightButton);
-        nextButton.setOnClickListener(view -> nextTask());
+        rightButton = mainView.findViewById(R.id.rightButton);
+        rightButton.setOnClickListener(view -> nextTask());
+        providedTask = true;
 
-
-
+        setNextButtonStandardBehaviour();
 
 
 

@@ -17,7 +17,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -26,7 +25,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,7 +50,7 @@ public class TextTask extends Task implements TTSHandler {
 
 
     private int delayTask = 5000;
-    private boolean providedTask = false;
+
     private String[] array;
     private ArrayList<String> answer;
     private int index = 0;
@@ -68,7 +66,7 @@ public class TextTask extends Task implements TTSHandler {
     private FloatingActionButton sttButton;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
-    private FloatingActionButton nextButton;
+    
     private LinearLayout sttButtonContainer;
     private ExtendedFloatingActionButton startButton;
     private int timesCompleted;
@@ -111,7 +109,7 @@ public class TextTask extends Task implements TTSHandler {
         startButton = mainLayout.findViewById(R.id.startButton);
         sttButtonContainer = mainLayout.findViewById(R.id.sttButtonContainer);
         submitAnswerContainer = mainLayout.findViewById(R.id.submitButtonContainer);
-        nextButton = mainView.findViewById(R.id.rightButton);
+        rightButton = mainView.findViewById(R.id.rightButton);
         recyclerView = mainView.findViewById(R.id.words_list);
         recyclerView.setNestedScrollingEnabled(false);
 
@@ -131,45 +129,26 @@ public class TextTask extends Task implements TTSHandler {
 
         countdownText = mainView.findViewById(R.id.countDownText);
 
-        helpButton = mainView.findViewById(R.id.centerButton);
+        centerButton = mainView.findViewById(R.id.centerButton);
 
         buildDialog();
 
         startButton.setOnClickListener(v -> startTask());
 
-
+        providedTask = true;
         setNextButtonStandardBehaviour();
 
 
         sttButton.setOnClickListener(view -> callSTT());
 
-
+        
         return mainView;
     }
 
-    private void setNextButtonStandardBehaviour() {
 
-        nextButton.setOnClickListener(view -> {
-
-            if (providedTask) {
-                loadNextTask();
-            }
-            else{
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-                builder.setTitle(getString(R.string.alert));
-                builder.setMessage(getText(R.string.leave_task));
-                builder.setCancelable(false);
-                builder.setPositiveButton(getString(R.string.leave), (dialog, which) -> loadNextTask());
-                builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
-                builder.show();
-
-            }
-        });
-    }
 
     private void setNextButtonLoopTask(){
-        nextButton.setOnClickListener(v -> {
+        rightButton.setOnClickListener(v -> {
             hideInputs();
             clearInputs();
             showCountdownAgain();
@@ -178,10 +157,7 @@ public class TextTask extends Task implements TTSHandler {
         });
     }
 
-    private void loadNextTask(){
-        callBack.loadContent();
-        TextToSpeechLocal.getInstance(context).stop();
-    }
+
 
     private void orientation() {
         /*String[] questions = {"Tell me the year we are now.",
@@ -237,12 +213,12 @@ public class TextTask extends Task implements TTSHandler {
                 public void onTick(long millisUntilFinished) {
                     String display = Long.toString(millisUntilFinished / 1000, 10);
                     countdownText.setText(display);
-                    nextButton.setClickable(false);
+                    rightButton.setClickable(false);
                 }
 
                 public void onFinish() {
                     countdownText.setVisibility(View.GONE);
-                    nextButton.setClickable(true);
+                    rightButton.setClickable(true);
                     switch (taskType) {
                         case MEMORY:
                             //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");

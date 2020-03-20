@@ -122,18 +122,28 @@ public class TextToSpeechLocal implements Serializable {
     }
 
     public void stop(){
-        if(textToSpeech.isSpeaking()) {
-            textToSpeech.stop();
-            clearBuffer();
+        if(textToSpeech != null) {
+            if (textToSpeech.isSpeaking()) {
+                textToSpeech.stop();
+                clearBuffer();
+            }
         }
     }
     public void clear(){
-        clearBuffer();
-        shuttedDown = true;
-        textToSpeech.shutdown();
+        if(textToSpeech != null) {
+            clearBuffer();
+            shuttedDown = true;
+            textToSpeech.shutdown();
+        }
     }
     private void clearBuffer(){
-        textToSpeech.playSilentUtterance(1, TextToSpeech.QUEUE_FLUSH, null);
+        if(textToSpeech != null) {
+            textToSpeech.playSilentUtterance(1, TextToSpeech.QUEUE_FLUSH, null);
+        }
+    }
+
+    public static synchronized boolean isInitialized(){
+        return textToSpeech != null;
     }
 
 

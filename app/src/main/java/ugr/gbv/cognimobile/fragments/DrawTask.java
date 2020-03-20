@@ -1,27 +1,18 @@
 package ugr.gbv.cognimobile.fragments;
 
-import android.app.Dialog;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.fragment.app.Fragment;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
@@ -38,19 +29,14 @@ public class DrawTask extends Task implements LoadContent {
     private ArrayList<Point> secuence;
     private ArrayList<String> answer;
     private View view;
-    private boolean loaded;
+    private LinearLayout leftButtonContainer;
 
-    // Constants
-    public static final int GRAPH = 0;
-    public static final int CUBE = 1;
-    public static final int WATCH = 2;
 
     private ArrayList<Button> pressedButtons;
 
 
     public DrawTask(int taskType, LoadContent callBack){
         this.taskType = taskType;
-        loaded = false;
         pressedButtons = new ArrayList<>();
         this.callBack = callBack;
     }
@@ -60,6 +46,8 @@ public class DrawTask extends Task implements LoadContent {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.draw_task,container, false);
+        leftButtonContainer = view.findViewById(R.id.leftButtonContainer);
+        leftButtonContainer.setVisibility(View.INVISIBLE);
         drawingView = view.findViewById(R.id.drawingSpace);
 
         switch (taskType){
@@ -76,30 +64,28 @@ public class DrawTask extends Task implements LoadContent {
 
         context = getContext();
 
-        helpButton = view.findViewById(R.id.centerButton);
+        centerButton = view.findViewById(R.id.centerButton);
 
         buildDialog();
 
 
-        FloatingActionButton nextButton = view.findViewById(R.id.rightButton);
-        nextButton.setOnClickListener(view -> callBack.loadContent());
+        rightButton = view.findViewById(R.id.rightButton);
+        rightButton.setOnClickListener(view -> callBack.loadContent());
 
 
 
-
-
-
-        FloatingActionButton undoButton = view.findViewById(R.id.leftButton);
-        undoButton.setOnClickListener(view -> {
+        leftButton = view.findViewById(R.id.leftButton);
+        leftButton.setOnClickListener(view -> {
             drawingView.undoLastOperation();
             if(taskType == GRAPH) {
                 undoLastButton();
             }
         });
 
-
-
         answer = new ArrayList<>();
+        providedTask = true;
+
+        setNextButtonStandardBehaviour();
 
 
         return view;
@@ -109,12 +95,7 @@ public class DrawTask extends Task implements LoadContent {
         if(answer.size() > 0){
             answer.remove(answer.size()-1);
             pressedButtons.get(pressedButtons.size()-1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill,context.getTheme()));
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black,context.getTheme()));
-            }
-            else{
-                pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black));
-            }
+            pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black,context.getTheme()));
             pressedButtons.remove(pressedButtons.size()-1);
         }
     }
@@ -138,12 +119,7 @@ public class DrawTask extends Task implements LoadContent {
                     if(button1.getTag().equals(secuence.get(i1).getLabel())){
                         if(!answer.contains(button1.getTag().toString())){
                             button1.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
-                            }
-                            else{
-                                button1.setTextColor(getResources().getColor(R.color.white));
-                            }
+                            button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
                             answer.add(button1.getTag().toString());
                             drawingView.drawToPoint(secuence.get(i1));
                             continua = false;
@@ -173,7 +149,7 @@ public class DrawTask extends Task implements LoadContent {
 
             ImageView imageView = view.findViewById(R.id.banner_image);
             bannerText = view.findViewById(R.id.banner_text);
-            FloatingActionButton button = view.findViewById(R.id.leftButton);
+
             TextView label = view.findViewById(R.id.leftButtonLabel);
             switch (taskType) {
                 case GRAPH:
@@ -185,13 +161,13 @@ public class DrawTask extends Task implements LoadContent {
                     bannerText.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
-                    button.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
+                    leftButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
                     label.setText(R.string.clear_title_button);
                     bannerText.setText(R.string.cube_instructions);
                     imageView.setVisibility(View.VISIBLE);
                     break;
                 case WATCH:
-                    button.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
+                    leftButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
                     label.setText(R.string.clear_title_button);
                     bannerText.setText(R.string.clock_instructions);
                     break;
@@ -199,7 +175,7 @@ public class DrawTask extends Task implements LoadContent {
                     throw new RuntimeException("Task type not supported");
             }
 
-
+            leftButtonContainer.setVisibility(View.VISIBLE);
             loaded = true;
         }
     }
