@@ -63,6 +63,24 @@
         <item name="android:textColor">@color/white</item>
     </style>
 
+    <style name="IntroductionButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:backgroundTint">@color/colorPrimaryDark</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Title">
+        <item name="android:textSize">@dimen/titleSize</item>
+        <item name="android:fontFamily">@font/bebas_neue_regular_family</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="Description">
+        <item name="android:textSize">@dimen/descriptionSize</item>
+        <item name="android:fontFamily">@font/dimitrina_family</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="DimitrinaFont">
+        <item name="android:fontFamily">@font/dimitrina_family</item>
+    </style>
 
 
 </resources>

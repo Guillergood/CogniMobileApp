@@ -109,7 +109,7 @@ public class ImageTask extends Task {
         rightButton.setOnClickListener(view -> nextTask());
         providedTask = true;
 
-        setNextButtonStandardBehaviour();
+
 
 
 
@@ -118,7 +118,7 @@ public class ImageTask extends Task {
 
     private void nextTask() {
         if(selected == imagesId.length-1) {
-            callBack.loadContent();
+            setNextButtonStandardBehaviour();
         }
         else{
             selected++;
