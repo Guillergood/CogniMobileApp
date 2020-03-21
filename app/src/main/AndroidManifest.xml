@@ -23,26 +23,32 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
-        android:name="ugr.gbv.cognimobile.utilities.ChannelManager"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:icon, android:theme">
+        <activity android:name=".activities.Introduction">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name="ugr.gbv.cognimobile.activities.Test"
+            android:name=".activities.Test"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:windowSoftInputMode="adjustPan"
             android:label="@string/title_activity_test"
-            android:parentActivityName="ugr.gbv.cognimobile.activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".activities.MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ugr.gbv.cognimobile.activities.MainActivity" />
         </activity>
         <activity
-            android:name="ugr.gbv.cognimobile.activities.MainActivity"
+            android:name=".activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -51,8 +57,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="ugr.gbv.cognimobile.qr_reader.ReadQR" />
-
+        <activity android:name=".qr_reader.ReadQR" />
 
         <provider
             android:name="com.aware.providers.Aware_Provider"
@@ -62,23 +67,25 @@
             android:readPermission="com.aware.READ_CONTEXT_DATA"
             android:syncable="true"
             android:writePermission="com.aware.WRITE_CONTEXT_DATA" />
-
-        <provider android:name="ugr.gbv.cognimobile.database.Provider"
+        <provider
+            android:name=".database.Provider"
             android:authorities="${applicationId}.provider"
             android:exported="true"
             android:readPermission="com.aware.READ_CONTEXT_DATA"
-            android:writePermission="com.aware.WRITE_CONTEXT_DATA"/>
+            android:writePermission="com.aware.WRITE_CONTEXT_DATA" />
 
-
-        <service android:name=".database.syncadapters.Cognimobile_Sync"
+        <service
+            android:name=".database.syncadapters.Cognimobile_Sync"
             android:exported="false">
             <intent-filter>
                 <action android:name="android.content.SyncAdapter" />
             </intent-filter>
+
             <meta-data
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/sync_cognimobile" />
         </service>
+
         <receiver
             android:name="com.aware.Aware$Storage_Broadcaster"
             android:exported="true">
@@ -97,6 +104,5 @@
             </intent-filter>
         </receiver>
     </application>
-
 
 </manifest>

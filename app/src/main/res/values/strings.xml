@@ -45,4 +45,7 @@
     <string name="help_button">Help</string>
     <string name="animalHint">Animal Name</string>
     <string name="sttLabel">Microphone</string>
+    <string name="pref_first_time" translatable="false">pref_first_time</string>
+    <string name="skip_button">Skip</string>
+    <string name="proceed_button">Proceed</string>
 </resources>

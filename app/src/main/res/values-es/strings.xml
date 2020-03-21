@@ -27,4 +27,7 @@
     <string name="undo_button">Deshacer</string>
     <string name="help_button">Ayuda</string>
     <string name="sttLabel">Micrófono</string>
+    <string name="animalHint">" Nombre del animal"</string>
+    <string name="proceed_button">Acceder</string>
+    <string name="skip_button">Saltar</string>
 </resources>

@@ -27,4 +27,7 @@
     <string name="undo_button">Ongedaan maken</string>
     <string name="help_button">Hulp</string>
     <string name="sttLabel">Microfoon</string>
+    <string name="animalHint">" Dierlijke naam"</string>
+    <string name="proceed_button">Doorgaan</string>
+    <string name="skip_button">"Overslaan "</string>
 </resources>

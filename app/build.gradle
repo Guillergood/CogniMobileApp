@@ -64,6 +64,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+
     compileOptions {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
@@ -74,8 +76,23 @@ android {
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
     maven { url "https://jitpack.io" }
-}
 
+
+    def githubProperties = new Properties()
+    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
+    maven {
+        name = "GitHubPackages"
+
+        url = uri("https://maven.pkg.github.com/Cuberto/liquid-swipe-android")
+        credentials {
+            /** Create github.properties in root project folder file with
+             ** gpr.usr=GITHUB_USER_ID & gpr.key=PERSONAL_ACCESS_TOKEN
+             ** Or set env variable GPR_USER & GPR_API_KEY if not adding a properties file**/
+            username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
+            password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
+        }
+    }
+}
 
 
 dependencies {
@@ -85,12 +102,14 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'androidx.annotation:annotation:1.1.0'
+    implementation "androidx.preference:preference:1.1.0"
     implementation('me.dm7.barcodescanner:zbar:1.9.8') {
         exclude group: 'com.android.support', module: "support-v4"
     }
