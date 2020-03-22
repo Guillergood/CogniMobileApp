@@ -61,4 +61,5 @@
     <string name="introduction_2_message">Your study patients have the possibility to do several tests on their own.</string>
     <string name="introduction_3_message">All the data collected from the studies will be secure on your server, thanks to the AWARE framework.</string>
     <string name="times_left">You have %1$d times to undo.</string>
+    <string name="no_times_left">You have not any undo times left.</string>
 </resources>

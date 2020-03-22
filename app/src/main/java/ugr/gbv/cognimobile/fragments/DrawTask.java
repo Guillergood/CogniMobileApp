@@ -41,7 +41,6 @@ public class DrawTask extends Task implements LoadContent {
         this.taskType = taskType;
         pressedButtons = new ArrayList<>();
         this.callBack = callBack;
-        undoTimes = getResources().getInteger(R.integer.undo_times);
     }
 
     @Nullable
@@ -52,6 +51,7 @@ public class DrawTask extends Task implements LoadContent {
         leftButtonContainer = view.findViewById(R.id.leftButtonContainer);
         leftButtonContainer.setVisibility(View.INVISIBLE);
         drawingView = view.findViewById(R.id.drawingSpace);
+
 
         switch (taskType){
             case GRAPH:
@@ -66,6 +66,8 @@ public class DrawTask extends Task implements LoadContent {
         }
 
         context = getContext();
+
+        undoTimes = getResources().getInteger(R.integer.undo_times);
 
         centerButton = view.findViewById(R.id.centerButton);
 
@@ -108,7 +110,10 @@ public class DrawTask extends Task implements LoadContent {
     }
 
     private void showUndoTimes() {
-        Toast.makeText(context, getResources().getString(R.string.times_left, undoTimes), Toast.LENGTH_LONG).show();
+        if (undoTimes > 0)
+            Toast.makeText(context, getResources().getString(R.string.times_left, undoTimes), Toast.LENGTH_LONG).show();
+        else
+            Toast.makeText(context, getResources().getString(R.string.no_times_left), Toast.LENGTH_LONG).show();
     }
 
     private void drawButtons(ArrayList<Point> points) {

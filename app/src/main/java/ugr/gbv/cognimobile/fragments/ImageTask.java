@@ -117,19 +117,17 @@ public class ImageTask extends Task {
     }
 
     private void nextTask() {
-        if(selected == imagesId.length-1) {
+        selected++;
+        ImageView imageView = mainView.findViewById(imagesId[selected]);
+        imageView.setVisibility(View.VISIBLE);
+        if (selected > 0) {
+            imageView = mainView.findViewById(imagesId[selected - 1]);
+            imageView.setVisibility(View.INVISIBLE);
+            clearInputs();
+        }
+        if (selected == imagesId.length - 1)
             setNextButtonStandardBehaviour();
-        }
-        else{
-            selected++;
-            ImageView imageView = mainView.findViewById(imagesId[selected]);
-            imageView.setVisibility(View.VISIBLE);
-            if(selected > 0){
-                imageView = mainView.findViewById(imagesId[selected-1]);
-                imageView.setVisibility(View.INVISIBLE);
-                clearInputs();
-            }
-        }
+
     }
 
     private void clearInputs() {
