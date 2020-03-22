@@ -21,5 +21,11 @@
     <color name="gray_80">#2c3338</color>
     <color name="gray_90">#1d2327</color>
     <color name="gray_100">#101517</color>
+    <color name="tutorial_red">#ff8a80</color>
+    <color name="tutorial_stroke_red">#c85a54</color>
+    <color name="tutorial_blue">#a7ffeb</color>
+    <color name="tutorial_stroke_blue">#75ccb9</color>
+    <color name="tutorial_green">#ccff90</color>
+    <color name="tutorial_stroke_green">#99cc60</color>
 
 </resources>

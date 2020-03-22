@@ -48,4 +48,16 @@
     <string name="pref_first_time" translatable="false">pref_first_time</string>
     <string name="skip_button">Skip</string>
     <string name="proceed_button">Proceed</string>
+    <string name="tutorial_message">This is your fist time using the app, do you want to see the tutorial?</string>
+    <string name="confirm">Confirm</string>
+    <string name="tutorial_welcome_meessage">Welcome to the tutorial. \nYou are going to see how to use the tasks provided for you.</string>
+    <string name="tutorial_top_message">The tasks have 3 areas: top (blue), center (red) and bottom (green).\nThe top one contains useful information about what needs to be done.</string>
+    <string name="tutorial_center_message">The center contains the playable area where you will be able to complete the task.</string>
+    <string name="tutorial_bottom_message">The bottom contains buttons to undo certain actions, to provide more information about the task and to continue to the next task. If you do not know how to complete the task you can skip it with the next button, located on the right.\nTo finish the tutorial click on the next button.</string>
+    <string name="introduction_1_title">Results</string>
+    <string name="introduction_2_title">Comfort</string>
+    <string name="introduction_3_title">Security</string>
+    <string name="introduction_1_message">Cognimobile allows you to get all the data needed for your studies plus context data from your patients in order you to diagnose better.</string>
+    <string name="introduction_2_message">Your study patients have the possibility to do several tests on their own.</string>
+    <string name="introduction_3_message">All the data collected from the studies will be secure on your server, thanks to the AWARE framework.</string>
 </resources>

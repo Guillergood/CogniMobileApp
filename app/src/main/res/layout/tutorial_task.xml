@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawTaskLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewBottom"
+        style="@style/CardView.Light"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.9"
+        android:elevation="0dp"
+        android:padding="25dp"
+        android:visibility="invisible"
+        app:cardBackgroundColor="@color/tutorial_green"
+        app:cardCornerRadius="@dimen/corner_radius"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:strokeColor="@color/tutorial_stroke_green"
+        app:strokeWidth="100dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/leftButtonContainer"
+                style="@style/QuickActionButtonContainer"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/tutorial_green"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/centerButtonContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:strokeColor="@color/tutorial_stroke_green"
+                app:strokeWidth="100dp">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/leftButton"
+                    style="@style/QuickActionButton"
+                    android:padding="@dimen/small_padding"
+                    android:src="@drawable/undo_button_24dp" />
+
+                <TextView
+                    android:id="@+id/leftButtonLabel"
+                    style="@style/QuickActionButtonLabel"
+                    android:text="@string/undo_button" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/centerButtonContainer"
+                style="@style/QuickActionButtonContainer"
+
+                android:layout_alignParentStart="true"
+
+                android:layout_marginStart="160dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/tutorial_green"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/rightButtonContainer"
+                app:layout_constraintStart_toEndOf="@+id/leftButtonContainer"
+                app:strokeColor="@color/tutorial_stroke_green"
+                app:strokeWidth="100dp">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/centerButton"
+                    style="@style/QuickActionButton"
+                    android:padding="@dimen/small_padding"
+                    android:src="@drawable/help_button_24dp" />
+
+                <TextView
+                    android:id="@+id/centerButtonLabel"
+                    style="@style/QuickActionButtonLabel"
+                    android:text="@string/help_button" />
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/rightButtonContainer"
+                style="@style/QuickActionButtonContainer"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/tutorial_green"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/centerButtonContainer"
+                app:strokeColor="@color/tutorial_stroke_green"
+                app:strokeWidth="100dp">
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/rightButton"
+                    style="@style/QuickActionButton"
+                    android:padding="@dimen/small_padding"
+                    android:src="@drawable/next_button_24dp" />
+
+                <TextView
+                    android:id="@+id/rightButtonLabel"
+                    style="@style/QuickActionButtonLabel"
+                    android:text="@string/next_button" />
+            </LinearLayout>
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        style="@style/CardView.Light"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.9"
+        android:padding="25dp"
+        android:visibility="invisible"
+        app:cardBackgroundColor="@color/tutorial_red"
+        app:cardCornerRadius="@dimen/corner_radius"
+        app:cardElevation="0dp"
+        app:cardMaxElevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/cardViewBottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardViewTop"
+        app:strokeColor="@color/tutorial_stroke_red"
+        app:strokeWidth="100dp">
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardViewTop"
+        style="@style/CardView.Light"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:alpha="0.9"
+        android:padding="25dp"
+        app:cardBackgroundColor="@color/tutorial_blue"
+        app:cardCornerRadius="@dimen/corner_radius"
+        app:layout_constraintBottom_toTopOf="@+id/cardView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/tutorial_stroke_blue"
+        app:strokeWidth="100dp">
+
+    </androidx.cardview.widget.CardView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

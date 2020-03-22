@@ -28,8 +28,7 @@
             android:textSize="@dimen/banner_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:justificationMode="inter_word"
-            android:text="@string/title_text">
+            android:justificationMode="inter_word">
 
         </TextView>
     </ScrollView>

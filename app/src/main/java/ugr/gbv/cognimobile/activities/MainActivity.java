@@ -18,6 +18,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
 
@@ -87,99 +89,17 @@ public class MainActivity extends AppCompatActivity
         test.setOnClickListener(v -> irATest());
 
 
+        if (CognimobilePreferences.getFirstTimeLaunch(this)) {
+            displayTutorialDialog();
+            CognimobilePreferences.setFirstTimeLaunch(getApplicationContext(), false);
+        }
+
 
 
 
         ActivityCompat.requestPermissions(this,
                 REQUIRED_PERMISSIONS,
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
-
-
-
-        /*boolean isRunning = false;
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        assert mNotificationManager != null;
-        StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
-        for (StatusBarNotification notification : notifications) {
-            if (notification.getId() == NotificationUtils.ARTICLE_NOTIFICATION_ID) {
-                isRunning = true;
-            }
-        }
-
-
-        if(!isRunning) {
-            NotificationUtils.notifyCorrectUpdate(getApplicationContext());
-            Intent aware = new Intent(this, Aware.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(aware);
-            } else {
-                startService(aware);
-            }
-        }*/
-
-        //Aware.setSetting(context,Aware_Preferences.FREQUENCY_WIFI,60000);
-        //Aware.startWiFi(context);
-
-        /*Aware.setSetting(context, Aware_Preferences.FREQUENCY_ACCELEROMETER, 200000); //20Hz
-        Aware.setSetting(context, Aware_Preferences.THRESHOLD_ACCELEROMETER, 0.02f); // [x,y,z] > 0.02 to log
-
-        Aware.startAccelerometer(this);
-
-        Accelerometer.setSensorObserver(new Accelerometer.AWARESensorObserver() {
-            @Override
-            public void onAccelerometerChanged(ContentValues data) {
-                double x = data.getAsDouble(Accelerometer_Provider.Accelerometer_Data.VALUES_0);
-                double y = data.getAsDouble(Accelerometer_Provider.Accelerometer_Data.VALUES_1);
-                double z = data.getAsDouble(Accelerometer_Provider.Accelerometer_Data.VALUES_2);
-
-                println("x = "+x+" y = "+y+" z = "+z);
-            }
-        });*/
-
-/*
-        boolean permissionNotGranted = false;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-            permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PermissionChecker.PERMISSION_GRANTED;
-
-
-            if (permissionNotGranted) {
-                ArrayList<String> permission = new ArrayList<>();
-                permission.add(Manifest.permission.FOREGROUND_SERVICE);
-
-                Intent permissions = new Intent(this, PermissionsHandler.class);
-                permissions.putExtra(PermissionsHandler.EXTRA_REQUIRED_PERMISSIONS, permission);
-                permissions.putExtra(PermissionsHandler.EXTRA_REDIRECT_ACTIVITY, getPackageName() + "/" + getPackageName() + ".qr_reader.ReadQR");
-                permissions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(permissions);
-            }
-        }
-
-
-        boolean isRunning = false;
-        NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        assert mNotificationManager != null;
-        StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
-        for (StatusBarNotification notification : notifications) {
-            if (notification.getId() == NotificationUtils.ARTICLE_NOTIFICATION_ID) {
-                isRunning = true;
-            }
-        }
-
-
-        if(!isRunning) {
-            Intent aware = new Intent(this, Aware.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(aware);
-            } else {
-                getBaseContext().startService(aware);
-            }
-            NotificationUtils.notifyCorrectUpdate(getApplicationContext());
-
-        }
-
- */
-
 
 
 
@@ -413,6 +333,26 @@ public class MainActivity extends AppCompatActivity
 
     private void irATest() {
         Intent intent = new Intent(this, Test.class);
+        startActivity(intent);
+    }
+
+    private void displayTutorialDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle(getString(R.string.alert));
+        builder.setMessage(getText(R.string.tutorial_message));
+        builder.setCancelable(false);
+        builder.setPositiveButton(getString(R.string.confirm), (dialog, which) -> goToTutorial());
+        builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
+            CognimobilePreferences.setFirstTimeLaunch(this, false);
+            dialog.dismiss();
+        });
+        builder.show();
+
+    }
+
+    private void goToTutorial() {
+        Intent intent = new Intent(this, TutorialTest.class);
         startActivity(intent);
     }
 

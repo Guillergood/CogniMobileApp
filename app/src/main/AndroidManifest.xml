@@ -53,6 +53,7 @@
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity android:name=".qr_reader.ReadQR" />
+        <activity android:name=".activities.TutorialTest" />
 
         <provider
             android:name="com.aware.providers.Aware_Provider"

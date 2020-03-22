@@ -204,7 +204,6 @@ public class Introduction extends Activity {
     private void goToMainMenu(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
-        CognimobilePreferences.setFirstTimeLaunch(getApplicationContext(),false);
         finish();
     }
 }
