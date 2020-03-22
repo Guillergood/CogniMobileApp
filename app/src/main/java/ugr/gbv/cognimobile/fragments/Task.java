@@ -31,7 +31,6 @@ public abstract class Task extends Fragment {
     FloatingActionButton leftButton;
     FloatingActionButton rightButton;
 
-    public static final int TUTORIAL = -1;
     public static final int GRAPH = 0;
     public static final int CUBE = 1;
     public static final int WATCH = 2;

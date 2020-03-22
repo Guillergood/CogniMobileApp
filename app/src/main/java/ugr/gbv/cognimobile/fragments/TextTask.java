@@ -228,6 +228,7 @@ public class TextTask extends Task implements TTSHandler {
                             break;
                         case ATENTION_NUMBERS:
                             //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
+                            sttButton.setVisibility(View.INVISIBLE);
                             if(firstDone){
                                 repeatBackwards("7,4,2");
                             }
@@ -265,6 +266,7 @@ public class TextTask extends Task implements TTSHandler {
                     orientation();
                     break;
                 case ATENTION_SUBSTRACTION:
+                    sttButton.setVisibility(View.INVISIBLE);
                     serialSubstraction(100, 7, 5);
                     onlyNumbersInputAccepted = true;
                     break;

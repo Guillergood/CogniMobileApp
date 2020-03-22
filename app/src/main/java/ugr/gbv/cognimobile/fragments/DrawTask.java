@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +31,7 @@ public class DrawTask extends Task implements LoadContent {
     private ArrayList<String> answer;
     private View view;
     private LinearLayout leftButtonContainer;
+    private int undoTimes;
 
 
     private ArrayList<Button> pressedButtons;
@@ -39,6 +41,7 @@ public class DrawTask extends Task implements LoadContent {
         this.taskType = taskType;
         pressedButtons = new ArrayList<>();
         this.callBack = callBack;
+        undoTimes = getResources().getInteger(R.integer.undo_times);
     }
 
     @Nullable
@@ -92,12 +95,20 @@ public class DrawTask extends Task implements LoadContent {
     }
 
     private void undoLastButton() {
-        if(answer.size() > 0){
-            answer.remove(answer.size()-1);
-            pressedButtons.get(pressedButtons.size()-1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill,context.getTheme()));
-            pressedButtons.get(pressedButtons.size()-1).setTextColor(getResources().getColor(R.color.black,context.getTheme()));
-            pressedButtons.remove(pressedButtons.size()-1);
+        if (undoTimes > 0) {
+            if (answer.size() > 0) {
+                answer.remove(answer.size() - 1);
+                pressedButtons.get(pressedButtons.size() - 1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill, context.getTheme()));
+                pressedButtons.get(pressedButtons.size() - 1).setTextColor(getResources().getColor(R.color.black, context.getTheme()));
+                pressedButtons.remove(pressedButtons.size() - 1);
+            }
+            undoTimes--;
+            showUndoTimes();
         }
+    }
+
+    private void showUndoTimes() {
+        Toast.makeText(context, getResources().getString(R.string.times_left, undoTimes), Toast.LENGTH_LONG).show();
     }
 
     private void drawButtons(ArrayList<Point> points) {
