@@ -6,6 +6,8 @@ import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
@@ -27,14 +29,36 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 import com.aware.Battery;
+import com.aware.providers.Aware_Provider;
 import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
@@ -124,7 +148,7 @@ public class MainActivity extends AppCompatActivity
             StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
             for (StatusBarNotification notification : notifications) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_ID) ) {
+                    if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_CHANNEL_GENERAL) ) {
                         isRunning = true;
                     }
                 }
@@ -203,16 +227,17 @@ public class MainActivity extends AppCompatActivity
         switch (menuItem.getItemId()){
             case R.id.nav_gallery:
                 //readQR();
-                Aware.joinStudy(getApplicationContext(),"https://api.awareframework.com/index.php/webservice/index/2501/ZbTIjeyGPlxc");
+                Aware.joinStudy(getApplicationContext(),"http://192.168.1.33:8080/index.php/1/4lph4num3ric");
                 break;
             case R.id.nav_home:
                 //irATest();
-                comenzarBateria();
+                //comenzarBateria();
+                dataTest();
                 break;
             case R.id.nav_slideshow:
                 //speechToText();
                 //Aware.startBattery(getApplicationContext());
-                pararBateria();
+                //pararBateria();
                 break;
 
         }
@@ -222,6 +247,116 @@ public class MainActivity extends AppCompatActivity
 
 
 
+    }
+
+    private void dataTest() {
+
+        Thread task = new Thread(){
+            @Override
+            public void run() {
+                HashMap<String, String> params = new HashMap<>();
+                params.put("device_id",Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID));
+
+
+                try {
+
+                    String formattedData = formatData();
+
+                    params.put("data",formattedData);
+
+                    String connectionURLString = URLDecoder.decode(constructURL("participants"),"ascii");
+
+
+                    URL url = new URL(connectionURLString);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    conn.connect();
+
+
+                    String postInformation = constructPostInformation(params);
+
+
+                    sendData(conn,postInformation);
+
+
+                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+                    Log.i("MSG" , conn.getResponseMessage());
+
+                    conn.disconnect();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        task.start();
+
+
+
+
+    }
+
+    private void sendData(HttpURLConnection conn,String postInformation) throws IOException {
+        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+        wr.writeBytes(postInformation);
+        wr.flush();
+        wr.close();
+    }
+
+    private String formatData() throws JSONException {
+
+        double timestamp = System.currentTimeMillis();
+
+        JSONObject jsonParam = new JSONObject();
+        jsonParam.put("device_id", Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID));
+        jsonParam.put("timestamp", timestamp);
+        jsonParam.put("data", "1488873360");
+
+        JSONArray realData = new JSONArray();
+        realData.put(jsonParam);
+        return realData.toString();
+    }
+
+    private String constructPostInformation(HashMap<String,String> params) {
+        StringBuilder postVariables = new StringBuilder();
+        int i = 0;
+
+        for (String key : params.keySet()) {
+
+            if (i != 0){
+                postVariables.append("&");
+            }
+            postVariables.append(key).append("=")
+                    .append(params.get(key));
+            i++;
+        }
+
+        return postVariables.toString();
+    }
+
+
+    private String constructURL(String table) {
+        Cursor studies = Aware.getStudy(getApplicationContext(),"");
+        studies.moveToFirst();
+        String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
+        Uri studyUri = Uri.parse(urlDb);
+        Uri.Builder urlBuilder = new Uri.Builder();
+        List<String> paths = studyUri.getPathSegments();
+
+        urlBuilder.scheme(studyUri.getScheme())
+                .authority(studyUri.getAuthority());
+
+        for (String path: paths) {
+            urlBuilder.appendPath(path);
+        }
+
+        urlBuilder.appendPath(table)
+                .appendPath("insert");
+
+
+        return urlBuilder.build().toString();
     }
 
 

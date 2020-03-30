@@ -8,11 +8,11 @@
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">176dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="banner_text">18sp</dimen>
+    <dimen name="banner_text">20sp</dimen>
     <dimen name="corner_radius">5dp</dimen>
     <dimen name="border_width">1dp</dimen>
     <dimen name="card_elevation">5dp</dimen>
-    <dimen name="text_sz_small">12sp</dimen>
+    <dimen name="text_sz_small">14sp</dimen>
     <dimen name="margin_medium">8dp</dimen>
     <color name="neutral_60">#50575e</color>
     <dimen name="small_padding">5dp</dimen>
@@ -22,5 +22,6 @@
 
     <dimen name="titleSize">64sp</dimen>
     <dimen name="descriptionSize">32sp</dimen>
+    <dimen name="normalSize">20sp</dimen>
     <dimen name="huge_padding">36dp</dimen>
 </resources>

@@ -30,4 +30,19 @@
     <string name="animalHint">" Nombre del animal"</string>
     <string name="proceed_button">Acceder</string>
     <string name="skip_button">Saltar</string>
+    <string name="tutorial_message">Esta es tu primera vez con la aplicación. ¿Quieres ver el tutorial?</string>
+    <string name="confirm">Corfirmar</string>
+    <string name="introduction_1_title">Resultados</string>
+    <string name="introduction_2_title">Bienestar</string>
+    <string name="introduction_3_title">Seguridad</string>
+    <string name="tutorial_welcome_meessage">Bienvenido al tutorial. Va a ver cómo abordar las tareas que se le van a suministrar</string>
+    <string name="tutorial_top_message">Las tareas tienen 3 áreas: superior (azul), centro (rojo) e inferior (verde). La parte superior contiene información útil sobre lo que hay que hacer.</string>
+    <string name="tutorial_center_message">" El centro contiene el área interactiva donde podrás completar la tarea."</string>
+    <string name="tutorial_bottom_message">" La parte inferior contiene botones para deshacer ciertas acciones, proporcionar más información sobre la tarea y continuar con la siguiente tarea. Si no sabe cómo completar la tarea, puede omitirla con el siguiente botón, ubicado a la derecha. Para finalizar el tutorial, haga clic en el siguiente botón."</string>
+    <string name="introduction_1_message">" Cognimobile le permite obtener todos los datos necesarios para sus estudios, además de datos de contexto de sus pacientes para que pueda diagnosticar mejor."</string>
+    <string name="introduction_2_message">" Los pacientes de su estudio tienen la posibilidad de hacer varias pruebas por su cuenta."</string>
+    <string name="introduction_3_message">" Todos los datos recopilados de los estudios estarán seguros en su servidor, gracias al marco de trabajo AWARE."</string>
+    <string name="times_left">Tiene %1$d oportunidades para deshacer.</string>
+    <string name="no_times_left">Ya no tiene más oportunidades para deshacer</string>
+    <string name="speech_bubble_tail">Cola de burbuja de discurso</string>
 </resources>

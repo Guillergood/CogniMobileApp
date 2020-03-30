@@ -102,6 +102,7 @@
 
         <TextView
             android:id="@+id/banner_text"
+            android:justificationMode="inter_word"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"

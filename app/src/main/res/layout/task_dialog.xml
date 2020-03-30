@@ -42,9 +42,9 @@
         app:layout_constraintEnd_toEndOf="@+id/dialogTextContainer"
         app:layout_constraintStart_toStartOf="@+id/dialogTextContainer"
         app:layout_constraintTop_toBottomOf="@+id/dialogTextContainer"
-        android:contentDescription="Speech bubble tail">
-
+        android:contentDescription="@string/speech_bubble_tail">
     </ImageView>
+
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/motion"
         android:layout_width="wrap_content"

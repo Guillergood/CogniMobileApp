@@ -1,6 +1,2 @@
 include ':app'
-
-
-//include ':com.aware.plugin.experience_sampling'
-//project(':com.aware.plugin.experience_sampling').projectDir = new File('com.aware.plugin.experience_sampling/com.aware.plugin.affective_esm.lib')
-
+//,':com.aware.plugin.device_usage', ':com.aware.plugin.device_usage.lib'

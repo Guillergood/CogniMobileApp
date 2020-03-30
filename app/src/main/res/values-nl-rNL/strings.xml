@@ -30,4 +30,19 @@
     <string name="animalHint">" Dierlijke naam"</string>
     <string name="proceed_button">Doorgaan</string>
     <string name="skip_button">"Overslaan "</string>
+    <string name="tutorial_message">" Dit is de eerste keer dat je de app gebruikt. Wil je de tutorial zien?"</string>
+    <string name="confirm">Bevestigen</string>
+    <string name="tutorial_top_message">" De taken hebben 3 gebieden: boven (blauw), midden (rood) en onder (groen). De bovenste bevat nuttige informatie over wat er moet gebeuren."</string>
+    <string name="tutorial_welcome_meessage">" Welkom bij de tutorial. Je gaat kijken hoe je de taken die voor jou beschikbaar zijn kunt gebruiken."</string>
+    <string name="tutorial_center_message">" Het midden bevat het speelbare gebied waar u de taak kunt voltooien."</string>
+    <string name="tutorial_bottom_message">" De onderkant bevat knoppen om bepaalde acties ongedaan te maken, om meer informatie over de taak te geven en om door te gaan naar de volgende taak. Als u niet weet hoe u de taak moet voltooien, kunt u deze overslaan met de volgende knop aan de rechterkant. Klik op de volgende knop om de tutorial af te ronden."</string>
+    <string name="introduction_1_title">Resultaten</string>
+    <string name="introduction_2_title">Comfort</string>
+    <string name="introduction_3_title">Veiligheid</string>
+    <string name="introduction_1_message">Met Cognimobile kunt u alle gegevens die nodig zijn voor uw studies en contextgegevens van uw patiënten verkrijgen, zodat u een betere diagnose kunt stellen.</string>
+    <string name="introduction_2_message">Uw studiepatiënten hebben de mogelijkheid om zelf meerdere tests uit te voeren.</string>
+    <string name="introduction_3_message">" Alle gegevens die uit de onderzoeken zijn verzameld, staan ​​veilig op uw server dankzij het AWARE-framework."</string>
+    <string name="times_left">" U moet %1$d keer ongedaan maken."</string>
+    <string name="no_times_left">" Je hebt geen ongedaan gemaakte tijden meer."</string>
+    <string name="speech_bubble_tail">Toespraak bubble staart</string>
 </resources>
