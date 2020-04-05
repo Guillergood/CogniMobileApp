@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="undo_times">3</integer>
+    <integer name="default_time">5000</integer>
+    <integer name="one_minute_millis">60000</integer>
 </resources>

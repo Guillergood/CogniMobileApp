@@ -121,28 +121,28 @@
         android:id="@+id/additional_task_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="@dimen/default_margin"
+        android:layout_marginRight="@dimen/default_margin"
+        android:layout_marginLeft="@dimen/default_margin"
         android:textSize="@dimen/banner_text"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/additional_task_input"
-        app:layout_constraintEnd_toEndOf="@+id/textSpace"
-        app:layout_constraintHorizontal_bias="0.51"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/banner" />
 
     <EditText
         android:id="@+id/additional_task_input"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
+        android:layout_marginTop="24dp"
         android:gravity="center"
         android:imeOptions="actionDone"
         android:inputType="textVisiblePassword"
         android:minWidth="150dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/submitButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/additional_task_text" />
 
 
     <LinearLayout
@@ -168,10 +168,10 @@
     <LinearLayout
         android:id="@+id/submitButtonContainer"
         style="@style/QuickActionButtonContainer"
-        android:drawableStart="@drawable/ic_mic_grey_24dp"
+        android:layout_marginTop="8dp"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/halfScreen"
-        app:layout_constraintTop_toTopOf="@+id/countDownText">
+        app:layout_constraintTop_toBottomOf="@+id/additional_task_input">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/submitButton"
@@ -179,7 +179,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/small_padding"
-            android:src="@drawable/add_word_24dp" />
+            android:src="@drawable/ic_enter_black_24dp" />
 
         <TextView
             android:id="@+id/submitButtonLabel"

@@ -29,13 +29,8 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
-import com.aware.Battery;
 import com.aware.providers.Aware_Provider;
 import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -47,18 +42,12 @@ import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
@@ -72,42 +61,13 @@ public class MainActivity extends AppCompatActivity
 
     private final int QR_CODE = 1;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 998;
-    private static final String[] REQUIRED_PERMISSIONS ={(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-            (Manifest.permission.ACCESS_WIFI_STATE),
-            (Manifest.permission.CAMERA),
-            (Manifest.permission.BLUETOOTH),
-            (Manifest.permission.BLUETOOTH_ADMIN),
-            (Manifest.permission.ACCESS_COARSE_LOCATION),
-            (Manifest.permission.ACCESS_FINE_LOCATION),
-            (Manifest.permission.READ_PHONE_STATE),
-            (Manifest.permission.GET_ACCOUNTS),
-            (Manifest.permission.WRITE_SYNC_SETTINGS),
-            (Manifest.permission.READ_SYNC_SETTINGS),
-            (Manifest.permission.READ_SYNC_STATS),
-            (Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS),
-            (Manifest.permission.FOREGROUND_SERVICE)};
+    private ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.drawer_layout);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        inicializaValoresMenuHamburguesa();
-
-        inicializaMenuInferior();
+        setContentView(R.layout.layout_actividad_principal);
+        initBottomNavBar();
 
         Button test = findViewById(R.id.testButton);
         test.setOnClickListener(v -> irATest());
@@ -118,25 +78,35 @@ public class MainActivity extends AppCompatActivity
             CognimobilePreferences.setFirstTimeLaunch(getApplicationContext(), false);
         }
 
-
+        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_WIFI_STATE);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.CAMERA);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH_ADMIN);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_PHONE_STATE);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.GET_ACCOUNTS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_SYNC_SETTINGS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SYNC_SETTINGS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SYNC_STATS);
+        REQUIRED_PERMISSIONS.add(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            REQUIRED_PERMISSIONS.add(Manifest.permission.FOREGROUND_SERVICE);
+        }
 
 
         ActivityCompat.requestPermissions(this,
-                REQUIRED_PERMISSIONS,
+                REQUIRED_PERMISSIONS.toArray(new String[0]),
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-
-
-
-
-        
-
 
     }
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
 
         if(permissions.length > 0 && grantResults.length == permissions.length){
 
@@ -153,7 +123,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 else{
-                    isRunning = isMyServiceRunning(Aware.class);
+                    isRunning = isMyServiceRunning();
                 }
             }
 
@@ -169,16 +139,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void inicializaMenuInferior() {
+    private void initBottomNavBar() {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(this);
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
+    private boolean isMyServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
+        if(manager != null) {
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (Aware.class.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
             }
         }
         return false;
@@ -186,23 +158,23 @@ public class MainActivity extends AppCompatActivity
 
 
     /**
-     * Devuelve "true" si se ha podido hacer la transsicion de un fragmento a otro.
+     * Devuelve "true" si se ha podido hacer la transsicion de un fragment a otro.
      * En otro caso "false"
      *
-     * @param fragmento Fragmento por el cual se va a cambiar la vista
-     * @return booleano valor dependiendo de si es valido fragmento o no devolverá "true" o "false"
+     * @param fragment Fragmento por el cual se va a cambiar la vista
+     * @return booleano valor dependiendo de si es valido fragment o no devolverá "true" o "false"
      */
-    private boolean cargarFragmento (Fragment fragmento){
+    private boolean loadFragment(Fragment fragment){
 
-        boolean devuelve = false;
-        if(fragmento != null){
+        boolean returnValue = false;
+        if(fragment != null){
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.contenedor_fragmento, fragmento)
+                    .replace(R.id.contenedor_fragmento, fragment)
                     .commit();
-            devuelve = true;
+            returnValue = true;
         }
-        return devuelve;
+        return returnValue;
     }
 
 
@@ -212,32 +184,24 @@ public class MainActivity extends AppCompatActivity
      *
      *
      * @param menuItem Elemento que se ha pinchado
-     * @return booleano valor de la función cargarFragmento dependiendo de si es valido fragmento
+     * @return booleano valor de la función loadFragment dependiendo de si es valido fragmento
      * o no devolverá "true" o "false"
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-
-
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-
         switch (menuItem.getItemId()){
-            case R.id.nav_gallery:
+            case R.id.nav_studies:
                 //readQR();
                 Aware.joinStudy(getApplicationContext(),"http://192.168.1.33:8080/index.php/1/4lph4num3ric");
                 break;
-            case R.id.nav_home:
+            case R.id.nav_tests:
                 //irATest();
-                //comenzarBateria();
                 dataTest();
                 break;
-            case R.id.nav_slideshow:
+            case R.id.nav_settings:
                 //speechToText();
                 //Aware.startBattery(getApplicationContext());
-                //pararBateria();
                 break;
 
         }
@@ -264,7 +228,56 @@ public class MainActivity extends AppCompatActivity
 
                     params.put("data",formattedData);
 
-                    String connectionURLString = URLDecoder.decode(constructURL("participants"),"ascii");
+                    String connectionURLString = URLDecoder.decode(constructURL("participants","insert"),"ascii");
+
+
+                    URL url = new URL(connectionURLString);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    conn.connect();
+
+
+                    String postInformation = constructPostInformation(params);
+
+
+                    sendData(conn,postInformation);
+
+
+                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
+                    Log.i("MSG" , conn.getResponseMessage());
+
+                    conn.disconnect();
+                }
+                catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        task.start();
+
+
+
+
+    }
+
+    private void queryData() {
+
+        Thread task = new Thread(){
+            @Override
+            public void run() {
+                HashMap<String, String> params = new HashMap<>();
+                params.put("device_id",Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID));
+
+
+                try {
+
+                    String formattedData = formatData();
+
+                    params.put("data",formattedData);
+
+                    String connectionURLString = URLDecoder.decode(constructURL("participants","insert"),"ascii");
 
 
                     URL url = new URL(connectionURLString);
@@ -337,7 +350,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private String constructURL(String table) {
+    private String constructURL(String table,String command) {
         Cursor studies = Aware.getStudy(getApplicationContext(),"");
         studies.moveToFirst();
         String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
@@ -353,55 +366,16 @@ public class MainActivity extends AppCompatActivity
         }
 
         urlBuilder.appendPath(table)
-                .appendPath("insert");
+                .appendPath(command);
 
 
         return urlBuilder.build().toString();
     }
 
 
-    private void comenzarBateria() {
-        Aware.startBattery(this);
-        Battery.setSensorObserver(new Battery.AWARESensorObserver() {
-            @Override
-            public void onBatteryChanged(ContentValues data) {
-                Log.d("AWARE","CAMBIO LA BATERIA");
-            }
-
-            @Override
-            public void onPhoneReboot() {
-
-            }
-
-            @Override
-            public void onPhoneShutdown() {
-
-            }
-
-            @Override
-            public void onBatteryLow() {
-                Log.d("AWARE","BATERIA BAJA");
-            }
-
-            @Override
-            public void onBatteryCharging() {
-                Log.d("AWARE","BATERIA CARGANDO");
-            }
-
-            @Override
-            public void onBatteryDischarging() {
-                Log.d("AWARE","BATERIA DESCARGANDO");
-            }
-        });
-    }
 
 
 
-    private void pararBateria() {
-
-        Aware.stopBattery(this);
-
-    }
 
     private void crearDatos(){
         ContentValues new_data = new ContentValues();
@@ -474,10 +448,10 @@ public class MainActivity extends AppCompatActivity
     private void displayTutorialDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle(getString(R.string.alert));
+        builder.setTitle(getString(R.string.attention));
         builder.setMessage(getText(R.string.tutorial_message));
         builder.setCancelable(false);
-        builder.setPositiveButton(getString(R.string.confirm), (dialog, which) -> goToTutorial());
+        builder.setPositiveButton(getString(R.string.go_on), (dialog, which) -> goToTutorial());
         builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> {
             CognimobilePreferences.setFirstTimeLaunch(this, false);
             dialog.dismiss();
@@ -492,25 +466,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
 
-    private void inicializaValoresMenuHamburguesa(){
-        NavigationView navigationView = findViewById(R.id.panel_lateral);
-        navigationView.setNavigationItemSelectedListener(this);
-
-/*        View headerView = navigationView.getHeaderView(0);
-
-        TextView titulo = headerView.findViewById(R.id.titulo_hamburgesa);
-        TextView descripcion = headerView.findViewById(R.id.descripcion_hamburgesa);*/
-    }
 
 
 

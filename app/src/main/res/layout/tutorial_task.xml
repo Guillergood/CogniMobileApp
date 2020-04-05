@@ -11,12 +11,11 @@
         style="@style/CardView.Light"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginBottom="16dp"
         android:alpha="0.9"
         android:elevation="0dp"
-        android:padding="25dp"
         android:visibility="invisible"
         app:cardBackgroundColor="@color/tutorial_green"
         app:cardCornerRadius="@dimen/corner_radius"
@@ -29,14 +28,16 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+            android:layout_height="match_parent"
+            android:padding="0dp"
+            android:layout_margin="0dp">
             <LinearLayout
                 android:id="@+id/leftButtonContainer"
                 style="@style/QuickActionButtonContainer"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="@dimen/minor_margin"
+                android:layout_marginStart="@dimen/grand_margin"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginBottom="@dimen/margin_medium"
                 android:background="@color/tutorial_green"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/centerButtonContainer"
@@ -56,14 +57,15 @@
                     android:text="@string/undo_button" />
             </LinearLayout>
 
+
             <LinearLayout
                 android:id="@+id/centerButtonContainer"
                 style="@style/QuickActionButtonContainer"
-
                 android:layout_alignParentStart="true"
-
-                android:layout_marginStart="160dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginStart="159dp"
+                android:layout_marginTop="@dimen/minor_margin"
+                android:layout_marginEnd="@dimen/margin_medium"
+                android:layout_marginBottom="@dimen/margin_medium"
                 android:background="@color/tutorial_green"
                 android:gravity="center"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -84,14 +86,14 @@
                     android:text="@string/help_button" />
             </LinearLayout>
 
-
             <LinearLayout
                 android:id="@+id/rightButtonContainer"
                 style="@style/QuickActionButtonContainer"
+                android:layout_marginTop="@dimen/minor_margin"
                 android:layout_alignParentEnd="true"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginStart="@dimen/grand_margin"
+                android:layout_marginEnd="@dimen/grand_margin"
+                android:layout_marginBottom="@dimen/margin_medium"
                 android:background="@color/tutorial_green"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -119,8 +121,8 @@
         style="@style/CardView.Light"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="@dimen/margin_medium"
+        android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginBottom="16dp"
         android:alpha="0.9"
         android:padding="25dp"
@@ -143,9 +145,9 @@
         style="@style/CardView.Light"
         android:layout_width="0dp"
         android:layout_height="100dp"
-        android:layout_marginStart="8dp"
+        android:layout_marginStart="@dimen/margin_medium"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="@dimen/margin_medium"
         android:layout_marginBottom="16dp"
         android:alpha="0.9"
         android:padding="25dp"
@@ -159,6 +161,5 @@
         app:strokeWidth="100dp">
 
     </androidx.cardview.widget.CardView>
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

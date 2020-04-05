@@ -24,4 +24,7 @@
     <dimen name="descriptionSize">32sp</dimen>
     <dimen name="normalSize">20sp</dimen>
     <dimen name="huge_padding">36dp</dimen>
+    <dimen name="default_margin">24dp</dimen>
+    <dimen name="minor_margin">4dp</dimen>
+    <dimen name="grand_margin">40dp</dimen>
 </resources>

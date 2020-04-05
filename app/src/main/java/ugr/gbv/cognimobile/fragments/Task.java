@@ -4,15 +4,22 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.view.View;
 import android.view.Window;
+import android.view.inputmethod.EditorInfo;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.w3c.dom.Text;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
@@ -20,13 +27,21 @@ import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 public abstract class Task extends Fragment {
     protected Context context;
-    Dialog builder;
+    private Dialog builder;
     LoadContent callBack;
     FloatingActionButton centerButton;
     TextView bannerText;
+    RelativeLayout banner;
+    FloatingActionButton submitAnswerButton;
+    ConstraintLayout mainLayout;
+
     int taskType;
+    int index = 0;
+    int lastIndex = 0;
+    int length = 0;
     boolean loaded;
     boolean providedTask;
+    boolean taskEnded;
 
     FloatingActionButton leftButton;
     FloatingActionButton rightButton;
@@ -36,9 +51,9 @@ public abstract class Task extends Fragment {
     public static final int WATCH = 2;
     public static final int IMAGE = 3;
     public static final int MEMORY = 4;
-    public static final int ATENTION_NUMBERS = 5;
-    public static final int ATENTION_LETTERS = 6;
-    public static final int ATENTION_SUBSTRACTION = 7;
+    public static final int ATTENTION_NUMBERS = 5;
+    public static final int ATTENTION_LETTERS = 6;
+    public static final int ATTENTION_SUBTRACTION = 7;
     public static final int LANGUAGE = 8;
     public static final int FLUENCY = 9;
     public static final int ABSTRACTION = 10;
@@ -50,9 +65,10 @@ public abstract class Task extends Fragment {
     public Task(){
         loaded = false;
         providedTask = false;
+        taskEnded = false;
     }
 
-    void loadNextTask(){
+    private void loadNextTask(){
         callBack.loadContent();
         if(TextToSpeechLocal.isInitialized())
             TextToSpeechLocal.getInstance(context).stop();
@@ -65,10 +81,12 @@ public abstract class Task extends Fragment {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-            builder.setTitle(getString(R.string.alert));
+            builder.setTitle(getString(R.string.confirmation));
             builder.setMessage(getText(R.string.leave_task));
             builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.leave), (dialog, which) -> loadNextTask());
+            builder.setPositiveButton(getString(R.string.continue_next_task), (dialog, which) -> {
+                loadNextTask();
+            });
             builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
             builder.show();
 
@@ -76,6 +94,14 @@ public abstract class Task extends Fragment {
         });
     }
 
+
+    public void hideBanner(){
+        banner.setVisibility(View.GONE);
+    }
+
+    public void displayBanner(){
+        banner.setVisibility(View.VISIBLE);
+    }
 
 
     void buildDialog(){
@@ -104,5 +130,63 @@ public abstract class Task extends Fragment {
         animationView.setImageAssetsFolder("images");
         animationView.playAnimation();
 
+    }
+
+
+    void taskIsEnded(){
+        showTaskIsEnded();
+        if(taskType == ATTENTION_LETTERS){
+            TextTask task = (TextTask) this;
+            task.getPlayableArea().setClickable(false);
+        }
+    }
+
+
+    private void showTaskIsEnded() {
+        bannerText.setText(R.string.task_is_ended);
+    }
+
+    boolean handleSubmitKeyboardButton(int actionId) {
+        // returning true will keep the keyboard on.
+        boolean handled = true;
+        if(taskType > IMAGE) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                checkIfTaskIsAboutToEnd();
+                submitAnswerButton.performClick();
+                handled = !taskEnded;
+            }
+        }
+        else{
+            rightButton.callOnClick();
+        }
+        return handled;
+    }
+
+    private void checkIfTaskIsAboutToEnd() {
+        switch (taskType){
+            case ATTENTION_SUBTRACTION:
+                taskEnded = index >= length;
+                break;
+            case LANGUAGE:
+            case ABSTRACTION:
+            case ORIENTATION:
+                taskEnded = index >= length-1;
+                break;
+        }
+    }
+
+
+
+
+    public int getTaskType() {
+        return taskType;
+    }
+
+    public ConstraintLayout getMainLayout() {
+        return mainLayout;
+    }
+
+    public boolean hasEnded() {
+        return taskEnded;
     }
 }

@@ -52,6 +52,8 @@ public class ImageTask extends Task {
         context = getContext();
 
         bannerText = mainView.findViewById(R.id.banner_text);
+        banner = mainView.findViewById(R.id.banner);
+        mainLayout = mainView.findViewById(R.id.imageTaskLayout);
 
 
         final CardView layout = mainView.findViewById(R.id.cardView);
@@ -63,18 +65,7 @@ public class ImageTask extends Task {
 
         input = mainView.findViewById(R.id.image_task_input);
 
-        input.setOnEditorActionListener((v, actionId, event) -> {
-            boolean handled = false;
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                nextTask();
-                handled = true;
-            }
-            return handled;
-        });
-
-
-
-
+        input.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
 
 
 
@@ -95,7 +86,6 @@ public class ImageTask extends Task {
             }
 
 
-
             layout.addView(imageView, lp);
             imagesId[i] = imageView.getId();
         }
@@ -110,23 +100,20 @@ public class ImageTask extends Task {
         providedTask = true;
 
 
-
-
-
         return mainView;
     }
 
     private void nextTask() {
+
+        ImageView actualImage = mainView.findViewById(imagesId[selected]);
+        actualImage.setVisibility(View.INVISIBLE);
         selected++;
-        ImageView imageView = mainView.findViewById(imagesId[selected]);
-        imageView.setVisibility(View.VISIBLE);
-        if (selected > 0) {
-            imageView = mainView.findViewById(imagesId[selected - 1]);
-            imageView.setVisibility(View.INVISIBLE);
-            clearInputs();
-        }
-        if (selected == imagesId.length - 1)
+        ImageView nextImage = mainView.findViewById(imagesId[selected]);
+        nextImage.setVisibility(View.VISIBLE);
+        clearInputs();
+        if (selected >= imagesId.length - 1) {
             setNextButtonStandardBehaviour();
+        }
 
     }
 
@@ -165,22 +152,6 @@ public class ImageTask extends Task {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-
-    private void callSTT() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,1000);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        try {
-            startActivityForResult(intent, STT_CODE);
-        } catch (ActivityNotFoundException a) {
-            Toast.makeText(context,
-                    "Sorry your device not supported",
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
 
 
 }

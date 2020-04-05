@@ -2,14 +2,18 @@ package ugr.gbv.cognimobile.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 
@@ -28,9 +32,8 @@ import ugr.gbv.cognimobile.interfaces.LoadContent;
  */
 public class Test extends AppCompatActivity implements LoadContent {
 
-    private ArrayList<Fragment> fragments;
+    private ArrayList<Task> fragments;
     private int index;
-
     private View mContentView;
 
 
@@ -52,9 +55,9 @@ public class Test extends AppCompatActivity implements LoadContent {
         fragments.add(new DrawTask(Task.WATCH,this));
         fragments.add(new ImageTask(this));
         fragments.add(new TextTask(Task.MEMORY,this));
-        fragments.add(new TextTask(Task.ATENTION_NUMBERS,this));
-        fragments.add(new TextTask(Task.ATENTION_LETTERS,this));
-        fragments.add(new TextTask(Task.ATENTION_SUBSTRACTION,this));
+        fragments.add(new TextTask(Task.ATTENTION_NUMBERS,this));
+        fragments.add(new TextTask(Task.ATTENTION_LETTERS,this));
+        fragments.add(new TextTask(Task.ATTENTION_SUBTRACTION,this));
         fragments.add(new TextTask(Task.LANGUAGE,this));
         fragments.add(new TextTask(Task.FLUENCY,this));
         fragments.add(new TextTask(Task.ABSTRACTION,this));
@@ -63,7 +66,7 @@ public class Test extends AppCompatActivity implements LoadContent {
         index = 0;
 
 
-
+        initKeyBoardListener();
 
 
 
@@ -114,6 +117,7 @@ public class Test extends AppCompatActivity implements LoadContent {
     @Override
     public void loadContent() {
         ++index;
+        hideKeyboard();
         if(fragments.size() > index){
             loadFragment(fragments.get(index));
         }
@@ -136,5 +140,63 @@ public class Test extends AppCompatActivity implements LoadContent {
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
+
+
+
+    private void initKeyBoardListener() {
+        // Threshold for minimal keyboard height.
+        final int MIN_KEYBOARD_HEIGHT_PX = 150;
+
+        // Top-level window decor view.
+        final View decorView = getWindow().getDecorView();
+        //Register global layout listener.
+        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            // Retrieve visible rectangle inside window.
+            private final Rect windowVisibleDisplayFrame = new Rect();
+            private int lastVisibleDecorViewHeight;
+
+            @Override
+            public void onGlobalLayout() {
+
+                decorView.getWindowVisibleDisplayFrame(windowVisibleDisplayFrame);
+                final int visibleDecorViewHeight = windowVisibleDisplayFrame.height();
+
+                if (lastVisibleDecorViewHeight != 0) {
+                    Task actualTask = fragments.get(index);
+                    ConstraintLayout constraintLayout = actualTask.getMainLayout();
+                    if (lastVisibleDecorViewHeight > visibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX) {
+                        if(actualTask.getTaskType() > Task.IMAGE) {
+                            ConstraintSet constraintSet = new ConstraintSet();
+                            constraintSet.clone(constraintLayout);
+                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.START, R.id.textTaskLayout, ConstraintSet.START, (int) getResources().getDimension(R.dimen.margin_medium));
+                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.TOP, R.id.textTaskLayout, ConstraintSet.TOP, (int) getResources().getDimension(R.dimen.margin_medium));
+                            constraintSet.applyTo(constraintLayout);
+                        }
+                        actualTask.hideBanner();
+                    } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
+                        if(actualTask.getTaskType() > Task.IMAGE) {
+
+                            ConstraintSet constraintSet = new ConstraintSet();
+                            constraintSet.clone(constraintLayout);
+                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.START, R.id.textTaskLayout, ConstraintSet.START, (int) getResources().getDimension(R.dimen.margin_medium));
+                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.END, R.id.textTaskLayout, ConstraintSet.END, (int) getResources().getDimension(R.dimen.margin_medium));
+                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.TOP, R.id.banner, ConstraintSet.BOTTOM, (int) getResources().getDimension(R.dimen.default_margin));
+                            constraintSet.applyTo(constraintLayout);
+                        }
+                        if(actualTask.getTaskType() != Task.FLUENCY || (actualTask.getTaskType() == Task.FLUENCY && !actualTask.hasEnded()))
+                            actualTask.displayBanner();
+
+
+                    }
+                }
+
+                // Save current decor view height for the next call.
+                lastVisibleDecorViewHeight = visibleDecorViewHeight;
+            }
+
+        });
+    }
+
+
 
 }

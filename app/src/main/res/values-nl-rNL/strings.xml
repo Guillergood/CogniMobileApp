@@ -13,12 +13,11 @@
     <string name="fluency_instructions">Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met een bepaalde letter van het alfabet. Ik zal u de letters straks vertellen. U mag ieder woord noemen dat u wilt, behalve namen, cijfers, of woorden die met hetzelfde voorstukje (voorvoegsel) beginnen, zoals bijvoorbeeld lief, liefde, liefdevol. Na één minuut vraag ik u te stoppen. Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met de letter D</string>
     <string name="abstraction_instruction">Kunt u met 1 woord aangeven wat de overeenkomst is tussen de volgende dingen?</string>
     <string name="recall_instructions">Ik heb u eerder een rij met woorden voorgelezen, en ik vroeg u ze te onthouden. Vertel me zo veel mogelijk woorden die u zich kunt herinneren</string>
-    <string name="action_settings">Instellingen</string>
     <string name="alert">Alarm</string>
     <string name="cancel">Nee</string>
     <string name="clear_title_button">Opnieuw</string>
     <string name="do_not_know">" Ik weet het niet"</string>
-    <string name="leave_task">Weet je zeker dat je deze opdracht wilt overslaan?</string>
+    <string name="leave_task">" Wil je doorgaan naar de volgende taak?"</string>
     <string name="leave">Ja</string>
     <string name="next_button">Volgende</string>
     <string name="orientation_instructions">Ik ga je wat vragen stellen over de datum en plaats waar je nu bent.</string>
@@ -45,4 +44,13 @@
     <string name="times_left">" U moet %1$d keer ongedaan maken."</string>
     <string name="no_times_left">" Je hebt geen ongedaan gemaakte tijden meer."</string>
     <string name="speech_bubble_tail">Toespraak bubble staart</string>
+    <string name="menu_studies">Studies</string>
+    <string name="menu_settings">Instellingen</string>
+    <string name="attention">Aandacht</string>
+    <string name="go_on">Gaan</string>
+    <string name="confirmation">Bevestiging</string>
+    <string name="continue_next_task">Voortgaan</string>
+    <string name="task_is_ended">Taak is beëindigd. Druk op Volgende om door te gaan.</string>
+    <string name="save">Sparen</string>
+    <string name="add_word">" Woord toevoegen"</string>
 </resources>

@@ -12,12 +12,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.fragments.TextTask;
+import ugr.gbv.cognimobile.interfaces.TextTaskCallback;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyViewHolder> {
-    private ArrayList<String> mDataset;
-
+    private ArrayList<String> mDatasetReversed;
+    TextTaskCallback taskCallback;
 
 
 
@@ -60,8 +63,9 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
     }
 
     // Provide a suitable constructor (depends on the kind of dataset)
-    public WordListAdapter() {
-        mDataset = new ArrayList<>();
+    public WordListAdapter(TextTaskCallback taskCallback) {
+        mDatasetReversed = new ArrayList<>();
+        this.taskCallback = taskCallback;
     }
 
     // Create new views (invoked by the layout manager)
@@ -82,8 +86,6 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
     // Replace the contents of a view (invoked by the layout manager)
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
 
         View.OnClickListener editBehaviour = v -> {
             if(holder.isBeingEdited){
@@ -91,14 +93,15 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
                 holder.displayTextView();
             }
             else{
-                holder.displayEditable();
+                //holder.displayEditable();
+                taskCallback.editWord(holder.word.getText().toString());
             }
         };
 
         View.OnClickListener deleteBehaviour = v -> removeWord(position);
 
-        if(mDataset.get(position) != null && !mDataset.get(position).isEmpty()){
-            holder.word.setText(mDataset.get(position));
+        if(mDatasetReversed.get(position) != null && !mDatasetReversed.get(position).isEmpty()){
+            holder.word.setText(mDatasetReversed.get(position));
             holder.editButton.setOnClickListener(editBehaviour);
             holder.deleteButton.setOnClickListener(deleteBehaviour);
         }
@@ -108,38 +111,37 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return mDataset.size();
+        return mDatasetReversed.size();
     }
 
     public void addWord(String word){
-        if(!mDataset.contains(word)){
-            mDataset.add(word);
-            notifyItemInserted(mDataset.size() - 1);
+        if(!mDatasetReversed.contains(word)){
+            mDatasetReversed.add(0,word);
+            notifyItemInserted(0);
         }
     }
 
     private void addWordInIndex(String word, int index){
-        mDataset.add(index, word);
+        mDatasetReversed.add(index, word);
         notifyItemInserted(index);
     }
 
     private void removeWord(int position){
-        if(mDataset.size() > position) {
-            mDataset.remove(position);
+        if(mDatasetReversed.size() > position) {
+            mDatasetReversed.remove(position);
             notifyItemRemoved(position);
         }
-        else {
-            notifyDataSetChanged();
-        }
+        notifyDataSetChanged();
     }
-    private void editWord(String original, String replace){
-        int position = mDataset.indexOf(original);
+
+    public void editWord(String original, String replace){
+        int position = mDatasetReversed.indexOf(original);
         removeWord(position);
         addWordInIndex(replace,position);
         notifyItemChanged(position);
     }
 
     public void removeAllWords() {
-        mDataset = new ArrayList<>();
+        mDatasetReversed = new ArrayList<>();
     }
 }

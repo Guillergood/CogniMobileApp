@@ -29,7 +29,9 @@ public class CognimobilePreferences {
         /* Key for accessing the preference for showing notifications */
         String firstTimeLaunchKey = context.getString(R.string.pref_first_time);
 
-        editor.putBoolean(firstTimeLaunchKey,value);
+        //TODO: CAMBIAR PARA LA RELEASE
+        //editor.putBoolean(firstTimeLaunchKey,value);
+        editor.putBoolean(firstTimeLaunchKey,true);
         editor.apply();
     }
 

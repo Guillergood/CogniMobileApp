@@ -51,6 +51,8 @@ public class DrawTask extends Task implements LoadContent {
         leftButtonContainer = view.findViewById(R.id.leftButtonContainer);
         leftButtonContainer.setVisibility(View.INVISIBLE);
         drawingView = view.findViewById(R.id.drawingSpace);
+        banner = view.findViewById(R.id.banner);
+        mainLayout = view.findViewById(R.id.drawTaskLayout);
 
 
         switch (taskType){
@@ -81,10 +83,14 @@ public class DrawTask extends Task implements LoadContent {
 
         leftButton = view.findViewById(R.id.leftButton);
         leftButton.setOnClickListener(view -> {
-            drawingView.undoLastOperation();
-            if(taskType == GRAPH) {
-                undoLastButton();
+            if(checkIfHasUndoActions()) {
+                decrementUndoAction();
+                drawingView.undoLastOperation();
+                if (taskType == GRAPH) {
+                    undoLastButton();
+                }
             }
+            showUndoTimes();
         });
 
         answer = new ArrayList<>();
@@ -96,17 +102,23 @@ public class DrawTask extends Task implements LoadContent {
         return view;
     }
 
+    private void decrementUndoAction() {
+        undoTimes--;
+    }
+
+    private boolean checkIfHasUndoActions() {
+        return undoTimes > 0;
+    }
+
     private void undoLastButton() {
-        if (undoTimes > 0) {
-            if (answer.size() > 0) {
-                answer.remove(answer.size() - 1);
-                pressedButtons.get(pressedButtons.size() - 1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill, context.getTheme()));
-                pressedButtons.get(pressedButtons.size() - 1).setTextColor(getResources().getColor(R.color.black, context.getTheme()));
-                pressedButtons.remove(pressedButtons.size() - 1);
-            }
-            undoTimes--;
-            showUndoTimes();
+
+        if (answer.size() > 0) {
+            answer.remove(answer.size() - 1);
+            pressedButtons.get(pressedButtons.size() - 1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill, context.getTheme()));
+            pressedButtons.get(pressedButtons.size() - 1).setTextColor(getResources().getColor(R.color.black, context.getTheme()));
+            pressedButtons.remove(pressedButtons.size() - 1);
         }
+
     }
 
     private void showUndoTimes() {
@@ -196,10 +208,13 @@ public class DrawTask extends Task implements LoadContent {
         }
     }
 
+
+    //TODO LIberar estos metedos de LoadContent
     @Override
     public void hideKeyboard() {
         callBack.hideKeyboard();
     }
+
 
 
 }

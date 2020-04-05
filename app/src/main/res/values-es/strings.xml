@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="abstraction_instruction">Voy a darte dos palabras y quiero que me digas la similitud que tienen</string>
-    <string name="action_settings">Ajustes</string>
     <string name="alert">Alerta</string>
     <string name="backwards_instructions">Le voy a leer una serie de números, y cuando haya terminado, me gustaría que repita los números en el orden inverso al que yo los he dado.</string>
     <string name="cancel">Cancelar</string>
@@ -18,7 +17,7 @@
     <string name="language_instructions">Ahora le voy a leer una frase y me gustaría que la repitiera a continuación</string>
     <string name="fluency_instructions">Me gustaría que me diga el mayor número posible de palabras que comiencen por la letra que le diga. Puede decir cualquier tipo de palabra, excepto nombres propios, números, conjugaciones verbales (p. ej. ‘meto’, ‘metes’, ‘mete’) y palabras de la misma familia (p.ej. ‘manzana’, ‘manzano’). Le pediré que pare al minuto. Está preparado? Ahora, diga el mayor número posible de palabras que comiencen por la letra F</string>
     <string name="recall_instructions">Antes le leí una serie de palabras y le pedí que las recordase. Dígame ahora todas las palabras de las que se acuerde</string>
-    <string name="leave_task">¿Estás seguro de querer abandonar la tarea?</string>
+    <string name="leave_task">¿Quiere continuar a la siguiente tarea?</string>
     <string name="leave">Abandonar</string>
     <string name="next_button">Siguiente</string>
     <string name="orientation_instructions">Voy a hacerte unas preguntas sobre la fecha y el lugar donde estás ahora.</string>
@@ -45,4 +44,13 @@
     <string name="times_left">Tiene %1$d oportunidades para deshacer.</string>
     <string name="no_times_left">Ya no tiene más oportunidades para deshacer</string>
     <string name="speech_bubble_tail">Cola de burbuja de discurso</string>
+    <string name="menu_studies">Estudios</string>
+    <string name="menu_settings">Ajustes</string>
+    <string name="attention">Atención</string>
+    <string name="go_on">Ir</string>
+    <string name="confirmation">Confirmación</string>
+    <string name="continue_next_task">Continuar</string>
+    <string name="task_is_ended">La tarea ha terminado. Pulse el botón \"Siguiente\" para continuar.</string>
+    <string name="save">Guardar</string>
+    <string name="add_word">Añadir palabra</string>
 </resources>
