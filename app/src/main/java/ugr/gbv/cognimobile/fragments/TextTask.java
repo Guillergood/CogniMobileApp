@@ -807,9 +807,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         addicionalTaskInput.setText(word);
         if(taskType == Task.FLUENCY)
             showEditElements();
+        changeSubmitButton();
         submitAnswerButton.setOnClickListener(v -> {
-            changeSubmitButton();
             adapter.editWord(word, addicionalTaskInput.getText().toString());
+            clearInputs();
             if(taskType == Task.FLUENCY)
                 showEditElements();
             else {
@@ -821,13 +822,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void changeSubmitButton() {
-        submitAnswerButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.ic_check_black_24dp,context.getTheme()));
+        submitAnswerButton.setImageResource(R.drawable.ic_check_black_24dp);
         TextView submitButtonLabel = mainView.findViewById(R.id.submitButtonLabel);
         submitButtonLabel.setText(R.string.save);
     }
 
     private void restoreSubmitButton() {
-        submitAnswerButton.setBackgroundDrawable(getResources().getDrawable(R.drawable.add_word_24dp,context.getTheme()));
+        submitAnswerButton.setImageResource(R.drawable.add_word_24dp);
         TextView submitButtonLabel = mainView.findViewById(R.id.submitButtonLabel);
         submitButtonLabel.setText(R.string.add_word);
     }
