@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawTaskLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,6 +17,7 @@
         android:layout_marginBottom="16dp"
         android:alpha="0.9"
         android:elevation="0dp"
+        android:padding="0dp"
         android:visibility="invisible"
         app:cardBackgroundColor="@color/tutorial_green"
         app:cardCornerRadius="@dimen/corner_radius"
@@ -26,29 +28,26 @@
         app:strokeColor="@color/tutorial_stroke_green"
         app:strokeWidth="100dp">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="0dp"
             android:layout_margin="0dp">
+
             <LinearLayout
                 android:id="@+id/leftButtonContainer"
                 style="@style/QuickActionButtonContainer"
-                android:layout_marginTop="@dimen/minor_margin"
-                android:layout_marginStart="@dimen/grand_margin"
-                android:layout_marginEnd="@dimen/margin_medium"
-                android:layout_marginBottom="@dimen/margin_medium"
-                android:background="@color/tutorial_green"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/centerButtonContainer"
-                app:layout_constraintStart_toStartOf="parent"
-                app:strokeColor="@color/tutorial_stroke_green"
-                app:strokeWidth="100dp">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/leftButton"
-                    style="@style/QuickActionButton"
                     android:padding="@dimen/small_padding"
+                    style="@style/QuickActionButton"
                     android:src="@drawable/undo_button_24dp" />
 
                 <TextView
@@ -57,27 +56,20 @@
                     android:text="@string/undo_button" />
             </LinearLayout>
 
-
             <LinearLayout
                 android:id="@+id/centerButtonContainer"
                 style="@style/QuickActionButtonContainer"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="159dp"
-                android:layout_marginTop="@dimen/minor_margin"
-                android:layout_marginEnd="@dimen/margin_medium"
-                android:layout_marginBottom="@dimen/margin_medium"
-                android:background="@color/tutorial_green"
-                android:gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/rightButtonContainer"
-                app:layout_constraintStart_toEndOf="@+id/leftButtonContainer"
-                app:strokeColor="@color/tutorial_stroke_green"
-                app:strokeWidth="100dp">
+                app:layout_constraintStart_toEndOf="@+id/leftButtonContainer">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/centerButton"
-                    style="@style/QuickActionButton"
                     android:padding="@dimen/small_padding"
+                    style="@style/QuickActionButton"
                     android:src="@drawable/help_button_24dp" />
 
                 <TextView
@@ -86,25 +78,21 @@
                     android:text="@string/help_button" />
             </LinearLayout>
 
+
             <LinearLayout
                 android:id="@+id/rightButtonContainer"
                 style="@style/QuickActionButtonContainer"
-                android:layout_marginTop="@dimen/minor_margin"
-                android:layout_alignParentEnd="true"
-                android:layout_marginStart="@dimen/grand_margin"
-                android:layout_marginEnd="@dimen/grand_margin"
-                android:layout_marginBottom="@dimen/margin_medium"
-                android:background="@color/tutorial_green"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/centerButtonContainer"
-                app:strokeColor="@color/tutorial_stroke_green"
-                app:strokeWidth="100dp">
+                app:layout_constraintStart_toEndOf="@+id/centerButtonContainer">
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/rightButton"
-                    style="@style/QuickActionButton"
                     android:padding="@dimen/small_padding"
+                    style="@style/QuickActionButton"
                     android:src="@drawable/next_button_24dp" />
 
                 <TextView
@@ -112,7 +100,7 @@
                     style="@style/QuickActionButtonLabel"
                     android:text="@string/next_button" />
             </LinearLayout>
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
 

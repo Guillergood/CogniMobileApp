@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity
             CognimobilePreferences.setFirstTimeLaunch(getApplicationContext(), false);
         }
 
-        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        /*REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_WIFI_STATE);
         REQUIRED_PERMISSIONS.add(Manifest.permission.CAMERA);
         REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH);
@@ -98,11 +98,11 @@ public class MainActivity extends AppCompatActivity
 
         ActivityCompat.requestPermissions(this,
                 REQUIRED_PERMISSIONS.toArray(new String[0]),
-                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);*/
 
     }
 
-
+/*
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-    }
+    }*/
 
     private void initBottomNavBar() {
         BottomNavigationView navigation = findViewById(R.id.navigation);
@@ -193,11 +193,11 @@ public class MainActivity extends AppCompatActivity
         switch (menuItem.getItemId()){
             case R.id.nav_studies:
                 //readQR();
-                Aware.joinStudy(getApplicationContext(),"http://192.168.1.33:8080/index.php/1/4lph4num3ric");
+                //Aware.joinStudy(getApplicationContext(),"http://192.168.1.33:8080/index.php/1/4lph4num3ric");
                 break;
             case R.id.nav_tests:
                 //irATest();
-                dataTest();
+                //dataTest();
                 break;
             case R.id.nav_settings:
                 //speechToText();
