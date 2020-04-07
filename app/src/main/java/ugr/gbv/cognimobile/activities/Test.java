@@ -17,6 +17,8 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
@@ -25,6 +27,8 @@ import ugr.gbv.cognimobile.fragments.ImageTask;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
+import ugr.gbv.cognimobile.utilities.TestDataSender;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -35,6 +39,7 @@ public class Test extends AppCompatActivity implements LoadContent {
     private ArrayList<Task> fragments;
     private int index;
     private View mContentView;
+    private JsonAnswerWrapper jsonAnswerWrapper;
 
 
     @Override
@@ -49,11 +54,13 @@ public class Test extends AppCompatActivity implements LoadContent {
         mContentView = findViewById(R.id.fullscreen_content);
         hideNavBar();
 
+        //TODO: get the JSON downloaded from database.
+
         fragments = new ArrayList<>();
         fragments.add(new DrawTask(Task.GRAPH,this));
         fragments.add(new DrawTask(Task.CUBE,this));
         fragments.add(new DrawTask(Task.WATCH,this));
-        fragments.add(new ImageTask(this));
+        /*fragments.add(new ImageTask(this));
         fragments.add(new TextTask(Task.MEMORY,this));
         fragments.add(new TextTask(Task.ATTENTION_NUMBERS,this));
         fragments.add(new TextTask(Task.ATTENTION_LETTERS,this));
@@ -62,12 +69,17 @@ public class Test extends AppCompatActivity implements LoadContent {
         fragments.add(new TextTask(Task.FLUENCY,this));
         fragments.add(new TextTask(Task.ABSTRACTION,this));
         fragments.add(new TextTask(Task.RECALL,this));
-        fragments.add(new TextTask(Task.ORIENTATION,this));
+        fragments.add(new TextTask(Task.ORIENTATION,this));*/
         index = 0;
 
 
         initKeyBoardListener();
 
+        try {
+            jsonAnswerWrapper = new JsonAnswerWrapper("uno", "es-Es");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
 
         // Upon interacting with UI controls, delay any scheduled hide()
@@ -122,6 +134,11 @@ public class Test extends AppCompatActivity implements LoadContent {
             loadFragment(fragments.get(index));
         }
         else{
+            try {
+                TestDataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             onBackPressed();
         }
 //        else{
@@ -141,6 +158,10 @@ public class Test extends AppCompatActivity implements LoadContent {
         }
     }
 
+    @Override
+    public JsonAnswerWrapper getJsonAnswerWrapper() {
+        return jsonAnswerWrapper;
+    }
 
 
     private void initKeyBoardListener() {

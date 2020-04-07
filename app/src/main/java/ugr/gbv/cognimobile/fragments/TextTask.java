@@ -33,6 +33,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -76,6 +78,16 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     public ConstraintLayout getMainLayout() {
         return mainLayout;
+    }
+
+    @Override
+    void saveResults() throws JSONException {
+
+    }
+
+    @Override
+    void setScoring() {
+
     }
 
     public TextTask(int taskType, LoadContent callBack){

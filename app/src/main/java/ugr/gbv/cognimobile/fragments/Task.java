@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import ugr.gbv.cognimobile.R;
@@ -36,9 +37,10 @@ public abstract class Task extends Fragment {
     ConstraintLayout mainLayout;
 
     int taskType;
-    int index = 0;
-    int lastIndex = 0;
-    int length = 0;
+    int index;
+    int lastIndex;
+    int length;
+    int score;
     boolean loaded;
     boolean providedTask;
     boolean taskEnded;
@@ -66,6 +68,10 @@ public abstract class Task extends Fragment {
         loaded = false;
         providedTask = false;
         taskEnded = false;
+        index = 0;
+        lastIndex = 0;
+        length = 0;
+        score = 0;
     }
 
     private void loadNextTask(){
@@ -85,6 +91,11 @@ public abstract class Task extends Fragment {
             builder.setMessage(getText(R.string.leave_task));
             builder.setCancelable(false);
             builder.setPositiveButton(getString(R.string.continue_next_task), (dialog, which) -> {
+                try {
+                    saveResults();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 loadNextTask();
             });
             builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
@@ -189,4 +200,11 @@ public abstract class Task extends Fragment {
     public boolean hasEnded() {
         return taskEnded;
     }
+
+
+    abstract void saveResults() throws JSONException;
+    abstract void setScoring();
+
+
+
 }

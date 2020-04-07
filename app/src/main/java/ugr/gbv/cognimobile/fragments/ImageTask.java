@@ -20,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -153,6 +155,14 @@ public class ImageTask extends Task {
     }
 
 
+    @Override
+    void saveResults() throws JSONException {
 
+    }
+
+    @Override
+    void setScoring() {
+
+    }
 }
 

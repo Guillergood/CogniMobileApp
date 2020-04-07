@@ -160,4 +160,8 @@ public class DrawingView extends View {
         }
 
     }
+
+    public Bitmap getCanvasBitmap() {
+        return canvasBitmap;
+    }
 }

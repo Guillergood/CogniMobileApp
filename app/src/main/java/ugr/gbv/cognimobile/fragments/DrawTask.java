@@ -15,11 +15,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
+import org.json.JSONException;
+
 import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.DrawingView;
+import ugr.gbv.cognimobile.utilities.ImageConversor;
+import ugr.gbv.cognimobile.utilities.TestDataSender;
+import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.PathGenerator;
 import ugr.gbv.cognimobile.utilities.Point;
 
@@ -77,7 +82,7 @@ public class DrawTask extends Task implements LoadContent {
 
 
         rightButton = view.findViewById(R.id.rightButton);
-        rightButton.setOnClickListener(view -> callBack.loadContent());
+
 
 
 
@@ -215,6 +220,39 @@ public class DrawTask extends Task implements LoadContent {
         callBack.hideKeyboard();
     }
 
+    @Override
+    public JsonAnswerWrapper getJsonAnswerWrapper() {
+        return null;
+    }
 
 
+    @Override
+    void saveResults() throws JSONException {
+        switch (taskType) {
+            case GRAPH:
+                setScoring();
+                callBack.getJsonAnswerWrapper().addArray("answer_secuence",answer);
+                callBack.getJsonAnswerWrapper().addField("score",score);
+            case CUBE:
+            case WATCH:
+                callBack.getJsonAnswerWrapper().addField("answer_image", ImageConversor.getInstance().encodeTobase64(drawingView.getCanvasBitmap()));
+                callBack.getJsonAnswerWrapper().addTaskField();
+                break;
+            default:
+                throw new RuntimeException("INVALID TASKTYPE");
+
+        }
+    }
+
+    @Override
+    void setScoring() {
+        int size = answer.size();
+        boolean stop = false;
+        score = 1;
+        for(int i = 0;i < size && !stop; ++i)
+            if(!answer.get(i).equals(Integer.toString(i))){
+                stop = true;
+                score = 0;
+            }
+    }
 }
