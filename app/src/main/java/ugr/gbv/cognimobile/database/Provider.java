@@ -221,21 +221,45 @@ public class Provider extends ContentProvider {
 
         ContentValues values = (initialValues != null) ? new ContentValues(initialValues) : new ContentValues();
 
+        Uri returnValue;
         database.beginTransaction();
         switch (sUriMatcher.match(uri)) {
             case TABLE_TESTS_DIR:
-                database.insert(DATABASE_TABLES[0], Cognimobile_Data.DEVICE_ID, values);
+                returnValue = insertTransaction(uri, DATABASE_TABLES[0], values);
                 break;
             case TABLE_RESULTS_DIR:
-                database.insert(DATABASE_TABLES[1], Cognimobile_Data.DEVICE_ID, values);
+                returnValue = insertTransaction(uri, DATABASE_TABLES[1], values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-        database.endTransaction();
-        return uri;
+        return returnValue;
     }
+
+    private Uri insertTransaction(Uri uri, String databaseTable, ContentValues values) {
+        long id = database.insert(databaseTable, Cognimobile_Data.DEVICE_ID, values);
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        if (id > 0) {
+            Uri dataUri = null;
+            List<String> segments = uri.getPathSegments();
+            if(segments.get(segments.size()-1).equals(DB_TBL_TESTS)){
+                dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_TESTS, id);
+            }
+            else if(segments.get(segments.size()-1).equals(DB_TBL_RESULTS)){
+                dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_RESULTS, id);
+            }
+            else{
+                throw new RuntimeException("PETO EN PROVIDER.java:244");
+            }
+
+            Objects.requireNonNull(getContext()).getContentResolver().notifyChange(dataUri, null, false);
+            return dataUri;
+        }
+        throw new SQLException("Failed to insert row into " + uri);
+    }
+
 
     @Override
     public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {

@@ -62,9 +62,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.layout_actividad_principal);
         initBottomNavBar();
 
-        Button test = findViewById(R.id.testButton);
-        test.setOnClickListener(v -> goToTest());
-
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();
@@ -327,8 +324,9 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    private void goToTest() {
+    private void goToTest(String data) {
         Intent intent = new Intent(this, Test.class);
+        intent.putExtra("data",data);
         startActivity(intent);
     }
 
@@ -374,8 +372,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClick(int position) {
-        goToTest();
+    public void onClick(String data) {
+        goToTest(data);
     }
 }
 

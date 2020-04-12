@@ -30,7 +30,6 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
     private TextView noTestText;
     private Context context;
     private TestClickHandler callBack;
-    private Cursor cursor;
 
     public TestsFragment(TestClickHandler callBack) {
         this.callBack = callBack;
@@ -75,11 +74,10 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         String[] projection = new String[]{Provider.Cognimobile_Data._ID,Provider.Cognimobile_Data.NAME};
-        cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
+        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
         if(cursor != null)  {
             cursor.moveToFirst();
         }
-
         testsAdapter = new TestsAdapter(cursor, this, callBack);
         recyclerView.setAdapter(testsAdapter);
 
@@ -104,8 +102,8 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
     }
 
     private void setTestsOnAdapter(){
-        String[] projection = new String[]{Provider.Cognimobile_Data._ID};
-        cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
+        String[] projection = new String[]{Provider.Cognimobile_Data._ID,Provider.Cognimobile_Data.NAME};
+        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
         if(cursor != null) {
             cursor.moveToFirst();
             testsAdapter.updateCursor(cursor);
@@ -118,17 +116,9 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
     @Override
     public void quitTest(String name) {
 
-        int rowsDeleted;
         String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
         String[] selectionArgs = {name};
-        rowsDeleted = context.getContentResolver().delete(Provider.CONTENT_URI_TESTS,where,selectionArgs);
-        if(rowsDeleted != 0) {
-            cursor.moveToFirst();
-            testsAdapter.updateCursor(cursor);
-        }
-        else{
-            throw new RuntimeException("PETO TESTSFRAGMENT.java:134");
-        }
+        context.getContentResolver().delete(Provider.CONTENT_URI_TESTS,where,selectionArgs);
 
         if(emptyTests()){
             showNoTests();

@@ -45,23 +45,17 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder>{
         @Override
         public void onClick(View v) {
             int adapterPosition = getAdapterPosition();
-            int id = v.getId();
-            int otros = quitTestButton.getId();
-            int otros1 = quitTestButtonLabel.getId();
-            int otros2 = quitTestButtonContainer.getId();
+            cursor.moveToPosition(adapterPosition);
 
             if(v.getId() == quitTestButton.getId() ||
                 v.getId() == quitTestButtonLabel.getId() ||
                 v.getId() == quitTestButtonContainer.getId()
             ){
-                cursor.moveToPosition(adapterPosition);
                 quitTestHandler.quitTest(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.NAME)));
             }
             else{
                 if(adapterPosition >= 0 && adapterPosition < cursor.getCount()) {
-                    cursor.moveToPosition(adapterPosition);
-                    //TODO Pasar DATA y que se desenvuelva los datos
-                    onClickHandler.onClick(adapterPosition);
+                    onClickHandler.onClick(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA)));
                 }
             }
         }
@@ -86,11 +80,8 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TextView studyName = holder.itemView.findViewById(R.id.testNameViewholder);
-
         cursor.moveToPosition(position);
-
         studyName.setText(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.NAME)));
-
     }
 
     @Override

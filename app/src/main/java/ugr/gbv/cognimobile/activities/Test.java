@@ -54,31 +54,17 @@ public class Test extends AppCompatActivity implements LoadContent {
         mContentView = findViewById(R.id.fullscreen_content);
         hideNavBar();
 
-        int studyNumber = getIntent().getIntExtra("testNumber", -1);
 
-        String whereClause = "_id = ?";
-        String[] whereArgs = new String[]{
-                Integer.toString(studyNumber)
-        };
-        String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
 
-        Cursor cursor = getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, whereClause, whereArgs, Provider.Cognimobile_Data._ID);
+        String rawJson = getIntent().getStringExtra("data");
 
-        if (cursor != null){
 
-            String rawJson = cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA));
-
-            cursor.close();
-
-            try {
-                fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        try {
+            fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        else{
-            throw new RuntimeException("PETO en TEST.java:83");
-        }
+
 
         index = 0;
 
