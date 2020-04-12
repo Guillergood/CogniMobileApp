@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textView"
+        style="@style/Description"
+        android:textColor="@color/black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:padding="@dimen/default_margin"
+        android:text="@string/write_test_link_explanation"
+        app:layout_constraintBottom_toTopOf="@+id/writtenLinkEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </TextView>
+
+    <EditText
+        android:id="@+id/writtenLinkEditText"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="@dimen/default_margin"
+        android:layout_marginEnd="@dimen/default_margin"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/writtenLinkButtonContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:autofillHints="@string/link_hint">
+
+    </EditText>
+
+
+    <LinearLayout
+        android:id="@+id/writtenLinkButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/writtenLinkButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/ic_enter_black_24dp" />
+
+        <TextView
+            android:id="@+id/writtenLinkButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/submit_answer" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

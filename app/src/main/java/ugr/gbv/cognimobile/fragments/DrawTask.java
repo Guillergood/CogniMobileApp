@@ -23,7 +23,6 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.DrawingView;
 import ugr.gbv.cognimobile.utilities.ImageConversor;
-import ugr.gbv.cognimobile.utilities.TestDataSender;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.PathGenerator;
 import ugr.gbv.cognimobile.utilities.Point;
@@ -37,15 +36,19 @@ public class DrawTask extends Task implements LoadContent {
     private View view;
     private LinearLayout leftButtonContainer;
     private int undoTimes;
+    private Bundle bundle;
 
 
     private ArrayList<Button> pressedButtons;
 
 
-    public DrawTask(int taskType, LoadContent callBack){
+    public DrawTask(int taskType, LoadContent callBack, @Nullable Bundle bundle){
         this.taskType = taskType;
         pressedButtons = new ArrayList<>();
         this.callBack = callBack;
+        if(bundle != null){
+            this.bundle = bundle;
+        }
     }
 
     @Nullable
@@ -202,7 +205,7 @@ public class DrawTask extends Task implements LoadContent {
                 case WATCH:
                     leftButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
                     label.setText(R.string.clear_title_button);
-                    bannerText.setText(R.string.clock_instructions);
+                    bannerText.setText(bundle.getString("text"));
                     break;
                 default:
                     throw new RuntimeException("Task type not supported");
@@ -235,7 +238,7 @@ public class DrawTask extends Task implements LoadContent {
                 callBack.getJsonAnswerWrapper().addField("score",score);
             case CUBE:
             case WATCH:
-                callBack.getJsonAnswerWrapper().addField("answer_image", ImageConversor.getInstance().encodeTobase64(drawingView.getCanvasBitmap()));
+                callBack.getJsonAnswerWrapper().addField("answer_image", ImageConversor.getInstance().encodeToBase64(drawingView.getCanvasBitmap()));
                 callBack.getJsonAnswerWrapper().addTaskField();
                 break;
             default:

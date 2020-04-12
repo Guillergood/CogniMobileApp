@@ -1,4 +1,4 @@
-package ugr.gbv.cognimobile.utilities;
+package ugr.gbv.cognimobile.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,10 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.TextTaskCallback;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyViewHolder> {
@@ -143,5 +141,9 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
 
     public void removeAllWords() {
         mDatasetReversed = new ArrayList<>();
+    }
+
+    public ArrayList<String> getAllWords() {
+        return mDatasetReversed;
     }
 }

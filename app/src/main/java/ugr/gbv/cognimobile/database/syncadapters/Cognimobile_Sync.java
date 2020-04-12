@@ -25,7 +25,8 @@ public class Cognimobile_Sync extends Service {
                 sSyncAdapter.init(
                         Provider.DATABASE_TABLES, Provider.TABLES_FIELDS,
                         new Uri[]{
-                                Provider.Cognimobile_Data.CONTENT_URI
+                                Provider.Cognimobile_Data.CONTENT_URI_TESTS,
+                                Provider.Cognimobile_Data.CONTENT_URI_RESULTS
                         }
                 );
             }

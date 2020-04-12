@@ -72,7 +72,8 @@
             android:layout_marginEnd="0dp"
             android:layout_marginBottom="0dp"
             android:src="@drawable/cube"
-            android:visibility="gone" />
+            android:visibility="gone"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:id="@+id/banner_text"
@@ -83,7 +84,8 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_toStartOf="@+id/banner_image"
-            android:textSize="@dimen/banner_text" />
+            android:textSize="@dimen/banner_text"
+            tools:targetApi="o" />
     </RelativeLayout>
 
 
@@ -123,9 +125,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:padding="24dp"
-        android:text="Vertel me de exacte datum waarop we nu zijn."
         android:textSize="@dimen/banner_text"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/banner" />
@@ -142,7 +143,9 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/additional_task_text" />
+        app:layout_constraintTop_toBottomOf="@+id/additional_task_text"
+        android:importantForAutofill="no"
+        tools:ignore="LabelFor" />
 
 
     <LinearLayout

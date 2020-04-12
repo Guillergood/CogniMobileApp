@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.aware.utils.DatabaseHelper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class Provider extends ContentProvider {
@@ -28,13 +29,15 @@ public class Provider extends ContentProvider {
     private static final String DATABASE_NAME = "cognimobile.db";
 
     public static String AUTHORITY = "ugr.gbv.cognimobile.provider";
+    public static String AWARE_PLUGIN_NAME = "ugr.gbv.cognimobile";
 
 
     /**
      * Your ContentProvider table content URI.<br/>
      * The last segment needs to match your database table name
      */
-    public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/cognimobile");
+    public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/tests");
+    public static final Uri CONTENT_URI_RESULTS = Uri.parse("content://" + AUTHORITY + "/results");
 
     /**
      * How your data collection is identified internally in Android (vnd.android.cursor.dir). <br/>
@@ -49,8 +52,10 @@ public class Provider extends ContentProvider {
     public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.ugr.gbv.cognimobile.provider";
 
 
-    private static final int TABLE_COGNIMOBILE_DIR = 1;
-    private static final int TABLE_COGNIMOBILE_ITEM = 2;
+    private static final int TABLE_TESTS_DIR = 1;
+    private static final int TABLE_TESTS_ITEM = 2;
+    private static final int TABLE_RESULTS_DIR = 3;
+    private static final int TABLE_RESULTS_ITEM = 4;
 
 
     public static final String _ID = "_id";
@@ -65,31 +70,53 @@ public class Provider extends ContentProvider {
     }
 
 
-    public static final String DB_TBL_COGNIMOBILE = "cognimobile";
 
-    public static final String[] DATABASE_TABLES = {DB_TBL_COGNIMOBILE};
+    public static final String DB_TBL_TESTS = "tests";
+    public static final String DB_TBL_RESULTS = "results";
+
+    public static final String[] DATABASE_TABLES = {
+            DB_TBL_TESTS,
+            DB_TBL_RESULTS
+    };
 
 
 
     public static final class Cognimobile_Data implements AWAREColumns {
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_COGNIMOBILE);
-        public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
-        public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
+        public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_TESTS);
+        public static final Uri CONTENT_URI_RESULTS = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_RESULTS);
+        public static final String NAME = "name";
+        static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
+        static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
+        public static final String DATA = "data";
+        public static final String SYNCED = "synced";
+        public static final String ERASE_TIMESTAMP = "erase_timestamp";
 
-        static final String DATA = "data";
     }
 
 
 
     //Game table fields
-    private static final String DB_TBL_COGNIMOBILE_FIELDS =
+    private static final String DB_TBL_TESTS_FIELDS =
             Cognimobile_Data._ID + " integer primary key autoincrement," +
-                    Cognimobile_Data.TIMESTAMP + " real default 0," +
-                    Cognimobile_Data.DEVICE_ID + " text default ''," +
-                    Cognimobile_Data.DATA + " longtext default ''";
+            Cognimobile_Data.TIMESTAMP + " real default 0," +
+            Cognimobile_Data.DEVICE_ID + " text default ''," +
+            Cognimobile_Data.DATA + " longtext default ''," +
+            Cognimobile_Data.NAME + " longtext default ''," +
+            Cognimobile_Data.SYNCED + " integer default 0," +
+            Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
+
+    private static final String DB_TBL_RESULTS_FIELDS =
+            Cognimobile_Data._ID + " integer primary key autoincrement," +
+            Cognimobile_Data.TIMESTAMP + " real default 0," +
+            Cognimobile_Data.DEVICE_ID + " text default ''," +
+            Cognimobile_Data.DATA + " longtext default ''," +
+            Cognimobile_Data.NAME + " longtext default ''," +
+            Cognimobile_Data.SYNCED + " integer default 0," +
+            Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
 
     public static final String[] TABLES_FIELDS = {
-            DB_TBL_COGNIMOBILE_FIELDS
+            DB_TBL_TESTS_FIELDS,
+            DB_TBL_RESULTS_FIELDS
     };
 
     //Helper variables for ContentProvider - DO NOT CHANGE
@@ -120,15 +147,20 @@ public class Provider extends ContentProvider {
     public boolean onCreate() {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         //Cognimobile table indexes DIR and ITEM
-        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], TABLE_COGNIMOBILE_DIR); //URI for all records
-        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", TABLE_COGNIMOBILE_ITEM); //URI for a single record
+        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0], TABLE_TESTS_DIR); //URI for all records
+        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", TABLE_TESTS_ITEM); //URI for a single record
+        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1], TABLE_RESULTS_DIR); //URI for all records
+        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1]+"/#", TABLE_RESULTS_ITEM); //URI for a single record
 
 
         tableMap = new HashMap<>();
         tableMap.put(Cognimobile_Data._ID, Cognimobile_Data._ID);
         tableMap.put(Cognimobile_Data.TIMESTAMP, Cognimobile_Data.TIMESTAMP);
         tableMap.put(Cognimobile_Data.DEVICE_ID, Cognimobile_Data.DEVICE_ID);
+        tableMap.put(Cognimobile_Data.NAME, Cognimobile_Data.NAME);
         tableMap.put(Cognimobile_Data.DATA, Cognimobile_Data.DATA);
+        tableMap.put(Cognimobile_Data.SYNCED, Cognimobile_Data.SYNCED);
+        tableMap.put(Cognimobile_Data.ERASE_TIMESTAMP, Cognimobile_Data.ERASE_TIMESTAMP);
 
         return true; //let Android know that the database is ready to be used.
     }
@@ -137,18 +169,19 @@ public class Provider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
 
-
-
         initialiseDatabase();
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        if (sUriMatcher.match(uri) == TABLE_COGNIMOBILE_DIR) {
-            qb.setTables(DATABASE_TABLES[0]);
-            qb.setProjectionMap(tableMap); //the hashmap of the table
-        } else {
-            throw new IllegalArgumentException("Unknown URI " + uri);
+        switch (sUriMatcher.match(uri)){
+            case TABLE_TESTS_DIR:
+                queryConfiguration(DATABASE_TABLES[0],qb);
+                break;
+            case TABLE_RESULTS_DIR:
+                queryConfiguration(DATABASE_TABLES[1],qb);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
-
         //Don't change me
         try {
             Cursor c = qb.query(database, projection, selection, selectionArgs,
@@ -160,13 +193,20 @@ public class Provider extends ContentProvider {
         }
     }
 
+    private void queryConfiguration(String databaseTable, SQLiteQueryBuilder qb) {
+        qb.setTables(databaseTable);
+        qb.setProjectionMap(tableMap); //the hashmap of the table
+    }
+
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
         switch (sUriMatcher.match(uri)) {
-            case TABLE_COGNIMOBILE_DIR:
+            case TABLE_TESTS_DIR:
+            case TABLE_RESULTS_DIR:
                 return Cognimobile_Data.CONTENT_TYPE;
-            case TABLE_COGNIMOBILE_ITEM:
+            case TABLE_TESTS_ITEM:
+            case TABLE_RESULTS_ITEM:
                 return Cognimobile_Data.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -182,21 +222,19 @@ public class Provider extends ContentProvider {
         ContentValues values = (initialValues != null) ? new ContentValues(initialValues) : new ContentValues();
 
         database.beginTransaction();
-
-        if (sUriMatcher.match(uri) == TABLE_COGNIMOBILE_DIR) {
-            long game_id = database.insert(DATABASE_TABLES[0], Cognimobile_Data.DEVICE_ID, values);
-            database.setTransactionSuccessful();
-            database.endTransaction();
-            if (game_id > 0) {
-                Uri dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI, game_id);
-                Objects.requireNonNull(getContext()).getContentResolver().notifyChange(dataUri, null, false);
-                return dataUri;
-            }
-            database.endTransaction();
-            throw new SQLException("Failed to insert row into " + uri);
+        switch (sUriMatcher.match(uri)) {
+            case TABLE_TESTS_DIR:
+                database.insert(DATABASE_TABLES[0], Cognimobile_Data.DEVICE_ID, values);
+                break;
+            case TABLE_RESULTS_DIR:
+                database.insert(DATABASE_TABLES[1], Cognimobile_Data.DEVICE_ID, values);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
         database.endTransaction();
-        throw new IllegalArgumentException("Unknown URI " + uri);
+        return uri;
     }
 
     @Override
@@ -206,11 +244,17 @@ public class Provider extends ContentProvider {
         database.beginTransaction();
 
         int count;
-        if (sUriMatcher.match(uri) == TABLE_COGNIMOBILE_DIR) {
-            count = database.delete(DATABASE_TABLES[0], selection, selectionArgs);
-        } else {
-            database.endTransaction();
-            throw new IllegalArgumentException("Unknown URI " + uri);
+
+        switch (sUriMatcher.match(uri)) {
+            case TABLE_TESTS_DIR:
+                count = database.delete(DATABASE_TABLES[0], selection, selectionArgs);
+                break;
+            case TABLE_RESULTS_DIR:
+                count = database.delete(DATABASE_TABLES[1], selection, selectionArgs);
+                break;
+            default:
+                database.endTransaction();
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
         database.setTransactionSuccessful();
@@ -228,12 +272,19 @@ public class Provider extends ContentProvider {
         database.beginTransaction();
 
         int count;
-        if (sUriMatcher.match(uri) == TABLE_COGNIMOBILE_DIR) {
-            count = database.update(DATABASE_TABLES[0], values, selection, selectionArgs);
-        } else {
-            database.endTransaction();
-            throw new IllegalArgumentException("Unknown URI " + uri);
+        switch (sUriMatcher.match(uri)) {
+            case TABLE_TESTS_DIR:
+                count = database.update(DATABASE_TABLES[0], values, selection, selectionArgs);
+                break;
+            case TABLE_RESULTS_DIR:
+                count = database.update(DATABASE_TABLES[1], values, selection, selectionArgs);
+                break;
+            default:
+                database.endTransaction();
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
+
+
         database.setTransactionSuccessful();
         database.endTransaction();
 

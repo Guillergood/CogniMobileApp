@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.database.Cursor;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -22,13 +23,12 @@ import org.json.JSONException;
 import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.fragments.DrawTask;
-import ugr.gbv.cognimobile.fragments.ImageTask;
+import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.Task;
-import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.DataSender;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
-import ugr.gbv.cognimobile.utilities.TestDataSender;
+import ugr.gbv.cognimobile.utilities.JsonParserTests;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -54,22 +54,32 @@ public class Test extends AppCompatActivity implements LoadContent {
         mContentView = findViewById(R.id.fullscreen_content);
         hideNavBar();
 
-        //TODO: get the JSON downloaded from database.
+        int studyNumber = getIntent().getIntExtra("testNumber", -1);
 
-        fragments = new ArrayList<>();
-        fragments.add(new DrawTask(Task.GRAPH,this));
-        fragments.add(new DrawTask(Task.CUBE,this));
-        fragments.add(new DrawTask(Task.WATCH,this));
-        /*fragments.add(new ImageTask(this));
-        fragments.add(new TextTask(Task.MEMORY,this));
-        fragments.add(new TextTask(Task.ATTENTION_NUMBERS,this));
-        fragments.add(new TextTask(Task.ATTENTION_LETTERS,this));
-        fragments.add(new TextTask(Task.ATTENTION_SUBTRACTION,this));
-        fragments.add(new TextTask(Task.LANGUAGE,this));
-        fragments.add(new TextTask(Task.FLUENCY,this));
-        fragments.add(new TextTask(Task.ABSTRACTION,this));
-        fragments.add(new TextTask(Task.RECALL,this));
-        fragments.add(new TextTask(Task.ORIENTATION,this));*/
+        String whereClause = "_id = ?";
+        String[] whereArgs = new String[]{
+                Integer.toString(studyNumber)
+        };
+        String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
+
+        Cursor cursor = getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, whereClause, whereArgs, Provider.Cognimobile_Data._ID);
+
+        if (cursor != null){
+
+            String rawJson = cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA));
+
+            cursor.close();
+
+            try {
+                fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            throw new RuntimeException("PETO en TEST.java:83");
+        }
+
         index = 0;
 
 
@@ -135,7 +145,7 @@ public class Test extends AppCompatActivity implements LoadContent {
         }
         else{
             try {
-                TestDataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
+                DataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }

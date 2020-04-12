@@ -21,23 +21,24 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
-//TODO: Hacer SINGLETON
-public class TestDataSender implements Serializable {
+public class DataSender implements Serializable {
 
 
-    private static volatile TestDataSender instantiated;
+    private static volatile DataSender instantiated;
+    public final static String INSERT = "insert";
+    public final static String QUERY = "query";
 
-    private TestDataSender(){
+    private DataSender(){
 
         if (instantiated != null){
             throw new RuntimeException("Use .getInstance() to instantiate TestDataSender");
         }
     }
 
-    public static TestDataSender getInstance() {
+    public static DataSender getInstance() {
         if (instantiated == null) {
-            synchronized (TestDataSender.class) {
-                if (instantiated == null) instantiated = new TestDataSender();
+            synchronized (DataSender.class) {
+                if (instantiated == null) instantiated = new DataSender();
             }
         }
 
@@ -47,7 +48,7 @@ public class TestDataSender implements Serializable {
     public void postToServer(String command, String table, JSONArray data, Context context) {
 
 
-        HashMap<String, String> params = new HashMap<>();
+        HashMap<String, Object> params = new HashMap<>();
         params.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
 
         Thread task = new Thread(){
@@ -56,11 +57,23 @@ public class TestDataSender implements Serializable {
 
                 try {
 
-                    String formattedData = formatData(data);
+                    switch (command){
+                        case INSERT:
+                            String formattedData = formatData(data);
+                            params.put("data",formattedData);
+                            break;
+                        /*case QUERY:
+                            double timestamp = System.currentTimeMillis();
+                            double zero = 0.0;
+                            params.put("start","\"0\"");
+                            params.put("end", "\""+timestamp+"\"");
+                            break;*/
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + command);
+                    }
 
-                    params.put("data",formattedData);
+                    String urlString =  buildURL(table,command, context);
 
-                    String urlString = buildURL(table,command, context);
 
 
                     URL url = new URL(urlString);
@@ -112,8 +125,6 @@ public class TestDataSender implements Serializable {
         //TODO array de resultados.
         jsonParam.put("data", data);
 
-        Log.i("JSON",jsonParam.toString());
-
         JSONArray realData = new JSONArray();
 
         realData.put(jsonParam);
@@ -122,7 +133,7 @@ public class TestDataSender implements Serializable {
         return realData.toString();
     }
 
-    private String buildPostInformation(HashMap<String,String> params) {
+    private String buildPostInformation(HashMap<String,Object> params) {
         StringBuilder postVariables = new StringBuilder();
         int i = 0;
 

@@ -115,4 +115,5 @@ dependencies {
     implementation "com.airbnb.android:lottie:${lottieVersion}"
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "com.android.volley:volley:$volley_version"
+    implementation 'androidx.work:work-runtime:2.3.4'
 }

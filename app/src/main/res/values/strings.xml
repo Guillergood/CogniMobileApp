@@ -59,4 +59,20 @@
     <string name="task_is_ended">Task is ended. Press Next to continue.</string>
     <string name="save">Save</string>
     <string name="add_word">Add word</string>
+    <string name="quit_study_contentDescription">Quit Study</string>
+    <string name="join_study_label">Join New Study</string>
+    <string name="toast_joining_study">Joining to the study</string>
+    <string name="toast_couldnt_join_study">Could not get the study link</string>
+    <string name="provide_link">Please provide a link</string>
+    <string name="write_test_link_explanation">Provide the study link in the space below.</string>
+    <string name="link_hint">Study Link</string>
+    <string name="enter_link">Enter link</string>
+    <string name="no_studies_active">There is not any study active at the moment. Please click the button bellow and add one</string>
+    <string name="quit_test_contentDescription">Delete test</string>
+    <string name="tests_availables">There are %1$d new tests availables.</string>
+    <string name="cognimobile_channel">cognimobile_channel</string>
+    <string name="accept_notification">accept_notification</string>
+    <string name="no_studies_content_description">No Studies Image</string>
+    <string name="no_tests_content_description">No Tests Image</string>
+    <string name="no_tests_actives">Thre are not any tests available at the moment.</string>
 </resources>

@@ -31,25 +31,30 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.fragments.StudyFragment;
+import ugr.gbv.cognimobile.fragments.TestsFragment;
+import ugr.gbv.cognimobile.interfaces.QRCallback;
+import ugr.gbv.cognimobile.interfaces.TestClickHandler;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
-import ugr.gbv.cognimobile.utilities.TestDataSender;
+import ugr.gbv.cognimobile.utilities.DataSender;
+
+import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener{
+        NavigationView.OnNavigationItemSelectedListener,
+        QRCallback, TestClickHandler {
 
-    private final int QR_CODE = 1;
+    private final int LINK_CODE = 1;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
     private ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
+    private Fragment actualFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +63,7 @@ public class MainActivity extends AppCompatActivity
         initBottomNavBar();
 
         Button test = findViewById(R.id.testButton);
-        test.setOnClickListener(v -> irATest());
+        test.setOnClickListener(v -> goToTest());
 
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
@@ -87,6 +92,10 @@ public class MainActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(this,
                 REQUIRED_PERMISSIONS.toArray(new String[0]),
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+        actualFragment = new StudyFragment(this);
+
+        loadFragment();
 
     }
 
@@ -149,20 +158,14 @@ public class MainActivity extends AppCompatActivity
      * Devuelve "true" si se ha podido hacer la transsicion de un fragment a otro.
      * En otro caso "false"
      *
-     * @param fragment Fragmento por el cual se va a cambiar la vista
-     * @return booleano valor dependiendo de si es valido fragment o no devolverá "true" o "false"
      */
-    private boolean loadFragment(Fragment fragment){
-
-        boolean returnValue = false;
-        if(fragment != null){
+    private void loadFragment(){
+        if(actualFragment != null){
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.contenedor_fragmento, fragment)
+                    .replace(R.id.fragment_container, actualFragment)
                     .commit();
-            returnValue = true;
         }
-        return returnValue;
     }
 
 
@@ -178,26 +181,26 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-
-
         switch (menuItem.getItemId()){
             case R.id.nav_studies:
-                readQR();
-                //Aware.joinStudy(getApplicationContext(),"http://192.168.1.33:8080/index.php/2/prueba");
+                actualFragment = new StudyFragment(this);
+                loadFragment();
                 break;
             case R.id.nav_tests:
-                //irATest();
+                actualFragment = new TestsFragment(this);
+                loadFragment();
+                //goToTest();
                 //dataTest();
-                JSONObject jsonObject = new JSONObject();
+                /*JSONObject jsonObject = new JSONObject();
                 JSONArray array = new JSONArray();
                 try {
-                    jsonObject.put("hola",1);
+                    jsonObject.put("test_1","https://pastebin.com/raw/pX0Mcbn4");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 array.put(jsonObject);
 
-                TestDataSender.getInstance().postToServer("insert", "participants",array, getApplicationContext());
+                DataSender.getInstance().postToServer(DataSender.INSERT, "tests",array, getApplicationContext());*/
                 break;
             case R.id.nav_settings:
                 //speechToText();
@@ -205,15 +208,15 @@ public class MainActivity extends AppCompatActivity
                 JSONObject jsonObject2 = new JSONObject();
                 JSONArray array2 = new JSONArray();
                 try {
-                    String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-                    jsonObject2.put("start",date);
+                    double date = System.currentTimeMillis();
+                    jsonObject2.put("start",0);
                     jsonObject2.put("end",date);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 array2.put(jsonObject2);
-                TestDataSender.getInstance().postToServer("query", "participants",array2, getApplicationContext());
+                DataSender.getInstance().postToServer(DataSender.QUERY, "tests",array2, getApplicationContext());
                 break;
 
         }
@@ -297,42 +300,25 @@ public class MainActivity extends AppCompatActivity
         //put the rest of the columns you defined
 
         //Insert the data to the ContentProvider
-        getContentResolver().insert(Provider.CONTENT_URI, new_data);
+        getContentResolver().insert(Provider.CONTENT_URI_TESTS, new_data);
 
     }
 
-    private void readQR() {
-
-        boolean permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED;
-
-        if (permissionNotGranted) {
-            ArrayList<String> permission = new ArrayList<>();
-            permission.add(Manifest.permission.CAMERA);
-
-            Intent permissions = new Intent(this, PermissionsHandler.class);
-            permissions.putExtra(PermissionsHandler.EXTRA_REQUIRED_PERMISSIONS, permission);
-            permissions.putExtra(PermissionsHandler.EXTRA_REDIRECT_ACTIVITY, getPackageName() + "/" + getPackageName() + ".qr_reader.ReadQR");
-            permissions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(permissions);
-        } else {
-            Intent qrcode = new Intent(MainActivity.this, ReadQR.class);
-            qrcode.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivityForResult(qrcode,QR_CODE);
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == QR_CODE){
+        if(requestCode == LINK_CODE){
             if(resultCode == RESULT_OK && data != null){
-                String link = data.getStringExtra("link");
+                String link = data.getStringExtra(INTENT_LINK_LABEL);
                 if(link != null){
                     Aware.joinStudy(this, link);
+                    StudyFragment fragment = (StudyFragment) actualFragment;
+                    fragment.checkNewStudy();
                 }
-                Toast.makeText(this,"Joining to the study", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_joining_study, Toast.LENGTH_LONG).show();
             }
             else {
-                Toast.makeText(this,"Could not get the study link", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_couldnt_join_study, Toast.LENGTH_LONG).show();
             }
         }
 
@@ -340,12 +326,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void irPreferenciasUsuario() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivityForResult(intent,1);
-    }
 
-    private void irATest() {
+    private void goToTest() {
         Intent intent = new Intent(this, Test.class);
         startActivity(intent);
     }
@@ -371,10 +353,29 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    @Override
+    public void goToQRActivity() {
+        boolean permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED;
 
+        if (permissionNotGranted) {
+            ArrayList<String> permission = new ArrayList<>();
+            permission.add(Manifest.permission.CAMERA);
 
+            Intent permissions = new Intent(this, PermissionsHandler.class);
+            permissions.putExtra(PermissionsHandler.EXTRA_REQUIRED_PERMISSIONS, permission);
+            permissions.putExtra(PermissionsHandler.EXTRA_REDIRECT_ACTIVITY, getPackageName() + "/" + getPackageName() + ".qr_reader.ReadQR");
+            permissions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(permissions);
+        } else {
+            Intent qrCode = new Intent(MainActivity.this, ReadQR.class);
+            qrCode.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivityForResult(qrCode, LINK_CODE);
+        }
+    }
 
-
-
+    @Override
+    public void onClick(int position) {
+        goToTest();
+    }
 }
 

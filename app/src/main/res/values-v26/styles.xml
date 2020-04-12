@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="QuickActionButtonLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/nexa_light_family</item>
+        <item name="android:textSize">@dimen/text_sz_small</item>
+        <item name="android:layout_marginTop">@dimen/margin_medium</item>
+        <item name="android:justificationMode">inter_word</item>
+    </style>
+</resources>

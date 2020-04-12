@@ -27,6 +27,7 @@ import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.ImageConversor;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -37,11 +38,16 @@ public class ImageTask extends Task {
     private int[] imagesId;
     private View mainView;
     private EditText input;
+    private ArrayList<String> expectedAnswers;
+    private ArrayList<String> answers;
+    private Bundle bundle;
 
-    public ImageTask(LoadContent callBack){
+    public ImageTask(LoadContent callBack,Bundle bundle){
         this.callBack = callBack;
         selected = 0;
         taskType = Task.IMAGE;
+        expectedAnswers = new ArrayList<>();
+        this.bundle = bundle;
     }
 
 
@@ -72,8 +78,7 @@ public class ImageTask extends Task {
 
 
         for (int i = 0; i < imagesArray.length; ++i) {
-            byte[] decodedString = Base64.decode(imagesArray[i], Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            Bitmap decodedByte = ImageConversor.getInstance().decodeFromBase64(imagesArray[i]);
             ImageView imageView = new ImageView(context);
             imageView.setId(View.generateViewId());
             imageView.setImageBitmap(decodedByte);
@@ -109,9 +114,18 @@ public class ImageTask extends Task {
 
         ImageView actualImage = mainView.findViewById(imagesId[selected]);
         actualImage.setVisibility(View.INVISIBLE);
+
+        setScoring();
+
         selected++;
         ImageView nextImage = mainView.findViewById(imagesId[selected]);
         nextImage.setVisibility(View.VISIBLE);
+
+
+
+
+
+
         clearInputs();
         if (selected >= imagesId.length - 1) {
             setNextButtonStandardBehaviour();
@@ -157,12 +171,22 @@ public class ImageTask extends Task {
 
     @Override
     void saveResults() throws JSONException {
+        setScoring();
+        callBack.getJsonAnswerWrapper().addArray("answer_sequence",answers);
+        callBack.getJsonAnswerWrapper().addField("score",score);
+        callBack.getJsonAnswerWrapper().addTaskField();
+
 
     }
 
     @Override
     void setScoring() {
-
+        if(selected < imagesId.length) {
+            answers.add(input.getText().toString());
+            if (input.getText().toString().equalsIgnoreCase(expectedAnswers.get(selected))) {
+                score++;
+            }
+        }
     }
 }
 

@@ -17,6 +17,7 @@ public class TextToSpeechLocal implements Serializable {
     private static volatile boolean shuttedDown;
     private int delayTts = 1000;
     private static int index;
+    public static final int STT_CODE = 2;
 
     private TextToSpeechLocal(){
         if (instanced != null){

@@ -9,7 +9,7 @@
 
 
     <FrameLayout
-        android:id="@+id/contenedor_fragmento"
+        android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="56dp"
@@ -28,6 +28,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="292dp"
         android:text="@string/test"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.482"

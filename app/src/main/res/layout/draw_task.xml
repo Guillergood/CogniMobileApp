@@ -19,8 +19,8 @@
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/leftButton"
-            android:padding="@dimen/small_padding"
             style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
             android:src="@drawable/undo_button_24dp" />
 
         <TextView

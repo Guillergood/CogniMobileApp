@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
@@ -13,14 +12,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
-import org.w3c.dom.Text;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
