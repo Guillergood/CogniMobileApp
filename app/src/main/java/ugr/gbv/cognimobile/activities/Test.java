@@ -2,7 +2,6 @@ package ugr.gbv.cognimobile.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.database.Cursor;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -19,11 +18,11 @@ import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.DataSender;
@@ -59,6 +58,7 @@ public class Test extends AppCompatActivity implements LoadContent {
         String rawJson = getIntent().getStringExtra("data");
 
 
+
         try {
             fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
         } catch (JSONException e) {
@@ -72,7 +72,8 @@ public class Test extends AppCompatActivity implements LoadContent {
         initKeyBoardListener();
 
         try {
-            jsonAnswerWrapper = new JsonAnswerWrapper("uno", "es-Es");
+            JSONObject reader = new JSONObject(rawJson);
+            jsonAnswerWrapper = new JsonAnswerWrapper(reader.getString("name"), reader.getString("language"));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -137,9 +138,6 @@ public class Test extends AppCompatActivity implements LoadContent {
             }
             onBackPressed();
         }
-//        else{
-//            sendData();
-//        }
     }
 
     @Override

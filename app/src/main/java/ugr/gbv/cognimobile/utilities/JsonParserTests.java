@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
 
@@ -81,79 +83,83 @@ public class JsonParserTests {
     }
 
 
-    public ArrayList<Task> parseTestToTasks(String testsJson, LoadContent callBack) throws JSONException {
+    public ArrayList<Task> parseTestToTasks(@NonNull String testsJson, LoadContent callBack) throws JSONException {
         ArrayList<Task> tasks = new ArrayList<>();
         JSONObject reader = new JSONObject(testsJson);
         int number = 0;
         String task ="task_";
         Bundle bundle = null;
 
-
-        for(int i = 0; i < reader.length(); ++i){
+        for (; number < reader.length() - 2; ++number) {
             JSONObject object = reader.getJSONObject(task+number);
             int taskType = object.getInt("taskType");
-            switch(object.getInt("taskType")){
+            switch (taskType) {
                 case Task.GRAPH:
                 case Task.CUBE:
                     tasks.add(new DrawTask(taskType,callBack,bundle));
                     break;
                 case Task.WATCH:
                     bundle = new Bundle();
-                    bundle.putString("text",object.getString("text"));
+                    bundle.putString("hour", object.getString("hour"));
                     tasks.add(new DrawTask(taskType,callBack,bundle));
                     break;
                 case Task.IMAGE:
                     bundle = new Bundle();
-                    Object[] arrayImages = extractJSONArray(object.getJSONArray("images"));
-                    bundle.putStringArray("images",(String[])arrayImages);
-                    Object[] arrayAnswerImages = extractJSONArray(object.getJSONArray("images"));
-                    bundle.putStringArray("images",(String[])arrayAnswerImages);
+                    bundle.putStringArray("images", extractJSONArrayAsStringArray(object.getJSONArray("images")));
+                    bundle.putStringArray("answer", extractJSONArrayAsStringArray(object.getJSONArray("answer")));
                     tasks.add(new ImageTask(callBack,bundle));
                     break;
                 case Task.MEMORY:
+                    bundle = new Bundle();
+                    bundle.putStringArray("words", extractJSONArrayAsStringArray(object.getJSONArray("words")));
+                    int repetitions = object.getInt("times");
+                    bundle.putInt("times", repetitions);
+                    tasks.add(new TextTask(taskType, callBack, bundle));
+                    break;
                 case Task.RECALL:
+                    bundle = new Bundle();
+                    bundle.putStringArray("words", extractJSONArrayAsStringArray(object.getJSONArray("words")));
+                    tasks.add(new TextTask(taskType, callBack, bundle));
+                    break;
                 case Task.ABSTRACTION:
                     bundle = new Bundle();
-                    Object[] arrayWords = extractJSONArray(object.getJSONArray("words"));
-                    bundle.putStringArray("words",(String[])arrayWords);
+                    bundle.putStringArray("words", extractJSONArrayAsStringArray(object.getJSONArray("words")));
+                    bundle.putStringArray("answer", extractJSONArrayAsStringArray(object.getJSONArray("answer")));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
                 case Task.ATTENTION_NUMBERS:
                     bundle = new Bundle();
-                    int[] numbersForward = extractJSONArrayAsIntArray(object.getJSONArray("numbers_forward"));
-                    bundle.putIntArray("numbers_forward",numbersForward);
-                    int[] numbersBackwards = extractJSONArrayAsIntArray(object.getJSONArray("numbers_backward"));
-                    bundle.putIntArray("numbers_backward",numbersBackwards);
+                    bundle.putStringArray("numbers_forward", extractJSONArrayAsStringArray(object.getJSONArray("numbers_forward")));
+                    bundle.putStringArray("numbers_backward", extractJSONArrayAsStringArray(object.getJSONArray("numbers_backward")));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
                 case Task.ATTENTION_LETTERS:
                     bundle = new Bundle();
-                    Object[] arrayLetters = extractJSONArray(object.getJSONArray("letters"));
-                    bundle.putStringArray("letters",(String[])arrayLetters);
+                    bundle.putStringArray("letters", extractJSONArrayAsStringArray(object.getJSONArray("letters")));
                     bundle.putString("target_letter",(object.getString("target_letter")));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
                 case Task.ATTENTION_SUBTRACTION:
                     bundle = new Bundle();
-                    bundle.putString("minuendo",(object.getString("minuendo")));
-                    bundle.putString("substracting",(object.getString("substracting")));
+                    bundle.putInt("minuend", (object.getInt("minuend")));
+                    bundle.putInt("subtracting", (object.getInt("subtracting")));
+                    bundle.putInt("times", object.getInt("times"));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
                 case Task.LANGUAGE:
                     bundle = new Bundle();
-                    Object[] phrases = extractJSONArray(object.getJSONArray("phrases"));
-                    bundle.putStringArray("phrases",(String[])phrases);
+                    bundle.putStringArray("phrases", extractJSONArrayAsStringArray(object.getJSONArray("phrases")));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
                 case Task.FLUENCY:
                     bundle = new Bundle();
                     bundle.putString("target_letter",(object.getString("target_letter")));
+                    bundle.putInt("number_words", object.getInt("number_words"));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
                 case Task.ORIENTATION:
                     bundle = new Bundle();
-                    Object[] questions = extractJSONArray(object.getJSONArray("questions"));
-                    bundle.putStringArray("questions",(String[])questions);
+                    bundle.putStringArray("questions", extractJSONArrayAsStringArray(object.getJSONArray("questions")));
                     tasks.add(new TextTask(taskType,callBack,bundle));
                     break;
             }
@@ -162,19 +168,11 @@ public class JsonParserTests {
         return tasks;
     }
 
-    private Object[] extractJSONArray(JSONArray jsonArray) throws JSONException {
+    private String[] extractJSONArrayAsStringArray(JSONArray jsonArray) throws JSONException {
         int totalSize = jsonArray.length();
-        Object[] array = new Object[totalSize];
-        for(int i = 0; i < totalSize; ++i){
-            array[i] = jsonArray.get(i);
-        }
-        return array;
-    }
-    private int[] extractJSONArrayAsIntArray(JSONArray jsonArray) throws JSONException {
-        int totalSize = jsonArray.length();
-        int[] array = new int[totalSize];
+        String[] array = new String[totalSize];
         for (int i = 0; i < totalSize; ++i) {
-            array[i] = jsonArray.getInt(i);
+            array[i] = jsonArray.getString(i);
         }
         return array;
     }

@@ -36,24 +36,26 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Locale;
+import java.util.Objects;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.adapters.WordListAdapter;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.TTSHandler;
 import ugr.gbv.cognimobile.interfaces.TextTaskCallback;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
-import ugr.gbv.cognimobile.adapters.WordListAdapter;
 
 import static android.app.Activity.RESULT_OK;
 
 public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
+    //CHECKERS VARS
     private String[] array;
     private ArrayList<String> answers;
-    private ArrayList<Object> expectedAnswers;
-
-
+    private ArrayList<String> expectedAnswers;
 
     //UI
     private View mainView;
@@ -75,11 +77,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private boolean firstDone;
 
 
-    public TextTask(int taskType, LoadContent callBack, Bundle bundle){
+    public TextTask(int taskType, LoadContent callBack, @NonNull Bundle bundle) {
         this.callBack = callBack;
         this.taskType = taskType;
         answers = new ArrayList<>();
-
         timesCompleted = 0;
         firstDone = false;
         this.bundle = bundle;
@@ -121,10 +122,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         recyclerView.setAdapter(adapter);
 
 
-
-
-
-        showUserAdditionalTask();
+        setTaskInstructions();
         buildDialog();
         setNextButtonStandardBehaviour();
 
@@ -132,6 +130,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         startButton.setOnClickListener(v -> startTask());
         sttButton.setOnClickListener(view -> callSTT());
+
+
+        if (bundle.getStringArray("answer") != null) {
+
+        }
 
 
         providedTask = true;
@@ -166,34 +169,38 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 public void onFinish() {
                     countdownText.setVisibility(View.GONE);
                     rightButton.setClickable(true);
+                    Objects.requireNonNull(bundle);
                     switch (taskType) {
                         case MEMORY:
                             //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
                             //String words = "FACE,VELVET,CHURCH,DAISY,RED";
-                            String words = "GEZICHT,FLUWEEL,KERK,MADELIEF,ROOD";
-                            memorization(words, 2);
+                            //String words = "GEZICHT,FLUWEEL,KERK,MADELIEF,ROOD";
+                            memorization(bundle.getStringArray("words"), bundle.getInt("times"));
                             break;
                         case ATTENTION_NUMBERS:
                             //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
+                            //7,4,2
+                            //2,1,8,5,4
                             if(firstDone){
-                                repeatBackwards("7,4,2");
+                                repeatBackwards(bundle.getStringArray("numbers_backward"));
                             }
                             else{
-                                repeat("2,1,8,5,4");
+                                repeat(bundle.getStringArray("numbers_forward"));
                             }
                             onlyNumbersInputAccepted = true;
                             break;
                         case ATTENTION_LETTERS:
-                            tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
+                            //tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
+                            //bundle.getString("target_letter")
+                            tapLetter(bundle.getStringArray("letters"));
                             break;
                         case LANGUAGE:
                             //String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
-                            String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
-                            repeatPhrase(phrases);
+                            //String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
+                            repeatPhrase(bundle.getStringArray("phrases"));
                             break;
                         case FLUENCY:
-                            bannerText.setText(R.string.fluency_instructions);
-                            fluency("F", 11);
+                            fluency();
                             break;
 
                         default:
@@ -206,17 +213,21 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         else{
             switch (taskType){
                 case RECALL:
-                    recall("FACE,VELVET,CHURCH,DAISY,RED");
+                    recall(bundle.getStringArray("words"));
                     break;
                 case ORIENTATION:
-                    orientation();
+                    orientation(bundle.getStringArray("questions"));
                     break;
                 case ATTENTION_SUBTRACTION:
-                    subtractions(100, 7, 5);
+                    subtractions(bundle.getInt("minuend"), bundle.getInt("subtracting"), bundle.getInt("times"));
                     onlyNumbersInputAccepted = true;
                     break;
                 case ABSTRACTION:
-                    abstraction();
+                    //array[0] = "trein-fiets";
+                    //array[1] = "transport,speed";
+                    //array[1] = "horloge-liniaal";
+                    //array[3] = "measurement,numbers";
+                    abstraction(bundle.getStringArray("words"), bundle.getStringArray("answer"));
                     break;
                 default:
                     throw new RuntimeException("INVALID TASKTYPE");
@@ -231,8 +242,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //-------------------TASKS-------------------//
 
-    private void memorization(String words, int times) {
-        array = words.split(",");
+    private void memorization(String[] words, int times) {
+        array = words;
         index = 0;
         length = times;
         enumeration();
@@ -246,8 +257,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
-    private void repeat(String numbers) {
-        array = numbers.split(",");
+    private void repeat(String[] numbers) {
+        array = numbers;
         index = 0;
         placeFirstInput();
         changeInputFilterAndType();
@@ -255,28 +266,33 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         enumeration();
         additionalTaskInput.requestFocus();
         submitAnswerButton.setOnClickListener(v -> {
-            clearInputs();
             additionalTaskInput.requestFocus();
             bannerText.setText(R.string.backwards_instructions);
             hideInputs();
-            firstDone = true;
+
             try {
                 saveResults();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            firstDone = true;
+
             startButton.setVisibility(View.VISIBLE);
             startButton.setOnClickListener(v1 -> {
                 showCountdownAgain();
                 startTask();
             });
+
+
         });
     }
 
-    private void repeatBackwards(String numbers) {
-        array = numbers.split(",");
+    private void repeatBackwards(String[] numbers) {
+        array = numbers;
         index = 0;
         clearInputs();
+        clearAnswers();
         hideInputs();
         placeFirstInput();
         setVariousInputs();
@@ -284,14 +300,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitAnswerButton.setOnClickListener(v -> {
             taskEnded = true;
             hideInputs();
-            clearInputs();
             taskIsEnded();
         });
     }
 
 
-    private void tapLetter(final String target, String words) {
-        array = words.split(",");
+    private void tapLetter(String[] words) {
+        array = words;
         index = 0;
         lastIndex = 0;
         playableArea.setClickable(true);
@@ -308,9 +323,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         enumeration();
     }
 
-    private void subtractions(int startingNumber, final int substration, final int times) {
+    private void subtractions(int startingNumber, final int subtracting, final int times) {
         index = 0;
-        String displaySubtraction = startingNumber + " - " + substration;
+        String displaySubtraction = startingNumber + " - " + subtracting;
         additionalTaskText.setText(displaySubtraction);
         additionalTaskInput.setInputType(InputType.TYPE_CLASS_NUMBER);
         additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
@@ -319,11 +334,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 submitAnswerButton.setVisibility(View.GONE);
                 hideInputs();
                 taskIsEnded();
-                checkSubtractions(startingNumber, substration);
+                checkSubtractions(startingNumber, subtracting);
 
             }
             else{
-                String displayAnotherSubtraction = additionalTaskInput.getText().toString() + " - " + substration;
+                String displayAnotherSubtraction = additionalTaskInput.getText().toString() + " - " + subtracting;
                 answers.add(additionalTaskInput.getText().toString());
                 additionalTaskText.setText(displayAnotherSubtraction);
                 index++;
@@ -337,8 +352,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void repeatPhrase(String[] phrases) {
+        array = phrases;
         additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         submitAnswerButton.setOnClickListener(v -> {
+            answers.add(additionalTaskInput.getText().toString());
             clearInputs();
             ++index;
             hideInputs();
@@ -357,7 +374,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         speakPhrase(phrases[index]);
     }
 
-    private void fluency(String letter, int numberOfWords) {
+    private void fluency() {
         additionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
         additionalTaskInput.requestFocus();
@@ -366,26 +383,23 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         countDownTask(getResources().getInteger(R.integer.one_minute_millis));
     }
 
-    private void abstraction() {
-        array = new String[4];
-        array[0] = "trein-fiets";
-        array[1] = "transport,speed";
-        array[2] = "horloge-liniaal";
-        array[3] = "measurement,numbers";
+    private void abstraction(String[] words, String[] answers) {
+        array = words;
+        setExpectedAnswers(answers);
         additionalTaskText.setText(array[index]);
-        index+=2;
+        index++;
         showUserInput();
         additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         submitAnswerButton.setOnClickListener(v -> {
+            this.answers.add(additionalTaskInput.getText().toString());
             if(index >= length){
                 hideInputs();
                 taskIsEnded();
             }
             else{
-                answers.add(additionalTaskInput.getText().toString());
                 clearInputs();
                 additionalTaskText.setText(array[index]);
-                index+=2;
+                index++;
             }
         });
 
@@ -393,24 +407,28 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
-    private void recall(String words) {
+
+    private void recall(String[] words) {
+        //expectedAnswers = words;
+        array = words;
         showUserInput();
         enableWordList();
         additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
     }
 
 
-    private void orientation() {
+    private void orientation(String[] questions) {
         /*String[] questions = {"Tell me the year we are now.",
                 "Tell me the exact date we are now.",
                 "Tell which city you are now."};*/
-        String[] questions = {"Vertel me het jaar dat we nu zijn.",
+       /* String[] questions = {"Vertel me het jaar dat we nu zijn.",
                 "Vertel me de exacte datum waarop we nu zijn.",
-                "Vertel in welke stad u zich nu bevindt."};
+                "Vertel in welke stad u zich nu bevindt."};*/
 
         showUserInput();
 
         submitAnswerButton.setOnClickListener(v -> {
+            answers.add(additionalTaskInput.getText().toString());
             clearInputs();
             ++index;
             if(index >= length){
@@ -460,6 +478,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
             variousInputs.clear();
         }
+    }
+
+    private void clearAnswers() {
+        answers.clear();
     }
 
     private void setVariousInputs() {
@@ -587,7 +609,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         additionalTaskInput.setFilters(inputArray);
     }
 
-    private void showUserAdditionalTask() {
+    private void setTaskInstructions() {
         switch (taskType){
             case MEMORY:
                 bannerText.setText(R.string.memory_instructions);
@@ -596,16 +618,16 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 bannerText.setText(R.string.numbers_instructions);
                 break;
             case ATTENTION_LETTERS:
-                bannerText.setText(R.string.letters_instructions);
+                bannerText.setText(context.getResources().getString(R.string.letters_instructions, bundle.getString("target_letter")));
                 break;
             case ATTENTION_SUBTRACTION:
-                bannerText.setText(R.string.substraction_instructions);
+                bannerText.setText(context.getResources().getString(R.string.substraction_instructions, bundle.getInt("minuend"), bundle.getInt("subtracting")));
                 break;
             case LANGUAGE:
                 bannerText.setText(R.string.language_instructions);
                 break;
             case FLUENCY:
-                bannerText.setText(R.string.fluency_instructions);
+                bannerText.setText(context.getResources().getString(R.string.fluency_instructions, bundle.getString("target_letter")));
                 break;
             case ABSTRACTION:
                 bannerText.setText(R.string.abstraction_instruction);
@@ -842,44 +864,45 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     @Override
     void saveResults() throws JSONException {
-
         switch (taskType) {
             case ATTENTION_NUMBERS:
-                if(firstDone){
-                    if(variousInputs != null && variousInputs.size() > 0){
-                        for (EditText editText:variousInputs){
-                            answers.add(editText.getText().toString());
-                        }
+                if (variousInputs != null && variousInputs.size() > 0) {
+                    for (EditText editText : variousInputs) {
+                        answers.add(editText.getText().toString());
                     }
-                    callBack.getJsonAnswerWrapper().addArray("answer_backwards", answers);
-                }
-                else{
-                    if(variousInputs != null && variousInputs.size() > 0){
-                        for (EditText editText:variousInputs){
-                            answers.add(editText.getText().toString());
-                        }
+                    if (firstDone) {
+                        callBack.getJsonAnswerWrapper().addArrayList("answer_backwards", answers);
+                    } else {
+                        callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                    }
 
-                        callBack.getJsonAnswerWrapper().addArray("answer", answers);
-                    }
                 }
                 setScoring();
                 break;
-            case ATTENTION_LETTERS:
-                tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
-                break;
-            case LANGUAGE:
-                //String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
-                String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
-                repeatPhrase(phrases);
-                break;
+
             case FLUENCY:
-                bannerText.setText(R.string.fluency_instructions);
-                fluency("F", 11);
+            case RECALL:
+                answers = adapter.getAllWords();
+                Collections.reverse(answers);
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                setScoring();
                 break;
 
-            default:
-                throw new RuntimeException("INVALID TASKTYPE");
+            case ATTENTION_LETTERS:
+            case ATTENTION_SUBTRACTION:
+            case LANGUAGE:
+            case ABSTRACTION:
+            case ORIENTATION:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                setScoring();
+                break;
+
+            //String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
+            //String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
+            //repeatPhrase(phrases);
+
         }
+
 
     }
 
@@ -888,7 +911,18 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         switch (taskType) {
 
             case ATTENTION_NUMBERS:
-                checkAnswerArray();
+                if (firstDone) {
+                    checkReverseAnswerArray();
+                    addScoreToJson();
+                    try {
+                        callBack.getJsonAnswerWrapper().addTaskField();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    checkAnswerArray();
+                }
+
                 break;
 
             case ATTENTION_LETTERS:
@@ -908,15 +942,27 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
 
             case RECALL:
-            case ORIENTATION:
                 checkRecall();
+                break;
+
+            case ORIENTATION:
+                checkOrientation();
                 break;
 
         }
 
-        addScoreToJson();
+        if (taskType != ATTENTION_NUMBERS) {
+            addScoreToJson();
+            try {
+                callBack.getJsonAnswerWrapper().addTaskField();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
 
     }
+
 
     @Override
     public void editWord(String word) {
@@ -943,24 +989,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     //-------------------END INTERFACES-------------------//
+
+
     //-------------------CHECKERS-------------------------//
 
+    private void setExpectedAnswers(String[] answers) {
+        expectedAnswers = new ArrayList<>(Arrays.asList(answers));
+    }
+
+    private void checkOrientation() {
+        score = 1;
+    }
+
     private void checkRecall() {
-        int errors = 0;
-
-        /*
-             Allocate 1 point for each word recalled freely without any cues.
-         */
-
-        for(int i = 0; i < answers.size(); ++i) {
-            String expectedAnswer = (String) expectedAnswers.get(i);
-            if (expectedAnswer.equals(answers.get(i))) {
-                ++errors;
-            }
-        }
-
-
-        score = answers.size() - errors;
+        checkPhrases();
     }
 
     private void checkAbstraction() {
@@ -969,11 +1011,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         /*
             Only the last two item pairs are scored. Give 1 point to each item pair correctly
             answered.
-
          */
 
         for(int i = 1; i < answers.size(); ++i) {
-            String expectedAnswer = (String) expectedAnswers.get(i);
+            String expectedAnswer = expectedAnswers.get(i);
             if (expectedAnswer.contains(answers.get(i))) {
                 ++errors;
             }
@@ -985,17 +1026,14 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     private void checkFluency() {
         answers = adapter.getAllWords();
-        //TODO check answer with a dictionary
-
         score = 1;
-
     }
 
     private void checkPhrases() {
         int errors = 0;
 
         for(int i = 0; i < answers.size(); ++i) {
-            if (!answers.get(i).equalsIgnoreCase((String) expectedAnswers.get(i))) {
+            if (!answers.get(i).equalsIgnoreCase(array[i])) {
                 ++errors;
             }
         }
@@ -1019,28 +1057,44 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         boolean goOn = true;
 
         for(int i = 0; i < answers.size() && goOn; ++i) {
-            if (!answers.get(i).equalsIgnoreCase((String)expectedAnswers.get(i))) {
+            if (!array[i].equals(answers.get(i))) {
                 goOn = false;
             }
         }
         //if onePoint = true -> 1, otherwise -> 0
-        score = goOn ? 1:0;
+        score = goOn ? score + 1 : score;
+    }
+
+    private void checkReverseAnswerArray() {
+        boolean goOn = true;
+
+        int lastElement = answers.size() - 1;
+
+        for (int i = 0; i < answers.size() && goOn; ++i) {
+            if (!array[lastElement - i].equals(answers.get(i))) {
+                goOn = false;
+            }
+        }
+        //if onePoint = true -> 1, otherwise -> 0
+        score = goOn ? score + 1 : score;
     }
 
     private void checkLettersPressed(){
         boolean goOn = true;
         int errors = 0;
 
-        for(int i = 1; i < answers.size() && goOn; ++i) {
-            if (!answers.get(i-1).equalsIgnoreCase(answers.get(i))) {
-                errors++;
-                if(errors > 1){
-                    goOn = false;
+        if (answers.size() > 0) {
+            for (int i = 1; i < answers.size() && goOn; ++i) {
+                if (!answers.get(i - 1).equalsIgnoreCase(answers.get(i))) {
+                    errors++;
+                    if (errors > 1) {
+                        goOn = false;
+                    }
                 }
             }
         }
         //if onePoint = true -> 1, otherwise -> 0
-        score = goOn ? 1:0;
+        score = goOn ? score + 1 : score;
     }
 
     private void checkSubtractions(int firstMinuend, int subtrahend){

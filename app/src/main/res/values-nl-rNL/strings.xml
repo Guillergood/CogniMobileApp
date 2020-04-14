@@ -2,15 +2,15 @@
 <resources>
     <string name="graph_instructions">Tik achtereenvolgens een cijfer en een letter aan, begin bij 1, ga naar A, vervolgens naar 2 enzovoort. Er zal een lijn ontstaan tussen twee opeenvolgende stappen. U eindigt dan bij E. Als u klaar bent tikt u op ‘volgende</string>
     <string name="cube_instructions">Teken deze figuur zo nauwkeurig mogelijk na, in de ruimte hieronder</string>
-    <string name="clock_instructions">Teken een klok. Plaats er alle cijfers in en zet de wijzers op 10 over 11</string>
+    <string name="clock_instructions">Teken een klok. Plaats er alle cijfers in en zet de wijzers op %1$s.</string>
     <string name="animal_instructions">Hoe heet dit dier?</string>
     <string name="memory_instructions">Ik ga een rij woorden voorlezen die u moet onthouden, nu maar ook straks. Luister goed. Als ik klaar ben, vertelt u me alle woorden die u hebt onthouden. Het maakt niet uit in welke volgorde u ze opnoemt</string>
     <string name="numbers_instructions">Ik ga een aantal cijfers opnoemen en als ik klaar ben, moet u ze in dezelfde volgorde nazeggen als ik ze heb gezegd</string>
     <string name="backwards_instructions">Nu ga ik weer cijfers opnoemen, maar zodra ik klaar ben, moet u ze in omgekeerde volgorde nazeggen</string>
-    <string name="letters_instructions">Ik ga u nu een reeks letters voorlezen. Iedere keer dat ik de letter A noem, tikt u eenmaal op het scherm. Wanneer ik een andere letter noem, tikt u niet op het scherm</string>
-    <string name="substraction_instructions">Wilt u van 100 zeven aftrekken en van wat overblijft weer zeven aftrekken en zo doorgaan tot ik stop zeg?</string>
+    <string name="letters_instructions">Ik ga u nu een reeks letters voorlezen. Iedere keer dat ik de letter %1$s noem, tikt u eenmaal op het scherm. Wanneer ik een andere letter noem, tikt u niet op het scherm</string>
+    <string name="substraction_instructions">Wilt u van %1$d %2$d aftrekken en van wat overblijft weer %2$d aftrekken en zo doorgaan tot ik stop zeg?</string>
     <string name="language_instructions">"Ik ga u een zin voorlezen. Zeg deze na zodra ik klaar ben, precies zoals ik hem heb gezegd "</string>
-    <string name="fluency_instructions">Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met een bepaalde letter van het alfabet. Ik zal u de letters straks vertellen. U mag ieder woord noemen dat u wilt, behalve namen, cijfers, of woorden die met hetzelfde voorstukje (voorvoegsel) beginnen, zoals bijvoorbeeld lief, liefde, liefdevol. Na één minuut vraag ik u te stoppen. Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met de letter D</string>
+    <string name="fluency_instructions">Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met een bepaalde letter van het alfabet. Ik zal u de letters straks vertellen. U mag ieder woord noemen dat u wilt, behalve namen, cijfers, of woorden die met hetzelfde voorstukje (voorvoegsel) beginnen, zoals bijvoorbeeld lief, liefde, liefdevol. Na één minuut vraag ik u te stoppen. Noem zo veel mogelijk woorden als u kunt bedenken die beginnen met de letter %1$s.</string>
     <string name="abstraction_instruction">Kunt u met 1 woord aangeven wat de overeenkomst is tussen de volgende dingen?</string>
     <string name="recall_instructions">Ik heb u eerder een rij met woorden voorgelezen, en ik vroeg u ze te onthouden. Vertel me zo veel mogelijk woorden die u zich kunt herinneren</string>
     <string name="alert">Alarm</string>

@@ -1,7 +1,5 @@
 package ugr.gbv.cognimobile.utilities;
 
-import com.google.gson.JsonObject;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +20,7 @@ public class JsonAnswerWrapper {
         jsonObject.put("language", locale);
     }
 
-    public void addArray(String key, ArrayList arrayList) throws JSONException {
+    public void addArrayList(String key, ArrayList arrayList) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         for(Object object:arrayList){
             jsonArray.put(object);
@@ -31,6 +29,11 @@ public class JsonAnswerWrapper {
     }
     public void addField(String key, Object object) throws JSONException {
         subJsonObject.put(key,object);
+    }
+
+    public void addArray(String key, String[] array) throws JSONException {
+        JSONArray jsonArray = new JSONArray(array);
+        subJsonObject.put(key, jsonArray);
     }
 
     public void addTaskField() throws JSONException {

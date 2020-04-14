@@ -1,20 +1,15 @@
 package ugr.gbv.cognimobile.fragments;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +18,6 @@ import androidx.cardview.widget.CardView;
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
@@ -38,7 +32,7 @@ public class ImageTask extends Task {
     private int[] imagesId;
     private View mainView;
     private EditText input;
-    private ArrayList<String> expectedAnswers;
+    private String[] expectedAnswers;
     private ArrayList<String> answers;
     private Bundle bundle;
 
@@ -46,8 +40,8 @@ public class ImageTask extends Task {
         this.callBack = callBack;
         selected = 0;
         taskType = Task.IMAGE;
-        expectedAnswers = new ArrayList<>();
         this.bundle = bundle;
+        answers = new ArrayList<>();
     }
 
 
@@ -66,7 +60,14 @@ public class ImageTask extends Task {
 
         final CardView layout = mainView.findViewById(R.id.cardView);
 
-        final String[] imagesArray = context.getResources().getStringArray(R.array.images);
+
+        final String[] imagesArray = bundle.getStringArray("images");
+
+        if (imagesArray == null) {
+            throw new RuntimeException("IMAGES NULL");
+        }
+
+        expectedAnswers = bundle.getStringArray("answer");
 
 
         imagesId = new int[imagesArray.length];
@@ -172,20 +173,23 @@ public class ImageTask extends Task {
     @Override
     void saveResults() throws JSONException {
         setScoring();
-        callBack.getJsonAnswerWrapper().addArray("answer_sequence",answers);
+        callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answers);
         callBack.getJsonAnswerWrapper().addField("score",score);
         callBack.getJsonAnswerWrapper().addTaskField();
-
-
     }
 
     @Override
     void setScoring() {
         if(selected < imagesId.length) {
-            answers.add(input.getText().toString());
-            if (input.getText().toString().equalsIgnoreCase(expectedAnswers.get(selected))) {
-                score++;
+            if (input.getText().toString().isEmpty()) {
+                answers.add("");
+            } else {
+                answers.add(input.getText().toString());
+                if (expectedAnswers[selected].toLowerCase().contains(input.getText().toString().toLowerCase())) {
+                    score++;
+                }
             }
+
         }
     }
 }

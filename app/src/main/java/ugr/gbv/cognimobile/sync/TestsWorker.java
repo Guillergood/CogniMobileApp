@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-
 import com.aware.Aware;
 
 import org.json.JSONException;
@@ -44,40 +43,60 @@ public class TestsWorker extends Worker {
 
 
         String testURLString = Aware.getSetting(workerContext,Provider.DB_TBL_TESTS);
+        String[] arrayLinks = testURLString.split(",");
 
-        String testJson = getHtml(testURLString);
+        int inserted = 0;
 
-        if(testJson != null){
-
-            ContentValues[] testsValues = null;
-            try {
-                testsValues = JsonParserTests.getInstance().parse(testJson,workerContext);
-            } catch (JSONException e) {
-                e.printStackTrace();
+        if (arrayLinks.length > 0) {
+            for (String link : arrayLinks) {
+                String testJson = getHtml(link);
+                ContentValues[] data = retrieveDataFromHtml(testJson);
+                inserted += bulkInsert(data);
+            }
+        } else {
+            String testJson = getHtml(testURLString);
+            if (testJson != null) {
+                retrieveDataFromHtml(testJson);
+                ContentValues[] data = retrieveDataFromHtml(testJson);
+                inserted += bulkInsert(data);
             }
 
-
-            if(testsValues != null) {
-
-                int result = workerContext.getContentResolver().bulkInsert(
-                        Provider.Cognimobile_Data.CONTENT_URI_TESTS,
-                        testsValues
-                );
-
-
-                if (result > 0) {
-                    NotificationUtils.getInstance().notifyNewTestsAvailable(result, workerContext);
-                }
-
-                return Result.success();
-            }
-
-            return Result.retry();
         }
-        else {
+
+
+        if (inserted > 0) {
+            NotificationUtils.getInstance().notifyNewTestsAvailable(inserted, workerContext);
+            return Result.success();
+        } else {
             return Result.retry();
         }
 
+
+    }
+
+    private ContentValues[] retrieveDataFromHtml(String link) {
+
+        ContentValues[] testsValues = null;
+        try {
+            testsValues = JsonParserTests.getInstance().parse(link, workerContext);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return testsValues;
+
+    }
+
+    private int bulkInsert(ContentValues[] data) {
+        int result = 0;
+        if (data != null) {
+            result = workerContext.getContentResolver().bulkInsert(
+                    Provider.Cognimobile_Data.CONTENT_URI_TESTS,
+                    data
+            );
+        }
+
+        return result;
     }
 
     private String getHtml(@NonNull String urlString){

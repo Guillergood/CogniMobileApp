@@ -205,7 +205,7 @@ public class DrawTask extends Task implements LoadContent {
                 case WATCH:
                     leftButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
                     label.setText(R.string.clear_title_button);
-                    bannerText.setText(bundle.getString("text"));
+                    bannerText.setText(context.getResources().getString(R.string.clock_instructions, bundle.getString("hour")));
                     break;
                 default:
                     throw new RuntimeException("Task type not supported");
@@ -216,8 +216,6 @@ public class DrawTask extends Task implements LoadContent {
         }
     }
 
-
-    //TODO LIberar estos metedos de LoadContent
     @Override
     public void hideKeyboard() {
         callBack.hideKeyboard();
@@ -234,7 +232,7 @@ public class DrawTask extends Task implements LoadContent {
         switch (taskType) {
             case GRAPH:
                 setScoring();
-                callBack.getJsonAnswerWrapper().addArray("answer_secuence",answer);
+                callBack.getJsonAnswerWrapper().addArrayList("answer_secuence", answer);
                 callBack.getJsonAnswerWrapper().addField("score",score);
             case CUBE:
             case WATCH:
@@ -250,11 +248,11 @@ public class DrawTask extends Task implements LoadContent {
     @Override
     void setScoring() {
         int size = answer.size();
-        boolean stop = false;
+        boolean goOn = true;
         score = 1;
-        for(int i = 0;i < size && !stop; ++i)
-            if(!answer.get(i).equals(Integer.toString(i))){
-                stop = true;
+        for (int i = 0; i < size && goOn; ++i)
+            if (!answer.get(i).equals(Integer.toString(i + 1))) {
+                goOn = false;
                 score = 0;
             }
     }
