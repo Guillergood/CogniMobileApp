@@ -73,8 +73,10 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        String where = Provider.Cognimobile_Data.DONE + " LIKE ?";
+        String[] selectionArgs = {"0"};
         String[] projection = new String[]{Provider.Cognimobile_Data._ID, Provider.Cognimobile_Data.NAME, Provider.Cognimobile_Data.DATA};
-        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
+        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
         if(cursor != null)  {
             cursor.moveToFirst();
         }
@@ -87,6 +89,7 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         showTests();
+        callBack.reloadFragment();
     }
 
 
@@ -102,8 +105,10 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
     }
 
     private void setTestsOnAdapter(){
+        String where = Provider.Cognimobile_Data.DONE + " LIKE ?";
+        String[] selectionArgs = {"0"};
         String[] projection = new String[]{Provider.Cognimobile_Data._ID,Provider.Cognimobile_Data.NAME};
-        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
+        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
         if(cursor != null) {
             cursor.moveToFirst();
             testsAdapter.updateCursor(cursor);

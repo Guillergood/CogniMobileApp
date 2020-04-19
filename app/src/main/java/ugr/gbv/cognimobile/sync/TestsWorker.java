@@ -3,6 +3,7 @@ package ugr.gbv.cognimobile.sync;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import javax.net.ssl.HttpsURLConnection;
 
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.JsonParserTests;
 import ugr.gbv.cognimobile.utilities.NotificationUtils;
 
@@ -63,6 +65,8 @@ public class TestsWorker extends Worker {
 
         }
 
+        Log.d("WORKERS", "Tests worker termino :" + System.currentTimeMillis());
+
 
         if (inserted > 0) {
             NotificationUtils.getInstance().notifyNewTestsAvailable(inserted, workerContext);
@@ -80,7 +84,7 @@ public class TestsWorker extends Worker {
         try {
             testsValues = JsonParserTests.getInstance().parse(link, workerContext);
         } catch (JSONException e) {
-            e.printStackTrace();
+            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
         }
 
         return testsValues;
@@ -109,7 +113,7 @@ public class TestsWorker extends Worker {
         try{
             htmlUrlSource =  new URL(testQueryUri.toString());
         } catch (MalformedURLException e){
-            e.printStackTrace();
+            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
             htmlUrlSource = null;
         }
 
@@ -128,7 +132,7 @@ public class TestsWorker extends Worker {
             in.close();
             html = str.toString();
         } catch (IOException e) {
-            e.printStackTrace();
+            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
         }
 
         return html;

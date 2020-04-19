@@ -2,14 +2,22 @@ package ugr.gbv.cognimobile.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.view.textservice.SentenceSuggestionsInfo;
+import android.view.textservice.SpellCheckerSession;
+import android.view.textservice.SuggestionsInfo;
+import android.view.textservice.TextInfo;
+import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -21,24 +29,33 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.DataSender;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.JsonParserTests;
+import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class Test extends AppCompatActivity implements LoadContent {
+public class Test extends AppCompatActivity implements LoadContent, SpellCheckerSession.SpellCheckerSessionListener {
 
+    private static final int MY_DATA_CHECK_CODE = 1050;
     private ArrayList<Task> fragments;
     private int index;
     private View mContentView;
     private JsonAnswerWrapper jsonAnswerWrapper;
+    private String name;
+    private Locale language;
+
+    private int typos;
+    private String wordToCheck;
 
 
     @Override
@@ -54,10 +71,7 @@ public class Test extends AppCompatActivity implements LoadContent {
         hideNavBar();
 
 
-
         String rawJson = getIntent().getStringExtra("data");
-
-
 
         try {
             fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
@@ -71,19 +85,25 @@ public class Test extends AppCompatActivity implements LoadContent {
 
         initKeyBoardListener();
 
+
         try {
             JSONObject reader = new JSONObject(rawJson);
-            jsonAnswerWrapper = new JsonAnswerWrapper(reader.getString("name"), reader.getString("language"));
+            name = reader.getString("name");
+            String language = reader.getString("language");
+            this.language = new Locale(language);
+            jsonAnswerWrapper = new JsonAnswerWrapper(name, language);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
 
+        Intent checkIntent = new Intent();
+        checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
+
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        loadFragment(fragments.get(index));
-
 
 
     }
@@ -212,6 +232,80 @@ public class Test extends AppCompatActivity implements LoadContent {
         });
     }
 
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Locale getLanguage() {
+        return language;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == MY_DATA_CHECK_CODE) {
+            if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
+                // success, create the TTS instance
+
+                TextToSpeechLocal.getInstance(this, getLanguage());
+                loadFragment(fragments.get(index));
 
 
+            } else {
+                // missing data, install it
+                Intent installIntent = new Intent();
+                installIntent.setAction(
+                        TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
+                startActivity(installIntent);
+
+                ErrorHandler.getInstance().displayError(this, "TTS had to install the new language");
+            }
+        }
+    }
+
+    @Override
+    public void onGetSuggestions(SuggestionsInfo[] results) {
+
+    }
+
+    @Override
+    public void onGetSentenceSuggestions(SentenceSuggestionsInfo[] results) {
+        for (SentenceSuggestionsInfo result : results) {
+            int n = result.getSuggestionsCount();
+            for (int i = 0; i < n; i++) {
+                String suggestedWord = result.getSuggestionsInfoAt(i).getSuggestionAt(0);
+                if (!suggestedWord.equals(wordToCheck)) {
+                    typos++;
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public int checkTypos(ArrayList<String> input) {
+        typos = 0;
+
+        TextServicesManager tsm =
+                (TextServicesManager) getSystemService(TEXT_SERVICES_MANAGER_SERVICE);
+
+        SpellCheckerSession session =
+                tsm != null ? tsm.newSpellCheckerSession(null, language, this, true) : null;
+
+
+        if (session != null) {
+            for (String word : input) {
+                wordToCheck = word;
+                session.getSentenceSuggestions(
+                        new TextInfo[]{new TextInfo(word)},
+                        1
+                );
+            }
+
+        }
+
+        return typos;
+
+    }
 }

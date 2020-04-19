@@ -53,4 +53,23 @@
     <string name="task_is_ended">La tarea ha terminado. Pulse el botón \"Siguiente\" para continuar.</string>
     <string name="save">Guardar</string>
     <string name="add_word">Añadir palabra</string>
+    <string name="quit_study_contentDescription">Dejar estudio</string>
+    <string name="join_study_label">Unirse a un nuevo estudio.</string>
+    <string name="toast_joining_study">Uniéndose a un nuevo estudio.</string>
+    <string name="toast_could_not_join_study">No se pudo obtener el link del estudio</string>
+    <string name="provide_link">Por favor, introduzca un enlace.</string>
+    <string name="write_test_link_explanation">Introduzca un enlace en el espacio de abajo.</string>
+    <string name="link_hint">Enlace de estudio</string>
+    <string name="enter_link">Introduzca enlace de estudio.</string>
+    <string name="no_studies_active">No hay ningún estudio activo. Por favor, únase a uno presionando el botón de abajo.</string>
+    <string name="tests_available">Hay %1$d nuevos tests disponibles.</string>
+    <string name="no_studies_content_description">Imagen sin estudios</string>
+    <string name="no_tests_content_description">Imagen sin tests</string>
+    <string name="no_tests_actives">No hay tests disponibles.</string>
+    <string name="error_occurred">Un error ocurrió</string>
+    <string name="quit_test_contentDescription">Borrar test</string>
+    <string name="pref_notifications_title">Activar notificaciones</string>
+    <string name="pref_config_title">Cambiar opciones de entrada de datos</string>
+    <string name="pref_about_title">Acerca de</string>
+    <string name="accept_notification">Entendido</string>
 </resources>

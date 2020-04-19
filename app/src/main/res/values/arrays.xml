@@ -12,4 +12,14 @@
         <item>5</item>
         <item>E</item>
     </string-array>
+    <string-array name="configEntries">
+        <item>Both text and voice input</item>
+        <item>Text input only</item>
+        <item>Voice input only</item>
+    </string-array>
+    <string-array name="configValues">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
 </resources>

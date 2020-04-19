@@ -53,4 +53,23 @@
     <string name="task_is_ended">Taak is beëindigd. Druk op Volgende om door te gaan.</string>
     <string name="save">Sparen</string>
     <string name="add_word">" Woord toevoegen"</string>
+    <string name="quit_study_contentDescription">Stoppen met studeren</string>
+    <string name="join_study_label">Doe mee met nieuwe studie</string>
+    <string name="toast_joining_study">Deelnemen aan de studie</string>
+    <string name="toast_could_not_join_study">Kan de studielink niet ophalen</string>
+    <string name="provide_link">Geef een link op</string>
+    <string name="write_test_link_explanation">Geef de studielink op in de onderstaande ruimte.</string>
+    <string name="link_hint">Studie link</string>
+    <string name="enter_link">Link invoeren</string>
+    <string name="no_studies_active">Er is momenteel geen onderzoek actief. Klik op de onderstaande knop en voeg er een toe</string>
+    <string name="tests_available">Er zijn %1$d nieuwe tests beschikbaar.</string>
+    <string name="no_tests_content_description">Afbeelding zonder test</string>
+    <string name="no_studies_content_description">Geen studies afbeelding</string>
+    <string name="no_tests_actives">Er zijn momenteel geen tests beschikbaar.</string>
+    <string name="error_occurred">Er is een fout opgetreden</string>
+    <string name="quit_test_contentDescription">Test verwijderen</string>
+    <string name="pref_notifications_title">Schakel berichtmeldingen in</string>
+    <string name="pref_config_title">Wijzig invoeropties</string>
+    <string name="pref_about_title">Over</string>
+    <string name="accept_notification">Begrepen</string>
 </resources>

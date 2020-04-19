@@ -27,6 +27,7 @@ public class Introduction extends Activity {
     private int[] layouts;
     private Button next,skip;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

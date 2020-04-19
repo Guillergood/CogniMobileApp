@@ -12,13 +12,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 
-
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.activities.Introduction;
 import ugr.gbv.cognimobile.activities.MainActivity;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -66,10 +66,10 @@ public class NotificationUtils {
 
         String notificationTitle = context.getString(R.string.app_name);
 
-        String notificationText = context.getString(R.string.tests_availables,tests);
+        String notificationText = context.getString(R.string.tests_available, tests);
 
         /* getSmallArtResourceIdForWeatherCondition returns the proper art to show given an ID */
-        int smallArtResourceId = R.drawable.ic_app_notification;
+        int smallArtResourceId = R.drawable.ic_test_24dp_white;
         Bitmap largeIcon = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
 
         /*
@@ -103,12 +103,17 @@ public class NotificationUtils {
         }
 
 
+        Intent backIntent = new Intent(context, Introduction.class);
+        backIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         Intent intent = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, ACTION_IGNORE_PENDING_INTENT_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        intent.putExtra(context.getString(R.string.notification_click), true);
+        final PendingIntent pendingIntent = PendingIntent.getActivities(context, ACTION_IGNORE_PENDING_INTENT_ID,
+                new Intent[]{backIntent, intent}, PendingIntent.FLAG_ONE_SHOT);
+
 
         Notification.Action action = new Notification.Action.Builder(
-                Icon.createWithResource(context, R.drawable.ic_test_24dp_black),
+                Icon.createWithResource(context, R.drawable.ic_test_24dp_white),
                 context.getString(R.string.accept_notification),
                 pendingIntent).build();
         
@@ -138,10 +143,10 @@ public class NotificationUtils {
     private void notifyNewTestsAvailableLessThanOreo(int result, Context context) {
         String notificationTitle = context.getString(R.string.app_name);
 
-        String notificationText = context.getString(R.string.tests_availables, result);
+        String notificationText = context.getString(R.string.tests_available, result);
 
         /* getSmallArtResourceIdForWeatherCondition returns the proper art to show given an ID */
-        int smallArtResourceId = R.drawable.ic_app_notification;
+        int smallArtResourceId = R.drawable.ic_test_24dp_white;
 
         /*
          * NotificationCompat Builder is a very convenient way to build backward-compatible

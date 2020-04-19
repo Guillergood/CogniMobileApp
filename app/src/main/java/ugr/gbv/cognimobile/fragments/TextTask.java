@@ -43,14 +43,21 @@ import java.util.Objects;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.adapters.WordListAdapter;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.TTSHandler;
 import ugr.gbv.cognimobile.interfaces.TextTaskCallback;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 import static android.app.Activity.RESULT_OK;
 
 public class TextTask extends Task implements TTSHandler, TextTaskCallback {
+
+    private final static int BOTH_OPTIONS = 0;
+    private final static int ONLY_TEXT = 1;
+    private final static int ONLY_LANGUAGE = 2;
+
 
     //CHECKERS VARS
     private String[] array;
@@ -132,12 +139,14 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         sttButton.setOnClickListener(view -> callSTT());
 
 
-        if (bundle.getStringArray("answer") != null) {
-
-        }
-
 
         providedTask = true;
+
+
+        displayHelpAtBeginning = bundle.getBoolean("display_help");
+
+        Handler handler = new Handler();
+        handler.postDelayed(this::shouldDisplayHelpAtBeginning, R.integer.one_seg_millis);
 
         return mainView;
     }
@@ -273,7 +282,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             try {
                 saveResults();
             } catch (JSONException e) {
-                e.printStackTrace();
+                ErrorHandler.getInstance().displayError(context, e.getMessage());
             }
 
             firstDone = true;
@@ -746,9 +755,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         final Handler handler = new Handler(Looper.getMainLooper());
         if(taskType != ATTENTION_LETTERS) {
             handler.post(this::showUserInput);
-            if (taskType == ATTENTION_NUMBERS || taskType == ATTENTION_SUBTRACTION) {
-                handler.post(this::hideMicro);
+            switch (CognimobilePreferences.getConfig(context)) {
+                case BOTH_OPTIONS:
+                    if (taskType == ATTENTION_NUMBERS || taskType == ATTENTION_SUBTRACTION) {
+                        handler.post(this::hideMicro);
+                    }
+                    break;
+                case ONLY_TEXT:
+                    handler.post(this::hideMicro);
+                    break;
+                case ONLY_LANGUAGE:
+                    handler.post(this::cantEdit);
+                    break;
             }
+
         }
         else{
             taskEnded = true;
@@ -757,23 +777,28 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
+    private void cantEdit() {
+        additionalTaskInput.setEnabled(false);
+        additionalTaskInput.setKeyListener(null);
+    }
+
     private void enumeration() {
-        TextToSpeechLocal.getInstance(context,this).enumerate(array);
+        TextToSpeechLocal.getInstance(context, this, callBack.getLanguage()).enumerate(array);
     }
 
     private void speakPhrase(String phrase){
-        TextToSpeechLocal.getInstance(context, this).readOutLoud(phrase);
+        TextToSpeechLocal.getInstance(context, this, callBack.getLanguage()).readOutLoud(phrase);
     }
 
     @Override
     public void onPause() {
-        TextToSpeechLocal.getInstance(context,this).stop();
+        TextToSpeechLocal.getInstance(context).stop();
         super.onPause();
     }
 
     @Override
     public void onStart() {
-        TextToSpeechLocal.getInstance(context,this);
+        TextToSpeechLocal.getInstance(context, this, callBack.getLanguage());
         super.onStart();
     }
 
@@ -917,7 +942,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     try {
                         callBack.getJsonAnswerWrapper().addTaskField();
                     } catch (JSONException e) {
-                        e.printStackTrace();
+                        ErrorHandler.getInstance().displayError(context, e.getMessage());
                     }
                 } else {
                     checkAnswerArray();
@@ -956,7 +981,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             try {
                 callBack.getJsonAnswerWrapper().addTaskField();
             } catch (JSONException e) {
-                e.printStackTrace();
+                ErrorHandler.getInstance().displayError(context, e.getMessage());
             }
         }
 
@@ -1025,8 +1050,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void checkFluency() {
+        int minimumWords = bundle.getInt("number_words");
         answers = adapter.getAllWords();
-        score = 1;
+
+        score = 0;
+
+        if (answers.size() >= minimumWords) {
+            int errors = callBack.checkTypos(answers);
+            if (answers.size() - errors > minimumWords) {
+                score = 1;
+            }
+        }
+
+
+
     }
 
     private void checkPhrases() {
@@ -1048,7 +1085,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         try {
             callBack.getJsonAnswerWrapper().addField("score",score);
         } catch (JSONException e) {
-            e.printStackTrace();
+            ErrorHandler.getInstance().displayError(context, e.getMessage());
         }
     }
 

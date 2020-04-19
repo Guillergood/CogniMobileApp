@@ -3,6 +3,7 @@ package ugr.gbv.cognimobile.fragments;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,6 +107,12 @@ public class ImageTask extends Task {
         rightButton = mainView.findViewById(R.id.rightButton);
         rightButton.setOnClickListener(view -> nextTask());
         providedTask = true;
+
+
+        displayHelpAtBeginning = bundle.getBoolean("display_help");
+
+        Handler handler = new Handler();
+        handler.postDelayed(this::shouldDisplayHelpAtBeginning, R.integer.one_seg_millis);
 
 
         return mainView;

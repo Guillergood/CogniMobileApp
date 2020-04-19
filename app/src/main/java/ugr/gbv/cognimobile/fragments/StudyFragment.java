@@ -16,14 +16,12 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.aware.Aware;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
-import ugr.gbv.cognimobile.sync.WorkerManager;
 
 public class StudyFragment extends Fragment {
 
@@ -76,7 +74,6 @@ public class StudyFragment extends Fragment {
         else{
             fetchStudy();
             showStudy();
-            WorkerManager.getInstance().initiateWork(context);
         }
     }
 

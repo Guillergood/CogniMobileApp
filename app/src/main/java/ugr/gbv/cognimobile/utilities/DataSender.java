@@ -1,9 +1,13 @@
 package ugr.gbv.cognimobile.utilities;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.icu.util.Calendar;
 import android.net.Uri;
-import android.util.Log;
+import android.os.Handler;
+
+import androidx.annotation.NonNull;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
@@ -20,6 +24,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+
+import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.Provider;
 
 public class DataSender implements Serializable {
 
@@ -45,67 +52,131 @@ public class DataSender implements Serializable {
         return instantiated;
     }
 
-    public void postToServer(String command, String table, JSONArray data, Context context) {
+    public void postToServer(String command, String table, @NonNull JSONArray data, Context context) {
 
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
 
-        Thread task = new Thread(){
-            @Override
-            public void run() {
+        Handler handler = new Handler();
 
-                try {
+        handler.post(() -> {
+            try {
 
-                    switch (command){
-                        case INSERT:
-                            String formattedData = formatData(data);
-                            params.put("data",formattedData);
-                            break;
-                        /*case QUERY:
-                            double timestamp = System.currentTimeMillis();
-                            double zero = 0.0;
-                            params.put("start","\"0\"");
-                            params.put("end", "\""+timestamp+"\"");
-                            break;*/
-                        default:
-                            throw new IllegalStateException("Unexpected value: " + command);
+                switch (command) {
+                    case INSERT:
+                        String formattedData = formatData(data);
+                        params.put("data", formattedData);
+                        break;
+                    /*case QUERY:
+                        double timestamp = System.currentTimeMillis();
+                        double zero = 0.0;
+                        params.put("start","\"0\"");
+                        params.put("end", "\""+timestamp+"\"");
+                        break;*/
+                    default:
+                        throw new IllegalStateException("Unexpected value: " + command);
+                }
+
+                String urlString = buildURL(table, command, context);
+
+
+                URL url = new URL(urlString);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setDoOutput(true);
+                conn.connect();
+
+
+                String postInformation = buildPostInformation(params);
+
+
+                sendData(conn, postInformation);
+
+
+                int code = conn.getResponseCode();
+
+                if (code == 200) {
+                    ContentValues contentValues = new ContentValues();
+                    long millis = getMillisThirtyDaysAhead();
+                    contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
+                    contentValues.put(Provider.Cognimobile_Data.DONE, 1);
+                    updateValues(Provider.CONTENT_URI_TESTS, contentValues, context, data);
+                    contentValues.remove(Provider.Cognimobile_Data.DONE);
+                    contentValues.put(Provider.Cognimobile_Data.SYNCED, 1);
+                    deleteResult(context, data);
+                } else {
+                    if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
+                        ContentValues[] contentValues = new ContentValues[1];
+                        ContentValues value = new ContentValues();
+                        value.put(Provider.Cognimobile_Data.NAME, data.getJSONObject(0).getString("name"));
+                        value.put(Provider.Cognimobile_Data.DATA, data.toString());
+                        value.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
+
+                        context.getContentResolver().bulkInsert(
+                                Provider.Cognimobile_Data.CONTENT_URI_RESULTS,
+                                contentValues
+                        );
                     }
 
-                    String urlString =  buildURL(table,command, context);
-
-
-
-                    URL url = new URL(urlString);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoOutput(true);
-                    conn.connect();
-
-
-                    String postInformation = buildPostInformation(params);
-
-
-                    sendData(conn,postInformation);
-
-
-                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
-                    Log.i("MSG" , conn.getResponseMessage());
-
-                    conn.disconnect();
                 }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
+
+
+                conn.disconnect();
+            } catch (IOException | JSONException e) {
+                ErrorHandler.getInstance().displayError(context, e.getMessage());
             }
-        };
 
-        task.start();
-
-
+        });
 
 
     }
+
+    private boolean isItAlreadyOnTheDatabase(Context context, String name) {
+
+        boolean value = false;
+
+        String[] projection = new String[]{Provider.Cognimobile_Data.NAME};
+        String whereClause = Provider.Cognimobile_Data.NAME + " LIKE ? ";
+
+        String[] whereArgs = new String[]{
+                name,
+        };
+        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, whereClause, whereArgs, null);
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.close();
+            value = true;
+        }
+        return value;
+    }
+
+    private long getMillisThirtyDaysAhead() {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(c.get(Calendar.MILLISECOND));
+        //TODO CAMBIAR A DIAS DE AÑO
+        c.add(Calendar.MILLISECOND, R.integer.thirty);
+        return c.getTimeInMillis();
+    }
+
+    private long getCurrentMillis() {
+        Calendar c = Calendar.getInstance();
+        return c.getTimeInMillis();
+    }
+
+    private void updateValues(Uri uri, ContentValues values, Context context, JSONArray data) throws JSONException {
+        String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
+        String[] selectionArgs = {data.getJSONObject(0).getString("name")};
+
+        context.getContentResolver().update(uri, values, where, selectionArgs);
+
+    }
+
+    private void deleteResult(Context context, JSONArray data) throws JSONException {
+        String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
+        String[] selectionArgs = {data.getJSONObject(0).getString("name")};
+        context.getContentResolver().delete(Provider.CONTENT_URI_RESULTS, where, selectionArgs);
+    }
+
 
     private void sendData(HttpURLConnection conn,String postInformation) throws IOException {
         DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
@@ -116,7 +187,7 @@ public class DataSender implements Serializable {
 
     private String formatData(JSONArray data) throws JSONException {
 
-        double timestamp = System.currentTimeMillis();
+        double timestamp = getCurrentMillis();
 
 
         JSONObject jsonParam = new JSONObject();
@@ -129,7 +200,6 @@ public class DataSender implements Serializable {
 
         realData.put(jsonParam);
 
-        Log.i("JSON",realData.toString());
         return realData.toString();
     }
 

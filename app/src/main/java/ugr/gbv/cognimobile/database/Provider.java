@@ -80,6 +80,15 @@ public class Provider extends ContentProvider {
     };
 
 
+    //Game table fields
+    private static final String DB_TBL_TESTS_FIELDS =
+            Cognimobile_Data._ID + " integer primary key autoincrement," +
+                    Cognimobile_Data.TIMESTAMP + " real default 0," +
+                    Cognimobile_Data.DEVICE_ID + " text default ''," +
+                    Cognimobile_Data.DATA + " longtext default ''," +
+                    Cognimobile_Data.NAME + " longtext default ''," +
+                    Cognimobile_Data.DONE + " integer default 0," +
+                    Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
 
     public static final class Cognimobile_Data implements AWAREColumns {
         public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_TESTS);
@@ -89,21 +98,10 @@ public class Provider extends ContentProvider {
         static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
         public static final String DATA = "data";
         public static final String SYNCED = "synced";
+        public static final String DONE = "done";
         public static final String ERASE_TIMESTAMP = "erase_timestamp";
 
     }
-
-
-
-    //Game table fields
-    private static final String DB_TBL_TESTS_FIELDS =
-            Cognimobile_Data._ID + " integer primary key autoincrement," +
-            Cognimobile_Data.TIMESTAMP + " real default 0," +
-            Cognimobile_Data.DEVICE_ID + " text default ''," +
-            Cognimobile_Data.DATA + " longtext default ''," +
-            Cognimobile_Data.NAME + " longtext default ''," +
-            Cognimobile_Data.SYNCED + " integer default 0," +
-            Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
 
     private static final String DB_TBL_RESULTS_FIELDS =
             Cognimobile_Data._ID + " integer primary key autoincrement," +

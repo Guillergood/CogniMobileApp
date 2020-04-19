@@ -59,20 +59,30 @@
     <string name="task_is_ended">Task is ended. Press Next to continue.</string>
     <string name="save">Save</string>
     <string name="add_word">Add word</string>
-    <string name="quit_study_contentDescription">Quit Study</string>
+    <string name="quit_study_contentDescription">Quit study</string>
     <string name="join_study_label">Join New Study</string>
     <string name="toast_joining_study">Joining to the study</string>
-    <string name="toast_couldnt_join_study">Could not get the study link</string>
+    <string name="toast_could_not_join_study">Could not get the study link</string>
     <string name="provide_link">Please provide a link</string>
     <string name="write_test_link_explanation">Provide the study link in the space below.</string>
     <string name="link_hint">Study Link</string>
     <string name="enter_link">Enter link</string>
     <string name="no_studies_active">There is not any study active at the moment. Please click the button bellow and add one</string>
     <string name="quit_test_contentDescription">Delete test</string>
-    <string name="tests_availables">There are %1$d new tests availables.</string>
-    <string name="cognimobile_channel">cognimobile_channel</string>
-    <string name="accept_notification">accept_notification</string>
+    <string name="tests_available">There are %1$d new tests available.</string>
+    <string name="cognimobile_channel" translatable="false">cognimobile_channel</string>
+    <string name="accept_notification">Okay</string>
     <string name="no_studies_content_description">No Studies Image</string>
     <string name="no_tests_content_description">No Tests Image</string>
-    <string name="no_tests_actives">Thre are not any tests available at the moment.</string>
+    <string name="no_tests_actives">There are not any tests available at the moment.</string>
+    <string name="error_occurred">An error occurred</string>
+    <string name="pref_config" translatable="false">pref_config</string>
+    <string name="pref_notifications" translatable="false">pref_notifications</string>
+    <string name="pref_about" translatable="false">pref_about</string>
+    <string name="pref_config_value" translatable="false">pref_config_value</string>
+    <string name="notification_click" translatable="false">notification_click</string>
+    <string name="pref_notifications_title">Enable message notifications</string>
+    <string name="pref_config_title">Change inputs options</string>
+    <string name="pref_about_title">About</string>
+    <string name="pref_joined_study">pref_joined_study</string>
 </resources>

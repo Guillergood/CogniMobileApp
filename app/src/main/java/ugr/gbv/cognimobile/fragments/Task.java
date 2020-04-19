@@ -19,8 +19,11 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
 
+import java.util.Locale;
+
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 public abstract class Task extends Fragment {
@@ -33,6 +36,7 @@ public abstract class Task extends Fragment {
     FloatingActionButton submitAnswerButton;
     ConstraintLayout mainLayout;
 
+
     int taskType;
     int index;
     int lastIndex;
@@ -41,6 +45,7 @@ public abstract class Task extends Fragment {
     boolean loaded;
     boolean providedTask;
     boolean taskEnded;
+    boolean displayHelpAtBeginning;
 
     FloatingActionButton leftButton;
     FloatingActionButton rightButton;
@@ -72,9 +77,9 @@ public abstract class Task extends Fragment {
     }
 
     private void loadNextTask(){
-        callBack.loadContent();
         if(TextToSpeechLocal.isInitialized())
             TextToSpeechLocal.getInstance(context).stop();
+        callBack.loadContent();
     }
 
     void setNextButtonStandardBehaviour() {
@@ -91,7 +96,7 @@ public abstract class Task extends Fragment {
                 try {
                     saveResults();
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    ErrorHandler.getInstance().displayError(context, e.getMessage());
                 }
                 loadNextTask();
             });
@@ -184,7 +189,13 @@ public abstract class Task extends Fragment {
     }
 
 
+    public Locale getLanguage() {
+        return callBack.getLanguage();
+    }
 
+    public LoadContent getCallBack() {
+        return callBack;
+    }
 
     public int getTaskType() {
         return taskType;
@@ -196,6 +207,12 @@ public abstract class Task extends Fragment {
 
     public boolean hasEnded() {
         return taskEnded;
+    }
+
+    void shouldDisplayHelpAtBeginning() {
+        if (displayHelpAtBeginning) {
+            centerButton.performClick();
+        }
     }
 
 

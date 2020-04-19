@@ -1,0 +1,22 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <SwitchPreferenceCompat
+        app:defaultValue="@bool/default_notifications"
+        app:key="@string/pref_notifications"
+        app:title="@string/pref_notifications_title" />
+
+
+    <ListPreference
+        app:defaultValue="0"
+        app:entries="@array/configEntries"
+        app:entryValues="@array/configValues"
+        app:key="@string/pref_config"
+        app:summary="Change inputs options inside tests"
+        app:title="@string/pref_config_title" />
+
+    <Preference
+        app:key="@string/pref_about"
+        app:title="@string/pref_about_title" />
+
+
+</PreferenceScreen>

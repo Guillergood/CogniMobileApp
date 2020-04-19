@@ -1,6 +1,7 @@
 package ugr.gbv.cognimobile.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,6 @@ public class DrawTask extends Task implements LoadContent {
     private LinearLayout leftButtonContainer;
     private int undoTimes;
     private Bundle bundle;
-
 
     private ArrayList<Button> pressedButtons;
 
@@ -87,8 +87,6 @@ public class DrawTask extends Task implements LoadContent {
         rightButton = view.findViewById(R.id.rightButton);
 
 
-
-
         leftButton = view.findViewById(R.id.leftButton);
         leftButton.setOnClickListener(view -> {
             if(checkIfHasUndoActions()) {
@@ -106,6 +104,9 @@ public class DrawTask extends Task implements LoadContent {
 
         setNextButtonStandardBehaviour();
 
+        displayHelpAtBeginning = bundle.getBoolean("display_help");
+        Handler handler = new Handler();
+        handler.postDelayed(this::shouldDisplayHelpAtBeginning, R.integer.one_seg_millis);
 
         return view;
     }
@@ -221,9 +222,16 @@ public class DrawTask extends Task implements LoadContent {
         callBack.hideKeyboard();
     }
 
+
+    //TODO: hacer un nuevo interface para esto.
     @Override
     public JsonAnswerWrapper getJsonAnswerWrapper() {
         return null;
+    }
+
+    @Override
+    public int checkTypos(ArrayList<String> words) {
+        return 0;
     }
 
 
@@ -236,7 +244,7 @@ public class DrawTask extends Task implements LoadContent {
                 callBack.getJsonAnswerWrapper().addField("score",score);
             case CUBE:
             case WATCH:
-                callBack.getJsonAnswerWrapper().addField("answer_image", ImageConversor.getInstance().encodeToBase64(drawingView.getCanvasBitmap()));
+                callBack.getJsonAnswerWrapper().addField("answer_image", ImageConversor.getInstance().encodeAnswerToBase64(view));
                 callBack.getJsonAnswerWrapper().addTaskField();
                 break;
             default:

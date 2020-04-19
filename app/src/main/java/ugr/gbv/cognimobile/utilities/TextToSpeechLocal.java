@@ -18,6 +18,7 @@ public class TextToSpeechLocal implements Serializable {
     private int delayTts = 1000;
     private static int index;
     public static final int STT_CODE = 2;
+    private static volatile Locale language;
 
     private TextToSpeechLocal(){
         if (instanced != null){
@@ -25,8 +26,14 @@ public class TextToSpeechLocal implements Serializable {
         }
     }
 
-    public static TextToSpeechLocal getInstance(Context context, TTSHandler handler) {
+    public static TextToSpeechLocal getInstance(Context context, TTSHandler handler, Locale pLanguage) {
         callback = handler;
+        language = pLanguage;
+        return getInstance(context);
+    }
+
+    public static TextToSpeechLocal getInstance(Context context, Locale pLanguage) {
+        language = pLanguage;
         return getInstance(context);
     }
 
@@ -53,15 +60,15 @@ public class TextToSpeechLocal implements Serializable {
         textToSpeech=new TextToSpeech(context, status -> {
             if(status == TextToSpeech.SUCCESS){
 
-                int result=textToSpeech.setLanguage(Locale.getDefault());
+                int result = textToSpeech.setLanguage(language);
 
-                if(result == TextToSpeech.LANG_MISSING_DATA ||
-                        result== TextToSpeech.LANG_NOT_SUPPORTED){
-                    throw new RuntimeException("Wrong TextToSpeech initialization, result = " + result);
-
+                if (result != TextToSpeech.LANG_MISSING_DATA &&
+                        result != TextToSpeech.LANG_NOT_SUPPORTED) {
+                    shuttedDown = false;
+                    if (callback != null)
+                        callback.startTTS();
                 }
-                shuttedDown = false;
-                callback.startTTS();
+
             }
         });
     }

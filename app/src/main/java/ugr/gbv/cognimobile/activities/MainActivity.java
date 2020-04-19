@@ -6,11 +6,12 @@ import android.app.NotificationManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.service.notification.StatusBarNotification;
 import android.view.MenuItem;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.aware.Aware;
 import com.aware.Aware_Preferences;
@@ -27,22 +29,19 @@ import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
-import ugr.gbv.cognimobile.utilities.DataSender;
+import ugr.gbv.cognimobile.sync.WorkerManager;
 
 import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 
@@ -89,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(this,
                 REQUIRED_PERMISSIONS.toArray(new String[0]),
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
 
         actualFragment = new StudyFragment(this);
 
@@ -200,9 +200,11 @@ public class MainActivity extends AppCompatActivity
                 DataSender.getInstance().postToServer(DataSender.INSERT, "tests",array, getApplicationContext());*/
                 break;
             case R.id.nav_settings:
+                actualFragment = new SettingsFragments();
+                loadFragment();
                 //speechToText();
                 //Aware.startBattery(getApplicationContext());
-                JSONObject jsonObject2 = new JSONObject();
+                /*JSONObject jsonObject2 = new JSONObject();
                 JSONArray array2 = new JSONArray();
                 try {
                     double date = System.currentTimeMillis();
@@ -210,10 +212,10 @@ public class MainActivity extends AppCompatActivity
                     jsonObject2.put("end",date);
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    ErrorHandler.getInstance().displayError(getApplicationContext(),e.getMessage());
                 }
                 array2.put(jsonObject2);
-                DataSender.getInstance().postToServer(DataSender.QUERY, "tests",array2, getApplicationContext());
+                DataSender.getInstance().postToServer(DataSender.QUERY, "tests",array2, getApplicationContext());*/
                 break;
 
         }
@@ -308,14 +310,15 @@ public class MainActivity extends AppCompatActivity
             if(resultCode == RESULT_OK && data != null){
                 String link = data.getStringExtra(INTENT_LINK_LABEL);
                 if(link != null){
+
                     Aware.joinStudy(this, link);
-                    StudyFragment fragment = (StudyFragment) actualFragment;
-                    fragment.checkNewStudy();
+                    CognimobilePreferences.setHasUserJoinedStudy(this, true);
+                    reloadUiWhenJoined();
                 }
                 Toast.makeText(this, R.string.toast_joining_study, Toast.LENGTH_LONG).show();
             }
             else {
-                Toast.makeText(this, R.string.toast_couldnt_join_study, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();
             }
         }
 
@@ -375,5 +378,41 @@ public class MainActivity extends AppCompatActivity
     public void onClick(String data) {
         goToTest(data);
     }
+
+
+    private void reloadUiWhenJoined() {
+
+        Handler handler = new Handler();
+        handler.post(() -> {
+            int times = 0;
+            int count = 0;
+            while (count == 0 && times < 1000) {
+                Cursor studies = Aware.getStudy(getApplicationContext(), "");
+                count = studies.getCount();
+                times++;
+            }
+            if (times < 1000)
+                runOnUiThread(this::reloadFragment);
+            String testURLString = null;
+            while ((testURLString == null || testURLString.isEmpty()) && times < 1000) {
+                testURLString = Aware.getSetting(this, Provider.DB_TBL_TESTS);
+                times++;
+            }
+            if (times < 1000)
+                WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+
+        });
+
+
+    }
+
+    @Override
+    public void reloadFragment() {
+        final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.detach(actualFragment);
+        ft.attach(actualFragment);
+        ft.commit();
+    }
+
 }
 
