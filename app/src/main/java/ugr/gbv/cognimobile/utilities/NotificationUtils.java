@@ -18,7 +18,6 @@ import androidx.core.app.TaskStackBuilder;
 import androidx.core.content.ContextCompat;
 
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.activities.Introduction;
 import ugr.gbv.cognimobile.activities.MainActivity;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
@@ -97,19 +96,17 @@ public class NotificationUtils {
 // channel, if the device supports this feature.
         mChannel.setLightColor(context.getColor(R.color.colorAccent));
         mChannel.enableVibration(true);
-        mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         if (notificationManager != null) {
             notificationManager.createNotificationChannel(mChannel);
         }
 
 
-        Intent backIntent = new Intent(context, Introduction.class);
-        backIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
         Intent intent = new Intent(context, MainActivity.class);
         intent.putExtra(context.getString(R.string.notification_click), true);
-        final PendingIntent pendingIntent = PendingIntent.getActivities(context, ACTION_IGNORE_PENDING_INTENT_ID,
-                new Intent[]{backIntent, intent}, PendingIntent.FLAG_ONE_SHOT);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(context, ACTION_IGNORE_PENDING_INTENT_ID,
+                intent, PendingIntent.FLAG_ONE_SHOT);
 
 
         Notification.Action action = new Notification.Action.Builder(
@@ -125,6 +122,8 @@ public class NotificationUtils {
                 .setContentTitle(notificationTitle)
                 .setAutoCancel(true).setContentIntent(pendingIntent)
                 .setNumber(ARTICLE_NOTIFICATION_ID)
+                .setDefaults(Notification.DEFAULT_VIBRATE)
+                .setDefaults(Notification.DEFAULT_SOUND)
                 .setColor(context.getColor(R.color.colorAccent))
                 .setContentText(notificationText)
                 .setStyle(new Notification.BigTextStyle()
@@ -165,6 +164,8 @@ public class NotificationUtils {
                         .setColor(ContextCompat.getColor(context, R.color.colorAccent))
                         .setSmallIcon(smallArtResourceId)
                         .setContentTitle(notificationTitle)
+                        .setDefaults(Notification.DEFAULT_VIBRATE)
+                        .setDefaults(Notification.DEFAULT_SOUND)
                         .setContentText(notificationText)
                         .setStyle(new NotificationCompat.BigTextStyle().bigText(notificationText))
                         .addAction(ignoreReminderAction(context))
@@ -176,12 +177,16 @@ public class NotificationUtils {
          */
         Intent detailIntentForToday = new Intent(context, MainActivity.class);
 
+        detailIntentForToday.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
         taskStackBuilder.addNextIntentWithParentStack(detailIntentForToday);
         PendingIntent resultPendingIntent = taskStackBuilder
                 .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
         notificationBuilder.setContentIntent(resultPendingIntent);
+
 
 
         /* WEATHER_NOTIFICATION_ID allows you to update or cancel the notification later on */
@@ -206,4 +211,6 @@ public class NotificationUtils {
                         context.getString(R.string.accept_notification),
                         pendingIntent);
     }
+
+
 }

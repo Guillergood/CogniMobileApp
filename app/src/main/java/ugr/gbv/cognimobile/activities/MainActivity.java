@@ -7,6 +7,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -89,8 +91,15 @@ public class MainActivity extends AppCompatActivity
                 REQUIRED_PERMISSIONS.toArray(new String[0]),
                 MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            if (extras.containsKey(getString(R.string.notification_click))) {
+                actualFragment = new TestsFragment(this);
+            }
+        } else {
+            actualFragment = new StudyFragment(this);
+        }
 
-        actualFragment = new StudyFragment(this);
 
         loadFragment();
 
@@ -304,18 +313,32 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+    private boolean hasUserConnectivity() {
+        // Checking internet connectivity
+        ConnectivityManager connectivityMgr = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = null;
+        if (connectivityMgr != null) {
+            activeNetwork = connectivityMgr.getActiveNetworkInfo();
+        }
+        return activeNetwork != null;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == LINK_CODE){
             if(resultCode == RESULT_OK && data != null){
                 String link = data.getStringExtra(INTENT_LINK_LABEL);
                 if(link != null){
-
                     Aware.joinStudy(this, link);
-                    CognimobilePreferences.setHasUserJoinedStudy(this, true);
-                    reloadUiWhenJoined();
+                    if (hasUserConnectivity()) {
+                        CognimobilePreferences.setHasUserJoinedStudy(this, true);
+                        reloadUiWhenJoined();
+                        Toast.makeText(this, R.string.toast_joining_study, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();
+                    }
                 }
-                Toast.makeText(this, R.string.toast_joining_study, Toast.LENGTH_LONG).show();
+
             }
             else {
                 Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();

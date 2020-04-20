@@ -89,7 +89,6 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
         recyclerView.addItemDecoration(dividerItemDecoration);
 
         showTests();
-        callBack.reloadFragment();
     }
 
 
