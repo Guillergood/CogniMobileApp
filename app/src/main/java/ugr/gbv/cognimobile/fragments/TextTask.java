@@ -93,6 +93,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         this.bundle = bundle;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Handler handler = new Handler();
+        handler.post(this::shouldDisplayHelpAtBeginning);
+    }
+
 
     @Nullable
     @Override
@@ -145,8 +152,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         displayHelpAtBeginning = bundle.getBoolean("display_help");
 
-        Handler handler = new Handler();
-        handler.postDelayed(this::shouldDisplayHelpAtBeginning, R.integer.one_seg_millis);
 
         return mainView;
     }

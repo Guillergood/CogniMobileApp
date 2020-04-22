@@ -87,12 +87,13 @@ public class JsonParserTests {
         ArrayList<Task> tasks = new ArrayList<>();
         JSONObject reader = new JSONObject(testsJson);
         int number = 0;
+        int entriesNoTasks = 3;
         String task ="task_";
         Bundle bundle;
         String language = reader.getString("language");
         boolean displayHelp = reader.getBoolean("display_help");
 
-        for (; number < reader.length() - 2; ++number) {
+        for (; number < reader.length() - entriesNoTasks; ++number) {
             JSONObject object = reader.getJSONObject(task+number);
             int taskType = object.getInt("taskType");
             bundle = new Bundle();

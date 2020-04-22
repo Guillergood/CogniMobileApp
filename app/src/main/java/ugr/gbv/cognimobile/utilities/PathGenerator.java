@@ -42,16 +42,16 @@ public class PathGenerator {
         puntos.add( new Point( 0.13378906f * height , 0.55972224f * width , Integer.toString(numbers[8])));
         puntos.add( new Point( 0.27148438f * height , 0.3402778f * width , Integer.toString(numbers[9])));*/
 
-        puntos.add( new Point( 0.30859375f * width , 0.67083335f * height , Integer.toString(numbers[0])));
-        puntos.add( new Point( 0.4638672f * width , 0.36666667f * height , Integer.toString(numbers[1])));
-        puntos.add( new Point( 0.5703125f * width , 0.5708333f * height , Integer.toString(numbers[2])));
-        puntos.add( new Point( 0.453125f * width , 0.625f * height , Integer.toString(numbers[3])));
-        puntos.add( new Point( 0.57421875f * width , 0.85694444f * height , Integer.toString(numbers[4])));
-        puntos.add( new Point( 0.3544922f * width , 0.98055553f * height , Integer.toString(numbers[5])));
-        puntos.add( new Point( 0.3857422f * width , 0.80277777f * height , Integer.toString(numbers[6])));
-        puntos.add( new Point( 0.14355469f * width , 0.90694445f * height , Integer.toString(numbers[7])));
-        puntos.add( new Point( 0.13378906f * width , 0.55972224f * height , Integer.toString(numbers[8])));
-        puntos.add( new Point( 0.27148438f * width , 0.3402778f * height , Integer.toString(numbers[9])));
+        puntos.add(new Point(0.30859375f * width, 0.42083335f * height, Integer.toString(numbers[0])));
+        puntos.add(new Point(0.4638672f * width, 0.11666667f * height, Integer.toString(numbers[1])));
+        puntos.add(new Point(0.5703125f * width, 0.2208333f * height, Integer.toString(numbers[2])));
+        puntos.add(new Point(0.453125f * width, 0.375f * height, Integer.toString(numbers[3])));
+        puntos.add(new Point(0.57421875f * width, 0.60694444f * height, Integer.toString(numbers[4])));
+        puntos.add(new Point(0.3544922f * width, 0.73055553f * height, Integer.toString(numbers[5])));
+        puntos.add(new Point(0.3857422f * width, 0.55277777f * height, Integer.toString(numbers[6])));
+        puntos.add(new Point(0.14355469f * width, 0.65694445f * height, Integer.toString(numbers[7])));
+        puntos.add(new Point(0.13378906f * width, 0.30972224f * height, Integer.toString(numbers[8])));
+        puntos.add(new Point(0.27148438f * width, 0.0902778f * height, Integer.toString(numbers[9])));
 
         /*puntos.add( new Point( 0.67083335f * width  , 0.30859375f * height , Integer.toString(numbers[0])));
         puntos.add( new Point( 0.36666667f * width , 0.4638672f * height ,  Integer.toString(numbers[1])));

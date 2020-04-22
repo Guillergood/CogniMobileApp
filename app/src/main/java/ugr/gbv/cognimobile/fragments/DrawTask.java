@@ -51,6 +51,13 @@ public class DrawTask extends Task implements LoadContent {
         }
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Handler handler = new Handler();
+        handler.post(this::shouldDisplayHelpAtBeginning);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -105,8 +112,7 @@ public class DrawTask extends Task implements LoadContent {
         setNextButtonStandardBehaviour();
 
         displayHelpAtBeginning = bundle.getBoolean("display_help");
-        Handler handler = new Handler();
-        handler.postDelayed(this::shouldDisplayHelpAtBeginning, R.integer.one_seg_millis);
+
 
         return view;
     }
