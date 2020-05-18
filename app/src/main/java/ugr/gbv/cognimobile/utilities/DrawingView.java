@@ -23,15 +23,16 @@ public class DrawingView extends View {
     private Paint drawPaint,canvasPaint;
     private Bitmap canvasBitmap;
     private Canvas drawCanvas;
-    private ArrayList<Point> points;
+    private ArrayList<Point> drawPoints;
+    private ArrayList<Point> erasedPoints;
     boolean initialized = false;
     private LoadContent callBack;
     private boolean freeDrawing;
-    private ArrayList<Path> paths = new ArrayList<>();
 
     public DrawingView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        points = new ArrayList<>();
+        drawPoints = new ArrayList<>();
+        erasedPoints = new ArrayList<>();
         setUpDrawing();
     }
 
@@ -73,21 +74,23 @@ public class DrawingView extends View {
                 case MotionEvent.ACTION_DOWN:
                     drawPath.moveTo(touchX, touchY);
                     drawPath.lineTo(touchX, touchY);
+                    drawPoints.add(new Point(touchX, touchY));
                     break;
 
                 case MotionEvent.ACTION_MOVE:
                     drawPath.lineTo(touchX, touchY);
+                    drawPoints.add(new Point(touchX, touchY));
                     break;
 
                 case MotionEvent.ACTION_UP:
                     drawPath.moveTo(touchX, touchY);
+                    drawPoints.add(new Point(touchX, touchY));
                     break;
 
                 default:
                     return false;
             }
 
-            paths.add(drawPath);
 
             invalidate();
         }
@@ -120,11 +123,9 @@ public class DrawingView extends View {
             initialized = true;
         }
 
-        points.add(punto);
-
+        drawPoints.add(punto);
 
         drawCanvas.save();
-
 
         invalidate();
     }
@@ -136,11 +137,16 @@ public class DrawingView extends View {
 
     public void undoLastOperation(){
         if(freeDrawing){
+            drawPoints.clear();
             clearCanvas();
         }
         else {
-            if (points.size() > 0) {
-                points.remove(points.size() - 1);
+            if (drawPoints.size() > 0) {
+                if (drawPoints.size() > 1) {
+                    erasedPoints.add(drawPoints.get(drawPoints.size() - 2));
+                    erasedPoints.add(drawPoints.get(drawPoints.size() - 1));
+                }
+                drawPoints.remove(drawPoints.size() - 1);
                 clearCanvas();
                 drawPath();
             }
@@ -149,7 +155,7 @@ public class DrawingView extends View {
 
     private void drawPath(){
 
-        for (Point point : points) {
+        for (Point point : drawPoints) {
             if (initialized) {
                 drawPath.lineTo(point.getX(), point.getY());
                 drawPath.moveTo(point.getX(), point.getY());
@@ -161,7 +167,33 @@ public class DrawingView extends View {
 
     }
 
-    public Bitmap getCanvasBitmap() {
-        return canvasBitmap;
+    public float[] getDrawnPath() {
+
+        int size = drawPoints.size() * 2;
+
+        float[] value = new float[size];
+
+        for (int i = 0, k = 0; i < size; i += 2, ++k) {
+            value[i] = drawPoints.get(k).getX();
+            value[i + 1] = drawPoints.get(k).getY();
+        }
+
+        return value;
     }
+
+    public float[] getErasedPath() {
+
+        int size = erasedPoints.size() * 2;
+
+        float[] value = new float[size];
+
+        for (int i = 0, k = 0; i < size; i += 2, ++k) {
+            value[i] = erasedPoints.get(k).getX();
+            value[i + 1] = erasedPoints.get(k).getY();
+        }
+
+        return value;
+    }
+
+
 }

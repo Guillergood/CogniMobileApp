@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -23,7 +24,6 @@ import java.util.ArrayList;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.DrawingView;
-import ugr.gbv.cognimobile.utilities.ImageConversor;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.PathGenerator;
 import ugr.gbv.cognimobile.utilities.Point;
@@ -32,7 +32,7 @@ public class DrawTask extends Task implements LoadContent {
 
 
     private DrawingView drawingView;
-    private ArrayList<Point> secuence;
+    private ArrayList<Point> sequence;
     private ArrayList<String> answer;
     private View view;
     private LinearLayout leftButtonContainer;
@@ -158,13 +158,13 @@ public class DrawTask extends Task implements LoadContent {
             button.setOnClickListener(v -> {
                 Button button1 = (Button) v;
                 boolean continua = true;
-                for(int i1 = 0; i1 < secuence.size() && continua; ++i1){
-                    if(button1.getTag().equals(secuence.get(i1).getLabel())){
+                for (int i1 = 0; i1 < sequence.size() && continua; ++i1) {
+                    if (button1.getTag().equals(sequence.get(i1).getLabel())) {
                         if(!answer.contains(button1.getTag().toString())){
                             button1.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
                             button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
                             answer.add(button1.getTag().toString());
-                            drawingView.drawToPoint(secuence.get(i1));
+                            drawingView.drawToPoint(sequence.get(i1));
                             continua = false;
                             pressedButtons.add(button1);
                         }
@@ -199,8 +199,13 @@ public class DrawTask extends Task implements LoadContent {
                     int height = drawingView.getCanvasHeight();
                     int width = drawingView.getCanvasWidth();
                     PathGenerator pathGenerator = new PathGenerator();
-                    secuence = pathGenerator.makePath(height, width);
-                    drawButtons(secuence);
+                    sequence = pathGenerator.makePath(height, width);
+                    drawButtons(sequence);
+                    try {
+                        callBack.getJsonAnswerWrapper().addIntArray("pattern_sequence", pathGenerator.getNumbers());
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     bannerText.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
@@ -224,9 +229,15 @@ public class DrawTask extends Task implements LoadContent {
     }
 
     @Override
-    public void hideKeyboard() {
-        callBack.hideKeyboard();
+    public void hideKeyboard(Activity activity) {
+
     }
+
+    @Override
+    public void showKeyboard(Activity activity) {
+
+    }
+
 
 
     //TODO: hacer un nuevo interface para esto.
@@ -243,14 +254,23 @@ public class DrawTask extends Task implements LoadContent {
 
     @Override
     void saveResults() throws JSONException {
+
+        callBack.getJsonAnswerWrapper().addField("task_type", taskType);
+        callBack.getJsonAnswerWrapper().addField("height", drawingView.getCanvasHeight());
+        callBack.getJsonAnswerWrapper().addField("width", drawingView.getCanvasWidth());
+        callBack.getJsonAnswerWrapper().addFloatArray("points_sequence", drawingView.getDrawnPath());
+
         switch (taskType) {
             case GRAPH:
                 setScoring();
-                callBack.getJsonAnswerWrapper().addArrayList("answer_secuence", answer);
+                callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answer);
                 callBack.getJsonAnswerWrapper().addField("score",score);
+                callBack.getJsonAnswerWrapper().addFloatArray("erased_paths", drawingView.getErasedPath());
+                callBack.getJsonAnswerWrapper().addTaskField();
+                break;
             case CUBE:
             case WATCH:
-                callBack.getJsonAnswerWrapper().addField("answer_image", ImageConversor.getInstance().encodeAnswerToBase64(view));
+                callBack.getJsonAnswerWrapper().addField("times_wipe_canvas", getResources().getInteger(R.integer.undo_times) - undoTimes);
                 callBack.getJsonAnswerWrapper().addTaskField();
                 break;
             default:
@@ -259,11 +279,12 @@ public class DrawTask extends Task implements LoadContent {
         }
     }
 
+
     @Override
     void setScoring() {
         int size = answer.size();
         boolean goOn = true;
-        score = 1;
+        score = size > 0 ? 1 : 0;
         for (int i = 0; i < size && goOn; ++i)
             if (!answer.get(i).equals(Integer.toString(i + 1))) {
                 goOn = false;

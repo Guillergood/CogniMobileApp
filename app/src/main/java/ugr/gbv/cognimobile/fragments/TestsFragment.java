@@ -93,8 +93,10 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
 
 
     private boolean emptyTests(){
+        String where = Provider.Cognimobile_Data.DONE + " LIKE ?";
+        String[] selectionArgs = {"0"};
         String[] projection = new String[]{Provider.Cognimobile_Data._ID};
-        Cursor tempCursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,null,null,Provider.Cognimobile_Data._ID);
+        Cursor tempCursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
         int count = 0;
         if(tempCursor != null){
             count = tempCursor.getCount();

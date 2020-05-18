@@ -113,7 +113,7 @@ public class TestsWorker extends Worker {
         try{
             htmlUrlSource =  new URL(testQueryUri.toString());
         } catch (MalformedURLException e){
-            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
+            e.printStackTrace();
             htmlUrlSource = null;
         }
 

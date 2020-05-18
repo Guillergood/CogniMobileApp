@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.icu.util.Calendar;
 import android.net.Uri;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
@@ -58,22 +57,20 @@ public class DataSender implements Serializable {
         HashMap<String, Object> params = new HashMap<>();
         params.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
 
-        Handler handler = new Handler();
 
-        handler.post(() -> {
+        Thread thread = new Thread(() -> {
             try {
-
                 switch (command) {
                     case INSERT:
                         String formattedData = formatData(data);
                         params.put("data", formattedData);
                         break;
-                    /*case QUERY:
-                        double timestamp = System.currentTimeMillis();
-                        double zero = 0.0;
-                        params.put("start","\"0\"");
-                        params.put("end", "\""+timestamp+"\"");
-                        break;*/
+                /*case QUERY:
+                    double timestamp = System.currentTimeMillis();
+                    double zero = 0.0;
+                    params.put("start","\"0\"");
+                    params.put("end", "\""+timestamp+"\"");
+                    break;*/
                     default:
                         throw new IllegalStateException("Unexpected value: " + command);
                 }
@@ -96,7 +93,8 @@ public class DataSender implements Serializable {
 
                 int code = conn.getResponseCode();
 
-                if (code == 200) {
+                //TODO CAMBIAR ESTO
+                /*if (code == 200) {
                     ContentValues contentValues = new ContentValues();
                     long millis = getMillisThirtyDaysAhead();
                     contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
@@ -119,15 +117,18 @@ public class DataSender implements Serializable {
                         );
                     }
 
-                }
+                }*/
 
 
                 conn.disconnect();
             } catch (IOException | JSONException e) {
                 ErrorHandler.getInstance().displayError(context, e.getMessage());
             }
-
         });
+
+        thread.start();
+
+
 
 
     }

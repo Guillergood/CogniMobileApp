@@ -2,19 +2,26 @@ package ugr.gbv.cognimobile.activities;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.SentenceSuggestionsInfo;
 import android.view.textservice.SpellCheckerSession;
 import android.view.textservice.SuggestionsInfo;
 import android.view.textservice.TextInfo;
 import android.view.textservice.TextServicesManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +31,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
+
+import com.airbnb.lottie.LottieAnimationView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +47,6 @@ import ugr.gbv.cognimobile.utilities.DataSender;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.JsonParserTests;
-import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -49,6 +57,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
     private static final int MY_DATA_CHECK_CODE = 1050;
     private ArrayList<Task> fragments;
     private int index;
+    private int totalScore;
     private View mContentView;
     private JsonAnswerWrapper jsonAnswerWrapper;
     private String name;
@@ -81,6 +90,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
 
         index = 0;
+        totalScore = 0;
 
 
         initKeyBoardListener();
@@ -145,31 +155,37 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
     @Override
     public void loadContent() {
+        if (index > 1)
+            totalScore += fragments.get(index).getScore();
         ++index;
-        hideKeyboard();
-        if(fragments.size() > index){
+        hideKeyboard(this);
+        if (index < fragments.size()) {
             loadFragment(fragments.get(index));
         }
         else{
             try {
+                jsonAnswerWrapper.addTotalScore(totalScore);
                 DataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            onBackPressed();
+            showTestCompletedDialog();
         }
     }
 
     @Override
-    public void hideKeyboard() {
-        InputMethodManager imm = (InputMethodManager) this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        //Find the currently focused view, so we can grab the correct window token from it.
-        View view = this.getCurrentFocus();
-        //If no view currently has focus, create a new one, just so we can grab a window token from it
-        if (view == null && imm != null) {
-            view = new View(this);
+    public void hideKeyboard(Activity activity) {
+        View view = activity.findViewById(android.R.id.content);
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    @Override
+    public void showKeyboard(Activity activity) {
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     @Override
@@ -196,37 +212,39 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
                 decorView.getWindowVisibleDisplayFrame(windowVisibleDisplayFrame);
                 final int visibleDecorViewHeight = windowVisibleDisplayFrame.height();
 
-                if (lastVisibleDecorViewHeight != 0) {
-                    Task actualTask = fragments.get(index);
-                    ConstraintLayout constraintLayout = actualTask.getMainLayout();
-                    if (lastVisibleDecorViewHeight > visibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX) {
-                        if(actualTask.getTaskType() > Task.IMAGE) {
-                            ConstraintSet constraintSet = new ConstraintSet();
-                            constraintSet.clone(constraintLayout);
-                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.START, R.id.textTaskLayout, ConstraintSet.START, (int) getResources().getDimension(R.dimen.margin_medium));
-                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.TOP, R.id.textTaskLayout, ConstraintSet.TOP, (int) getResources().getDimension(R.dimen.margin_medium));
-                            constraintSet.applyTo(constraintLayout);
+                if (index < fragments.size()) {
+                    if (lastVisibleDecorViewHeight != 0) {
+                        Task actualTask = fragments.get(index);
+                        ConstraintLayout constraintLayout = actualTask.getMainLayout();
+                        if (lastVisibleDecorViewHeight > visibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX) {
+                            if (actualTask.getTaskType() > Task.IMAGE) {
+                                ConstraintSet constraintSet = new ConstraintSet();
+                                constraintSet.clone(constraintLayout);
+                                constraintSet.connect(R.id.additional_task_text, ConstraintSet.START, R.id.textTaskLayout, ConstraintSet.START, (int) getResources().getDimension(R.dimen.margin_medium));
+                                constraintSet.connect(R.id.additional_task_text, ConstraintSet.TOP, R.id.textTaskLayout, ConstraintSet.TOP, (int) getResources().getDimension(R.dimen.margin_medium));
+                                constraintSet.applyTo(constraintLayout);
+                            }
+                            actualTask.hideBanner();
+                        } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
+                            if (actualTask.getTaskType() > Task.IMAGE) {
+
+                                ConstraintSet constraintSet = new ConstraintSet();
+                                constraintSet.clone(constraintLayout);
+                                constraintSet.connect(R.id.additional_task_text, ConstraintSet.START, R.id.textTaskLayout, ConstraintSet.START, (int) getResources().getDimension(R.dimen.margin_medium));
+                                constraintSet.connect(R.id.additional_task_text, ConstraintSet.END, R.id.textTaskLayout, ConstraintSet.END, (int) getResources().getDimension(R.dimen.margin_medium));
+                                constraintSet.connect(R.id.additional_task_text, ConstraintSet.TOP, R.id.banner, ConstraintSet.BOTTOM, (int) getResources().getDimension(R.dimen.default_margin));
+                                constraintSet.applyTo(constraintLayout);
+                            }
+                            if (actualTask.getTaskType() != Task.FLUENCY || (actualTask.getTaskType() == Task.FLUENCY && !actualTask.hasEnded()))
+                                actualTask.displayBanner();
+
+
                         }
-                        actualTask.hideBanner();
-                    } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
-                        if(actualTask.getTaskType() > Task.IMAGE) {
-
-                            ConstraintSet constraintSet = new ConstraintSet();
-                            constraintSet.clone(constraintLayout);
-                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.START, R.id.textTaskLayout, ConstraintSet.START, (int) getResources().getDimension(R.dimen.margin_medium));
-                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.END, R.id.textTaskLayout, ConstraintSet.END, (int) getResources().getDimension(R.dimen.margin_medium));
-                            constraintSet.connect(R.id.additional_task_text, ConstraintSet.TOP, R.id.banner, ConstraintSet.BOTTOM, (int) getResources().getDimension(R.dimen.default_margin));
-                            constraintSet.applyTo(constraintLayout);
-                        }
-                        if(actualTask.getTaskType() != Task.FLUENCY || (actualTask.getTaskType() == Task.FLUENCY && !actualTask.hasEnded()))
-                            actualTask.displayBanner();
-
-
                     }
-                }
 
-                // Save current decor view height for the next call.
-                lastVisibleDecorViewHeight = visibleDecorViewHeight;
+                    // Save current decor view height for the next call.
+                    lastVisibleDecorViewHeight = visibleDecorViewHeight;
+                }
             }
 
         });
@@ -247,10 +265,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
         if (requestCode == MY_DATA_CHECK_CODE) {
             if (resultCode == TextToSpeech.Engine.CHECK_VOICE_DATA_PASS) {
                 // success, create the TTS instance
-
-                TextToSpeechLocal.getInstance(this, getLanguage());
                 loadFragment(fragments.get(index));
-
 
             } else {
                 // missing data, install it
@@ -307,5 +322,37 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
         return typos;
 
+    }
+
+    private void showTestCompletedDialog() {
+        Dialog builder = new Dialog(this);
+        builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        Window window = builder.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(
+                    new ColorDrawable(Color.TRANSPARENT));
+        }
+        builder.setContentView(R.layout.task_dialog);
+
+        ConstraintLayout dialog = builder.findViewById(R.id.dialog);
+
+        dialog.setOnClickListener(v -> {
+            builder.dismiss();
+            onBackPressed();
+        });
+
+        ImageView speechTail = builder.findViewById(R.id.speechTail);
+        speechTail.setVisibility(View.INVISIBLE);
+
+        TextView textView = builder.findViewById(R.id.dialogText);
+        textView.setText(R.string.test_completed);
+        //textView.setGravity(Gravity.CENTER);
+
+
+        LottieAnimationView animationView = builder.findViewById(R.id.motion);
+        animationView.setAnimation("thumbs-up.json");
+        animationView.setImageAssetsFolder("images");
+        animationView.playAnimation();
+        builder.show();
     }
 }

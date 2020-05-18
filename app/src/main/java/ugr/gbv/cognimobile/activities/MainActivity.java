@@ -37,7 +37,6 @@ import java.util.UUID;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
-import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
@@ -209,8 +208,9 @@ public class MainActivity extends AppCompatActivity
                 DataSender.getInstance().postToServer(DataSender.INSERT, "tests",array, getApplicationContext());*/
                 break;
             case R.id.nav_settings:
-                actualFragment = new SettingsFragments();
-                loadFragment();
+                WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+                //actualFragment = new SettingsFragments();
+                //loadFragment();
                 //speechToText();
                 //Aware.startBattery(getApplicationContext());
                 /*JSONObject jsonObject2 = new JSONObject();
@@ -407,23 +407,13 @@ public class MainActivity extends AppCompatActivity
 
         Handler handler = new Handler();
         handler.post(() -> {
-            int times = 0;
             int count = 0;
-            while (count == 0 && times < 1000) {
+            while (count == 0) {
                 Cursor studies = Aware.getStudy(getApplicationContext(), "");
                 count = studies.getCount();
-                times++;
             }
-            if (times < 1000)
-                runOnUiThread(this::reloadFragment);
-            String testURLString = null;
-            while ((testURLString == null || testURLString.isEmpty()) && times < 1000) {
-                testURLString = Aware.getSetting(this, Provider.DB_TBL_TESTS);
-                times++;
-            }
-            if (times < 1000)
-                WorkerManager.getInstance().initiateWorkers(getApplicationContext());
 
+            runOnUiThread(this::reloadFragment);
         });
 
 

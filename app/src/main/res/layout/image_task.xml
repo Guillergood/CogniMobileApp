@@ -116,15 +116,37 @@
         android:layout_alignParentBottom="true"
         android:layout_marginTop="32dp"
         android:layout_marginBottom="24dp"
+        android:autofillHints="@string/animalHint"
         android:gravity="center"
         android:imeOptions="actionDone"
         android:inputType="textVisiblePassword"
         android:minWidth="150dp"
-        app:layout_constraintBottom_toTopOf="@+id/centerButtonContainer"
+        app:layout_constraintBottom_toTopOf="@+id/sttButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView"
-        android:autofillHints="@string/animalHint" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
+
+    <LinearLayout
+        android:id="@+id/sttButtonContainer"
+        style="@style/QuickActionButtonContainer"
+        android:layout_marginBottom="24dp"
+        android:drawableStart="@drawable/ic_mic_grey_24dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/centerButtonContainer"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/sttButton"
+            style="@style/QuickActionButton"
+            android:padding="@dimen/small_padding"
+            android:src="@drawable/ic_mic_grey_24dp" />
+
+        <TextView
+            android:id="@+id/sttButtonLabel"
+            style="@style/QuickActionButtonLabel"
+            android:text="@string/sttLabel" />
+    </LinearLayout>
 
 
 

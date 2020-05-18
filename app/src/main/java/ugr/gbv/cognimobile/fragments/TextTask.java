@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.fragments;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -16,15 +17,19 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +45,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.adapters.WordListAdapter;
@@ -54,9 +61,7 @@ import static android.app.Activity.RESULT_OK;
 
 public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
-    private final static int BOTH_OPTIONS = 0;
-    private final static int ONLY_TEXT = 1;
-    private final static int ONLY_LANGUAGE = 2;
+
 
 
     //CHECKERS VARS
@@ -69,7 +74,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private RelativeLayout playableArea;
     private TextView countdownText;
     private TextView additionalTaskText;
-    private EditText additionalTaskInput;
+    private EditText firstInput;
     private LinearLayout submitAnswerContainer;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
@@ -77,6 +82,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private ExtendedFloatingActionButton startButton;
     private ArrayList<EditText> variousInputs;
     private Bundle bundle;
+    private AlertDialog progressDialog;
 
     //FLAGS
     private int timesCompleted;
@@ -88,6 +94,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         this.callBack = callBack;
         this.taskType = taskType;
         answers = new ArrayList<>();
+        expectedAnswers = new ArrayList<>();
         timesCompleted = 0;
         firstDone = false;
         this.bundle = bundle;
@@ -108,6 +115,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         mainView = inflater.inflate(R.layout.text_task, container, false);
 
         context = getContext();
+        parent = getActivity();
 
         onlyNumbersInputAccepted = false;
 
@@ -115,7 +123,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         playableArea = mainView.findViewById(R.id.textSpace);
         mainLayout = mainView.findViewById(R.id.textTaskLayout);
         additionalTaskText = mainView.findViewById(R.id.additional_task_text);
-        additionalTaskInput = mainView.findViewById(R.id.additional_task_input);
+        firstInput = mainView.findViewById(R.id.additional_task_input);
         submitAnswerButton = mainView.findViewById(R.id.submitButton);
         bannerText = mainView.findViewById(R.id.banner_text);
         FloatingActionButton sttButton = mainView.findViewById(R.id.sttButton);
@@ -126,6 +134,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         banner = mainView.findViewById(R.id.banner);
         countdownText = mainView.findViewById(R.id.countDownText);
         centerButton = mainView.findViewById(R.id.centerButton);
+
+        firstInput.setFocusableInTouchMode(true);
 
         // Assignation of recyclerview
         recyclerView = mainView.findViewById(R.id.words_list);
@@ -141,8 +151,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         setNextButtonStandardBehaviour();
 
 
-
-        startButton.setOnClickListener(v -> startTask());
+        startButton.setOnClickListener(v -> isTTSinitialized());
         sttButton.setOnClickListener(view -> callSTT());
 
 
@@ -152,10 +161,66 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         displayHelpAtBeginning = bundle.getBoolean("display_help");
 
+        array = new String[0];
+
 
         return mainView;
     }
 
+    private void isTTSinitialized() {
+
+        if (!TextToSpeechLocal.isInitialized()) {
+            setProgressDialog();
+        } else {
+            startTask();
+        }
+
+    }
+
+    private void setProgressDialog() {
+        int llPadding = 30;
+        LinearLayout ll = new LinearLayout(context);
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        ll.setPadding(llPadding, llPadding, llPadding, llPadding);
+        ll.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams llParam = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
+        llParam.gravity = Gravity.CENTER;
+        ll.setLayoutParams(llParam);
+
+        ProgressBar progressBar = new ProgressBar(context);
+        progressBar.setIndeterminate(true);
+        progressBar.setPadding(0, 0, llPadding, 0);
+        progressBar.setLayoutParams(llParam);
+
+        llParam = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        llParam.gravity = Gravity.CENTER;
+        TextView tvText = new TextView(context);
+        tvText.setText("Loading ...");
+        tvText.setTextColor(Color.parseColor("#000000"));
+        tvText.setTextSize(20);
+        tvText.setLayoutParams(llParam);
+
+        ll.addView(progressBar);
+        ll.addView(tvText);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(true);
+        builder.setView(ll);
+
+        progressDialog = builder.create();
+        progressDialog.show();
+        Window window = progressDialog.getWindow();
+        if (window != null) {
+            WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+            layoutParams.copyFrom(progressDialog.getWindow().getAttributes());
+            layoutParams.width = LinearLayout.LayoutParams.WRAP_CONTENT;
+            layoutParams.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            progressDialog.getWindow().setAttributes(layoutParams);
+        }
+    }
 
 
     private void setNextButtonLoopTask(){
@@ -186,15 +251,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     Objects.requireNonNull(bundle);
                     switch (taskType) {
                         case MEMORY:
-                            //bannerText.setText("This is a memory test. I am going to read a list of words that you will have to remember now and later on. Listen carefully. When I am through, tell me as many words as you can remember. It doesn’t matter in what order you say them. I am going to read the same list for a second time. Try to remember and tell me as many words as you can, including words you said the first time. I will ask you to recall those words again at the end of the test.");
-                            //String words = "FACE,VELVET,CHURCH,DAISY,RED";
-                            //String words = "GEZICHT,FLUWEEL,KERK,MADELIEF,ROOD";
                             memorization(bundle.getStringArray("words"), bundle.getInt("times"));
                             break;
                         case ATTENTION_NUMBERS:
-                            //bannerText.setText("I am going to say some numbers and when I am through, type them to me exactly as I said them");
-                            //7,4,2
-                            //2,1,8,5,4
                             if(firstDone){
                                 repeatBackwards(bundle.getStringArray("numbers_backward"));
                             }
@@ -204,13 +263,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                             onlyNumbersInputAccepted = true;
                             break;
                         case ATTENTION_LETTERS:
-                            //tapLetter("A", "F,B,A,C,M,N,A,A,J,K,L,B,A,F,A,K,D,E,A,A,A,J,A,M,O,F,A,A,B");
-                            //bundle.getString("target_letter")
                             tapLetter(bundle.getStringArray("letters"));
                             break;
                         case LANGUAGE:
-                            //String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
-                            //String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
                             repeatPhrase(bundle.getStringArray("phrases"));
                             break;
                         case FLUENCY:
@@ -237,10 +292,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     onlyNumbersInputAccepted = true;
                     break;
                 case ABSTRACTION:
-                    //array[0] = "trein-fiets";
-                    //array[1] = "transport,speed";
-                    //array[1] = "horloge-liniaal";
-                    //array[3] = "measurement,numbers";
                     abstraction(bundle.getStringArray("words"), bundle.getStringArray("answer"));
                     break;
                 default:
@@ -261,9 +312,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         index = 0;
         length = times;
         enumeration();
-        setNextButtonLoopTask();
-        additionalTaskInput.requestFocus();
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        if (times > 1) {
+            setNextButtonLoopTask();
+        } else {
+            setNextButtonStandardBehaviour();
+        }
+        firstInput.requestFocus();
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         enableWordList();
         if(timesCompleted == times){
             setNextButtonStandardBehaviour();
@@ -278,12 +333,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         changeInputFilterAndType();
         setVariousInputs();
         enumeration();
-        additionalTaskInput.requestFocus();
-        submitAnswerButton.setOnClickListener(v -> {
-            additionalTaskInput.requestFocus();
+        View.OnClickListener clickListener = v -> {
+            firstInput.requestFocus();
             bannerText.setText(R.string.backwards_instructions);
             hideInputs();
-
+            callBack.hideKeyboard(parent);
             try {
                 saveResults();
             } catch (JSONException e) {
@@ -297,9 +351,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 showCountdownAgain();
                 startTask();
             });
+        };
 
-
-        });
+        submitAnswerButton.setOnClickListener(clickListener);
+        rightButton.setOnClickListener(clickListener);
     }
 
     private void repeatBackwards(String[] numbers) {
@@ -311,12 +366,15 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         placeFirstInput();
         setVariousInputs();
         enumeration();
-        submitAnswerButton.setOnClickListener(v -> {
+        View.OnClickListener clickListener = v -> {
             taskEnded = true;
             hideInputs();
             taskIsEnded();
-        });
+        };
+        submitAnswerButton.setOnClickListener(clickListener);
+        rightButton.setOnClickListener(clickListener);
     }
+
 
 
     private void tapLetter(String[] words) {
@@ -341,8 +399,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         index = 0;
         String displaySubtraction = startingNumber + " - " + subtracting;
         additionalTaskText.setText(displaySubtraction);
-        additionalTaskInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        firstInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         submitAnswerButton.setOnClickListener(v -> {
             if(index == length){
                 submitAnswerButton.setVisibility(View.GONE);
@@ -352,8 +410,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
             }
             else{
-                String displayAnotherSubtraction = additionalTaskInput.getText().toString() + " - " + subtracting;
-                answers.add(additionalTaskInput.getText().toString());
+                String displayAnotherSubtraction = firstInput.getText().toString() + " - " + subtracting;
+                answers.add(firstInput.getText().toString());
                 additionalTaskText.setText(displayAnotherSubtraction);
                 index++;
             }
@@ -367,32 +425,31 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     private void repeatPhrase(String[] phrases) {
         array = phrases;
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
-        submitAnswerButton.setOnClickListener(v -> {
-            answers.add(additionalTaskInput.getText().toString());
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        View.OnClickListener clickListener = v -> {
+            answers.add(firstInput.getText().toString());
             clearInputs();
             ++index;
             hideInputs();
             if(index >= length){
-                setNextButtonStandardBehaviour();
                 taskIsEnded();
-            }
-            else{
-                setNextButtonLoopTask();
+            } else{
                 speakPhrase(phrases[index]);
             }
+        };
 
-        });
+        submitAnswerButton.setOnClickListener(clickListener);
+        rightButton.setOnClickListener(clickListener);
         length = phrases.length;
 
         speakPhrase(phrases[index]);
     }
 
     private void fluency() {
-        additionalTaskInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        firstInput.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         showUserInput();
-        additionalTaskInput.requestFocus();
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        firstInput.requestFocus();
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         enableWordList();
         countDownTask(getResources().getInteger(R.integer.one_minute_millis));
     }
@@ -403,9 +460,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         additionalTaskText.setText(array[index]);
         index++;
         showUserInput();
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         submitAnswerButton.setOnClickListener(v -> {
-            this.answers.add(additionalTaskInput.getText().toString());
+            this.answers.add(firstInput.getText().toString());
             if(index >= length){
                 hideInputs();
                 taskIsEnded();
@@ -423,26 +480,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
 
     private void recall(String[] words) {
-        //expectedAnswers = words;
         array = words;
         showUserInput();
         enableWordList();
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
     }
 
 
     private void orientation(String[] questions) {
-        /*String[] questions = {"Tell me the year we are now.",
-                "Tell me the exact date we are now.",
-                "Tell which city you are now."};*/
-       /* String[] questions = {"Vertel me het jaar dat we nu zijn.",
-                "Vertel me de exacte datum waarop we nu zijn.",
-                "Vertel in welke stad u zich nu bevindt."};*/
 
+        array = questions;
         showUserInput();
 
         submitAnswerButton.setOnClickListener(v -> {
-            answers.add(additionalTaskInput.getText().toString());
+            answers.add(firstInput.getText().toString());
             clearInputs();
             ++index;
             if(index >= length){
@@ -452,13 +503,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
             else{
                 setNextButtonLoopTask();
-                additionalTaskText.setText(questions[index]);
+                additionalTaskText.setText(array[index]);
             }
         });
 
         length = questions.length;
-        additionalTaskText.setText(questions[index]);
-        additionalTaskInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        additionalTaskText.setText(array[index]);
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
     }
 
     //-------------------END TASKS-------------------//
@@ -485,7 +536,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void clearInputs() {
-        additionalTaskInput.getText().clear();
+        firstInput.getText().clear();
         if(variousInputs != null) {
             for (int i = 1; i < variousInputs.size(); ++i) {
                 mainLayout.removeView(variousInputs.get(i));
@@ -500,9 +551,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     private void setVariousInputs() {
         int[] numbersId = new int[array.length];
-        numbersId[0] = additionalTaskInput.getId();
+        numbersId[0] = firstInput.getId();
         variousInputs = new ArrayList<>();
-        variousInputs.add(additionalTaskInput);
+        variousInputs.add(firstInput);
 
         ConstraintSet set = new ConstraintSet();
         set.clone(mainLayout);
@@ -574,18 +625,18 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         set.clone(mainLayout);
 
         int dimens = getResources().getDimensionPixelSize(R.dimen.input_dimen);
-        set.constrainHeight(additionalTaskInput.getId(), dimens);
-        set.constrainWidth(additionalTaskInput.getId(), dimens);
+        set.constrainHeight(firstInput.getId(), dimens);
+        set.constrainWidth(firstInput.getId(), dimens);
 
         int portion = mainLayout.getWidth()/array.length;
         int positionX = portion-mainLayout.getWidth()/2;
-        set.setTranslationX(additionalTaskInput.getId(),positionX);
+        set.setTranslationX(firstInput.getId(), positionX);
         set.applyTo(mainLayout);
 
-        additionalTaskInput.setScrollContainer(true);
-        additionalTaskInput.setTag("0");
+        firstInput.setScrollContainer(true);
+        firstInput.setTag("0");
 
-        additionalTaskInput.addTextChangedListener(new TextWatcher() {
+        firstInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -607,7 +658,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
         });
 
-        additionalTaskInput.setOnFocusChangeListener((v, hasFocus) -> {
+        firstInput.setOnFocusChangeListener((v, hasFocus) -> {
             if(hasFocus){
                 index = Integer.parseInt(v.getTag().toString());
             }
@@ -616,11 +667,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void changeInputFilterAndType(){
-        additionalTaskInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-        additionalTaskInput.setKeyListener(DigitsKeyListener.getInstance("123456789"));
+        firstInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        firstInput.setKeyListener(DigitsKeyListener.getInstance("123456789"));
         InputFilter[] inputArray = new InputFilter[1];
         inputArray[0] = new InputFilter.LengthFilter(1);
-        additionalTaskInput.setFilters(inputArray);
+        firstInput.setFilters(inputArray);
     }
 
     private void setTaskInstructions() {
@@ -659,8 +710,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     private void showUserInput() {
         additionalTaskText.setVisibility(View.VISIBLE);
-        additionalTaskInput.setVisibility(View.VISIBLE);
-        additionalTaskInput.requestFocus();
+        firstInput.setVisibility(View.VISIBLE);
+        firstInput.requestFocus();
         submitAnswerContainer.setVisibility(View.VISIBLE);
         sttButtonContainer.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
@@ -669,11 +720,12 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 editText.setVisibility(View.VISIBLE);
             }
         }
+        callBack.showKeyboard(parent);
     }
 
     private void hideInputs() {
         additionalTaskText.setVisibility(View.INVISIBLE);
-        additionalTaskInput.setVisibility(View.INVISIBLE);
+        firstInput.setVisibility(View.INVISIBLE);
         submitAnswerContainer.setVisibility(View.INVISIBLE);
         sttButtonContainer.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
@@ -682,7 +734,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 editText.setVisibility(View.INVISIBLE);
             }
         }
-        callBack.hideKeyboard();
+        callBack.hideKeyboard(parent);
 
     }
 
@@ -698,8 +750,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         TextView submitButtonLabel = mainView.findViewById(R.id.submitButtonLabel);
         submitButtonLabel.setText(R.string.add_word);
         submitAnswerButton.setOnClickListener(v -> {
-            if(!additionalTaskInput.getText().toString().isEmpty()) {
-                adapter.addWord(additionalTaskInput.getText().toString());
+            if (!firstInput.getText().toString().isEmpty()) {
+                adapter.addWord(firstInput.getText().toString());
                 recyclerView.scrollToPosition(0);
             }
             else
@@ -723,13 +775,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     private void showEditElements() {
 
-        if(additionalTaskInput.getVisibility() != View.VISIBLE){
-            additionalTaskInput.setVisibility(View.VISIBLE);
+        if (firstInput.getVisibility() != View.VISIBLE) {
+            firstInput.setVisibility(View.VISIBLE);
             submitAnswerContainer.setVisibility(View.VISIBLE);
             rearrangeSubmitAnswerContainer();
         }
         else{
-            additionalTaskInput.setVisibility(View.GONE);
+            firstInput.setVisibility(View.GONE);
             submitAnswerContainer.setVisibility(View.GONE);
         }
 
@@ -741,7 +793,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         constraintSet.clone(mainLayout);
         constraintSet.connect(submitAnswerContainer.getId(), ConstraintSet.START, mainLayout.getId(), ConstraintSet.START, (int) getResources().getDimension(R.dimen.default_margin));
         constraintSet.connect(submitAnswerContainer.getId(), ConstraintSet.END, mainLayout.getId(), ConstraintSet.END, (int) getResources().getDimension(R.dimen.default_margin));
-        constraintSet.connect(submitAnswerContainer.getId(), ConstraintSet.TOP, additionalTaskInput.getId(), ConstraintSet.BOTTOM, (int) getResources().getDimension(R.dimen.margin_medium));
+        constraintSet.connect(submitAnswerContainer.getId(), ConstraintSet.TOP, firstInput.getId(), ConstraintSet.BOTTOM, (int) getResources().getDimension(R.dimen.margin_medium));
         constraintSet.applyTo(mainLayout);
     }
 
@@ -761,7 +813,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         if(taskType != ATTENTION_LETTERS) {
             handler.post(this::showUserInput);
             switch (CognimobilePreferences.getConfig(context)) {
-                case BOTH_OPTIONS:
+                case DEFAULT:
                     if (taskType == ATTENTION_NUMBERS || taskType == ATTENTION_SUBTRACTION) {
                         handler.post(this::hideMicro);
                     }
@@ -783,21 +835,21 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void cantEdit() {
-        additionalTaskInput.setEnabled(false);
-        additionalTaskInput.setKeyListener(null);
+        firstInput.setEnabled(false);
+        firstInput.setKeyListener(null);
     }
 
     private void enumeration() {
-        TextToSpeechLocal.getInstance(context, this, callBack.getLanguage()).enumerate(array);
+        TextToSpeechLocal.enumerate(array);
     }
 
     private void speakPhrase(String phrase){
-        TextToSpeechLocal.getInstance(context, this, callBack.getLanguage()).readOutLoud(phrase);
+        TextToSpeechLocal.readOutLoud(phrase);
     }
 
     @Override
     public void onPause() {
-        TextToSpeechLocal.getInstance(context).stop();
+        TextToSpeechLocal.stop();
         super.onPause();
     }
 
@@ -809,8 +861,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     @Override
     public void onStop() {
-        TextToSpeechLocal.getInstance(context).stop();
-        TextToSpeechLocal.getInstance(context).clear();
+        TextToSpeechLocal.stop();
+        TextToSpeechLocal.clear();
         super.onStop();
     }
 
@@ -848,7 +900,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                                 }
                             }
                         } else {
-                            additionalTaskInput.setText(answer);
+                            firstInput.setText(answer);
                         }
                     }
 
@@ -894,6 +946,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     @Override
     void saveResults() throws JSONException {
+        callBack.getJsonAnswerWrapper().addField("task_type", taskType);
         switch (taskType) {
             case ATTENTION_NUMBERS:
                 if (variousInputs != null && variousInputs.size() > 0) {
@@ -902,8 +955,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     }
                     if (firstDone) {
                         callBack.getJsonAnswerWrapper().addArrayList("answer_backwards", answers);
+                        callBack.getJsonAnswerWrapper().addStringArray("expected_answer_backwards", array);
                     } else {
                         callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                        callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
                     }
 
                 }
@@ -911,35 +966,71 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
 
             case FLUENCY:
-            case RECALL:
                 answers = adapter.getAllWords();
                 Collections.reverse(answers);
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 setScoring();
                 break;
-
-            case ATTENTION_LETTERS:
-            case ATTENTION_SUBTRACTION:
-            case LANGUAGE:
-            case ABSTRACTION:
-            case ORIENTATION:
+            case RECALL:
+                answers = adapter.getAllWords();
+                Collections.reverse(answers);
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
                 setScoring();
                 break;
 
-            //String[] phrases = {"The cat always hid under the couch when dogs were in the room.", "I only know that John is the one to help today."};
-            //String[] phrases = {"Ik weet alleen dat Jan vandaag geholpen zou worden.", "De kat verstopte zich altijd onder de bank als er honden in de kamer waren."};
-            //repeatPhrase(phrases);
+            case MEMORY:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
+                break;
+            case ATTENTION_LETTERS:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                callBack.getJsonAnswerWrapper().addStringArray("letters", array);
+                callBack.getJsonAnswerWrapper().addField("occurrences", getLetterOccurrences());
+                callBack.getJsonAnswerWrapper().addField("target_letter", bundle.getString("target_letter"));
+                setScoring();
+                break;
+            case ATTENTION_SUBTRACTION:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                setScoring();
+                break;
+            case LANGUAGE:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
+                setScoring();
+                break;
+            case ABSTRACTION:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                callBack.getJsonAnswerWrapper().addStringArray("words", array);
+                callBack.getJsonAnswerWrapper().addArrayList("expected_answer", expectedAnswers);
+                setScoring();
+                break;
+            case ORIENTATION:
+                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
+                callBack.getJsonAnswerWrapper().addStringArray("questions", array);
+                setScoring();
+                break;
 
         }
 
 
     }
 
+    private int getLetterOccurrences() {
+        Matcher matcher
+                = Pattern.compile(bundle.getString("target_letter"))
+                .matcher(Arrays.toString(array));
+        int res = 0;
+
+        while (matcher.find()) {
+            res++;
+        }
+        return res;
+    }
+
     @Override
     void setScoring() {
         switch (taskType) {
-
             case ATTENTION_NUMBERS:
                 if (firstDone) {
                     checkReverseAnswerArray();
@@ -996,12 +1087,12 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     @Override
     public void editWord(String word) {
-        additionalTaskInput.setText(word);
+        firstInput.setText(word);
         if(taskType == Task.FLUENCY)
             showEditElements();
         changeSubmitButton();
         submitAnswerButton.setOnClickListener(v -> {
-            adapter.editWord(word, additionalTaskInput.getText().toString());
+            adapter.editWord(word, firstInput.getText().toString());
             clearInputs();
             if(taskType == Task.FLUENCY)
                 showEditElements();
@@ -1018,6 +1109,14 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         this.index = index;
     }
 
+    @Override
+    public void TTSisInitialized() {
+        if (progressDialog != null)
+            progressDialog.dismiss();
+        if (startButton.getVisibility() != View.VISIBLE)
+            startTask();
+    }
+
     //-------------------END INTERFACES-------------------//
 
 
@@ -1028,7 +1127,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void checkOrientation() {
-        score = 1;
+        score = answers.size() > 0 ? score + 1 : score;
     }
 
     private void checkRecall() {
@@ -1134,12 +1233,14 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     }
                 }
             }
+        } else {
+            goOn = false;
         }
         //if onePoint = true -> 1, otherwise -> 0
         score = goOn ? score + 1 : score;
     }
 
-    private void checkSubtractions(int firstMinuend, int subtrahend){
+    private void checkSubtractions(int firstMinuend, int subtrahend) {
 
         int errors = 0;
         int expectedResult = firstMinuend - subtrahend;
@@ -1151,7 +1252,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 ++errors;
             }
             expectedResult = result - subtrahend;
-
         }
 
         /*
@@ -1176,6 +1276,12 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             default:
                 score = 0;
                 break;
+        }
+
+        try {
+            callBack.getJsonAnswerWrapper().addField("errors", errors);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
 
     }

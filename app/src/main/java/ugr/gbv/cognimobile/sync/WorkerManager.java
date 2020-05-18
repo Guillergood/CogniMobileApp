@@ -16,12 +16,12 @@ import ugr.gbv.cognimobile.R;
 public class WorkerManager {
 
     private static volatile WorkerManager instance;
-    public static String DOWNLOAD_TAG = "downloadResults";
-    public static String DOWNLOAD_UID = "download";
-    public static String UPLOAD_TAG = "uploadResults";
-    public static String UPLOAD_UID = "upload";
-    public static String DELETE_TAG = "deleteAll";
-    public static String DELETE_UID = "delete";
+    private static String DOWNLOAD_TAG = "downloadResults";
+    private static String DOWNLOAD_UID = "download";
+    private static String UPLOAD_TAG = "uploadResults";
+    private static String UPLOAD_UID = "upload";
+    private static String DELETE_TAG = "deleteAll";
+    private static String DELETE_UID = "delete";
 
 
     private WorkerManager(){
@@ -78,15 +78,15 @@ public class WorkerManager {
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DOWNLOAD_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, downloadRequest);
+                        ExistingPeriodicWorkPolicy.REPLACE, downloadRequest);
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(UPLOAD_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, uploadRequest);
+                        ExistingPeriodicWorkPolicy.REPLACE, uploadRequest);
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DELETE_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);
+                        ExistingPeriodicWorkPolicy.REPLACE, deleteRequest);
 
     }
 

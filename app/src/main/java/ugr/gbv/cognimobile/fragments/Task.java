@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.fragments;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -7,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -35,6 +37,8 @@ public abstract class Task extends Fragment {
     RelativeLayout banner;
     FloatingActionButton submitAnswerButton;
     ConstraintLayout mainLayout;
+    final static int DEFAULT = 0;
+    final static int ONLY_TEXT = 1;
 
 
     int taskType;
@@ -63,6 +67,9 @@ public abstract class Task extends Fragment {
     public static final int ABSTRACTION = 10;
     public static final int RECALL = 11;
     public static final int ORIENTATION = 12;
+    final static int ONLY_LANGUAGE = 2;
+    Activity parent;
+    EditText firstInput;
 
 
 
@@ -78,7 +85,7 @@ public abstract class Task extends Fragment {
 
     private void loadNextTask(){
         if(TextToSpeechLocal.isInitialized())
-            TextToSpeechLocal.getInstance(context).stop();
+            TextToSpeechLocal.stop();
         callBack.loadContent();
     }
 
@@ -129,7 +136,12 @@ public abstract class Task extends Fragment {
 
         ConstraintLayout dialog = builder.findViewById(R.id.dialog);
 
-        dialog.setOnClickListener(v -> builder.dismiss());
+        dialog.setOnClickListener(v -> {
+            builder.dismiss();
+            if (taskType == Task.IMAGE) {
+                callBack.showKeyboard(parent);
+            }
+        });
 
         centerButton.setOnClickListener(dialogInterface -> showDialog());
     }
@@ -137,17 +149,17 @@ public abstract class Task extends Fragment {
     private void showDialog(){
         TextView textView = builder.findViewById(R.id.dialogText);
         textView.setText(bannerText.getText());
-        builder.show();
         LottieAnimationView animationView = builder.findViewById(R.id.motion);
         animationView.setAnimation(taskType +".json");
         animationView.setImageAssetsFolder("images");
         animationView.playAnimation();
-
+        builder.show();
     }
 
 
     void taskIsEnded(){
         showTaskIsEnded();
+        setNextButtonStandardBehaviour();
         if(taskType == ATTENTION_LETTERS){
             TextTask task = (TextTask) this;
             task.getPlayableArea().setClickable(false);
@@ -188,6 +200,9 @@ public abstract class Task extends Fragment {
         }
     }
 
+    public int getScore() {
+        return score;
+    }
 
     public Locale getLanguage() {
         return callBack.getLanguage();
@@ -211,7 +226,11 @@ public abstract class Task extends Fragment {
 
     void shouldDisplayHelpAtBeginning() {
         if (displayHelpAtBeginning) {
-            centerButton.performClick();
+            centerButton.callOnClick();
+        } else {
+            if (taskType == Task.IMAGE) {
+                callBack.showKeyboard(parent);
+            }
         }
     }
 

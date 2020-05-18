@@ -68,7 +68,13 @@ public class ImageConversor implements Serializable {
         image.compress(Bitmap.CompressFormat.PNG, 100, baos);
         image.recycle();
         byte[] b = baos.toByteArray();
+
         String imageString = "data:image/png;base64," + Base64.encodeToString(b, Base64.NO_WRAP);
+
+        /*String hola = "hola";
+        byte[] data;
+        data = hola.getBytes(StandardCharsets.UTF_8);
+        String imageString = Base64.encodeToString(data, Base64.DEFAULT);*/
 
         return imageString;
     }

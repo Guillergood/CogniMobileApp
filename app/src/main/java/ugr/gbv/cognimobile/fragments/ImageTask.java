@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.fragments;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -8,21 +9,26 @@ import android.speech.RecognizerIntent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
 
 import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.ImageConversor;
+import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -32,10 +38,10 @@ public class ImageTask extends Task {
     private int selected;
     private int[] imagesId;
     private View mainView;
-    private EditText input;
     private String[] expectedAnswers;
     private ArrayList<String> answers;
     private Bundle bundle;
+    private LinearLayout sttButtonContainer;
 
     public ImageTask(LoadContent callBack,Bundle bundle){
         this.callBack = callBack;
@@ -59,6 +65,7 @@ public class ImageTask extends Task {
         mainView = inflater.inflate(R.layout.image_task, container, false);
 
         context = getContext();
+        parent = getActivity();
 
         bannerText = mainView.findViewById(R.id.banner_text);
         banner = mainView.findViewById(R.id.banner);
@@ -76,12 +83,19 @@ public class ImageTask extends Task {
 
         expectedAnswers = bundle.getStringArray("answer");
 
-
         imagesId = new int[imagesArray.length];
 
-        input = mainView.findViewById(R.id.image_task_input);
+        sttButtonContainer = mainLayout.findViewById(R.id.sttButtonContainer);
 
-        input.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        FloatingActionButton sttButton = mainView.findViewById(R.id.sttButton);
+
+        sttButton.setOnClickListener(view -> callSTT());
+
+        firstInput = mainView.findViewById(R.id.image_task_input);
+
+        firstInput.setFocusableInTouchMode(true);
+        firstInput.requestFocus();
+        firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
 
 
 
@@ -117,6 +131,20 @@ public class ImageTask extends Task {
 
         displayHelpAtBeginning = bundle.getBoolean("display_help");
 
+        switch (CognimobilePreferences.getConfig(context)) {
+            case DEFAULT:
+            case ONLY_TEXT:
+                hideMicro();
+                break;
+            case ONLY_LANGUAGE:
+                cantEdit();
+                break;
+        }
+
+        if (imagesArray.length == 1) {
+            setNextButtonStandardBehaviour();
+        }
+
 
         return mainView;
     }
@@ -141,10 +169,33 @@ public class ImageTask extends Task {
     }
 
     private void clearInputs() {
-        input.getText().clear();
+        firstInput.getText().clear();
     }
 
 
+    private void callSTT() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, getLanguage());
+        try {
+            startActivityForResult(intent, TextToSpeechLocal.STT_CODE);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(context,
+                    "Sorry your device not supported",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void hideMicro() {
+        sttButtonContainer.setVisibility(View.GONE);
+    }
+
+    private void cantEdit() {
+        firstInput.setEnabled(false);
+        firstInput.setKeyListener(null);
+    }
 
 
     @Override
@@ -165,7 +216,7 @@ public class ImageTask extends Task {
                     }
 
                     if(answer !=null) {
-                        input.setText(answer);
+                        firstInput.setText(answer);
                     }
 
                 }
@@ -180,6 +231,8 @@ public class ImageTask extends Task {
     void saveResults() throws JSONException {
         setScoring();
         callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answers);
+        callBack.getJsonAnswerWrapper().addStringArray("expected_answers", expectedAnswers);
+        callBack.getJsonAnswerWrapper().addField("task_type", taskType);
         callBack.getJsonAnswerWrapper().addField("score",score);
         callBack.getJsonAnswerWrapper().addTaskField();
     }
@@ -187,13 +240,22 @@ public class ImageTask extends Task {
     @Override
     void setScoring() {
         if(selected < imagesId.length) {
-            if (input.getText().toString().isEmpty()) {
+            if (firstInput.getText().toString().isEmpty()) {
                 answers.add("");
             } else {
-                answers.add(input.getText().toString());
-                if (expectedAnswers[selected].toLowerCase().contains(input.getText().toString().toLowerCase())) {
-                    score++;
+                answers.add(firstInput.getText().toString());
+                String[] possibleAnswers = expectedAnswers[selected].split(",");
+
+                boolean goOn = true;
+
+                for (int i = 0; i < possibleAnswers.length && goOn; ++i) {
+                    if (possibleAnswers[i].toLowerCase().equals(firstInput.getText().toString().toLowerCase())) {
+                        score++;
+                        goOn = false;
+                    }
                 }
+
+
             }
 
         }

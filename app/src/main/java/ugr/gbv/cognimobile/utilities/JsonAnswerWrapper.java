@@ -1,5 +1,10 @@
 package ugr.gbv.cognimobile.utilities;
 
+import android.net.Uri;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +25,10 @@ public class JsonAnswerWrapper {
         jsonObject.put("language", locale);
     }
 
+    public void addTotalScore(int score) throws JSONException {
+        jsonObject.put("overall_score", score);
+    }
+
     public void addArrayList(String key, ArrayList arrayList) throws JSONException {
         JSONArray jsonArray = new JSONArray();
         for(Object object:arrayList){
@@ -31,7 +40,23 @@ public class JsonAnswerWrapper {
         subJsonObject.put(key,object);
     }
 
-    public void addArray(String key, String[] array) throws JSONException {
+    public void addStringArray(String key, String[] array) throws JSONException {
+        JSONArray jsonArray = new JSONArray(encodeUtf8ForUrl(array));
+        subJsonObject.put(key, jsonArray);
+    }
+
+    public void addIntArray(String key, int[] array) throws JSONException {
+        JSONArray jsonArray = new JSONArray(array);
+        subJsonObject.put(key, jsonArray);
+    }
+
+    public void addImageArray(String key, String[] array) throws JSONException {
+        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+        String jsonInString = gson.toJson(array);
+        subJsonObject.put(key, jsonInString);
+    }
+
+    public void addFloatArray(String key, float[] array) throws JSONException {
         JSONArray jsonArray = new JSONArray(array);
         subJsonObject.put(key, jsonArray);
     }
@@ -47,5 +72,19 @@ public class JsonAnswerWrapper {
         JSONArray array = new JSONArray();
         array.put(jsonObject);
         return array;
+    }
+
+
+    public String[] encodeUtf8ForUrl(String[] array) {
+        String[] value = array;
+        for (int i = 0; i < array.length; ++i) {
+            value[i] = Uri.encode(array[i]);
+        }
+
+        return value;
+    }
+
+    public String encodeUtf8ForUrl(String string) {
+        return Uri.encode(string);
     }
 }

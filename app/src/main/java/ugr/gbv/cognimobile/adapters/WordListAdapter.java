@@ -96,12 +96,12 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
             }
         };
 
-        View.OnClickListener deleteBehaviour = v -> removeWord(position);
+
 
         if(mDatasetReversed.get(position) != null && !mDatasetReversed.get(position).isEmpty()){
             holder.word.setText(mDatasetReversed.get(position));
             holder.editButton.setOnClickListener(editBehaviour);
-            holder.deleteButton.setOnClickListener(deleteBehaviour);
+            holder.deleteButton.setOnClickListener(v -> removeWord(mDatasetReversed.get(position)));
         }
 
     }
@@ -120,12 +120,20 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
     }
 
     private void addWordInIndex(String word, int index){
-        mDatasetReversed.add(index, word);
-        notifyItemInserted(index);
+        if (!mDatasetReversed.contains(word)) {
+            mDatasetReversed.add(index, word);
+            notifyItemInserted(index);
+        }
     }
 
-    private void removeWord(int position){
-        if(mDatasetReversed.size() > position) {
+    private void removeWord(String word) {
+        /*if(mDatasetReversed.size() > position) {
+            mDatasetReversed.remove(position);
+            notifyItemRemoved(position);
+        }*/
+
+        int position = mDatasetReversed.indexOf(word);
+        if (position >= 0) {
             mDatasetReversed.remove(position);
             notifyItemRemoved(position);
         }
@@ -134,7 +142,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
 
     public void editWord(String original, String replace){
         int position = mDatasetReversed.indexOf(original);
-        removeWord(position);
+        removeWord(original);
         addWordInIndex(replace,position);
         notifyItemChanged(position);
     }

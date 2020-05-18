@@ -4,4 +4,6 @@ public interface TTSHandler {
     void startTTS();
     void TTSEnded();
     void setIndex(int index);
+
+    void TTSisInitialized();
 }

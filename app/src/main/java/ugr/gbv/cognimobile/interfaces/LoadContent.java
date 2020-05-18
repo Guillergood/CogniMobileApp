@@ -1,5 +1,7 @@
 package ugr.gbv.cognimobile.interfaces;
 
+import android.app.Activity;
+
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -7,7 +9,10 @@ import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 
 public interface LoadContent {
     void loadContent();
-    void hideKeyboard();
+
+    void hideKeyboard(Activity activity);
+
+    void showKeyboard(Activity activity);
     JsonAnswerWrapper getJsonAnswerWrapper();
 
     Locale getLanguage();
