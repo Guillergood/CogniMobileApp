@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,7 @@ import android.view.textservice.TextInfo;
 import android.view.textservice.TextServicesManager;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,6 +67,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
     private int typos;
     private String wordToCheck;
+    private boolean doubleBackToExitPressedOnce;
 
 
     @Override
@@ -94,6 +97,8 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
 
         initKeyBoardListener();
+
+        doubleBackToExitPressedOnce = false;
 
 
         try {
@@ -338,6 +343,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
         dialog.setOnClickListener(v -> {
             builder.dismiss();
+            doubleBackToExitPressedOnce = true;
             onBackPressed();
         });
 
@@ -354,5 +360,25 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
         animationView.setImageAssetsFolder("images");
         animationView.playAnimation();
         builder.show();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            finish();
+        } else {
+            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+        }
+        this.doubleBackToExitPressedOnce = true;
+
+        new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
 }

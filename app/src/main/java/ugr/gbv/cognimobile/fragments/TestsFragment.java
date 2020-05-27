@@ -20,9 +20,8 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.adapters.TestsAdapter;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
-import ugr.gbv.cognimobile.interfaces.TestsAdapterClickHandler;
 
-public class TestsFragment extends Fragment implements TestsAdapterClickHandler {
+public class TestsFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ImageView noTestView;
@@ -80,7 +79,7 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
         if(cursor != null)  {
             cursor.moveToFirst();
         }
-        testsAdapter = new TestsAdapter(cursor, this, callBack);
+        testsAdapter = new TestsAdapter(cursor, callBack);
         recyclerView.setAdapter(testsAdapter);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
@@ -119,24 +118,7 @@ public class TestsFragment extends Fragment implements TestsAdapterClickHandler 
         }
     }
 
-    @Override
-    public void quitTest(String name) {
 
-        String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
-        String[] selectionArgs = {name};
-        context.getContentResolver().delete(Provider.CONTENT_URI_TESTS,where,selectionArgs);
-
-        if(emptyTests()){
-            showNoTests();
-        }
-        else{
-            setTestsOnAdapter();
-            showTests();
-        }
-
-
-
-    }
 
 
 

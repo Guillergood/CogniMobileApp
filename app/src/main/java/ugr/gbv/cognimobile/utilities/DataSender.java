@@ -93,8 +93,8 @@ public class DataSender implements Serializable {
 
                 int code = conn.getResponseCode();
 
-                //TODO CAMBIAR ESTO
-                /*if (code == 200) {
+
+                if (code == 200) {
                     ContentValues contentValues = new ContentValues();
                     long millis = getMillisThirtyDaysAhead();
                     contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
@@ -117,7 +117,7 @@ public class DataSender implements Serializable {
                         );
                     }
 
-                }*/
+                }
 
 
                 conn.disconnect();
@@ -154,8 +154,8 @@ public class DataSender implements Serializable {
     private long getMillisThirtyDaysAhead() {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(c.get(Calendar.MILLISECOND));
-        //TODO CAMBIAR A DIAS DE AÑO
-        c.add(Calendar.MILLISECOND, R.integer.thirty);
+
+        c.add(Calendar.DAY_OF_YEAR, R.integer.thirty);
         return c.getTimeInMillis();
     }
 

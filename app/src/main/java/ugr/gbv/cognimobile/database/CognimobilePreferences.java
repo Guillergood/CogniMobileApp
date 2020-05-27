@@ -30,9 +30,9 @@ public class CognimobilePreferences {
         /* Key for accessing the preference for showing notifications */
         String firstTimeLaunchKey = context.getString(R.string.pref_first_time);
 
-        //TODO: CAMBIAR PARA LA RELEASE
+
         //editor.putBoolean(firstTimeLaunchKey,value);
-        editor.putBoolean(firstTimeLaunchKey,true);
+        editor.putBoolean(firstTimeLaunchKey, value);
         editor.apply();
     }
 
@@ -58,7 +58,7 @@ public class CognimobilePreferences {
         /* Key for accessing the preference for showing notifications */
         String config = context.getString(R.string.pref_config_value);
 
-        //TODO: CAMBIAR PARA LA RELEASE
+
         //editor.putBoolean(firstTimeLaunchKey,value);
         editor.putInt(config, value);
         editor.apply();
@@ -85,8 +85,7 @@ public class CognimobilePreferences {
         /* Key for accessing the preference for showing notifications */
         String config = context.getString(R.string.pref_notifications);
 
-        //TODO: CAMBIAR PARA LA RELEASE
-        //editor.putBoolean(firstTimeLaunchKey,value);
+
         editor.putBoolean(config, value);
         editor.apply();
     }
@@ -112,8 +111,7 @@ public class CognimobilePreferences {
         /* Key for accessing the preference for showing notifications */
         String config = context.getString(R.string.pref_joined_study);
 
-        //TODO: CAMBIAR PARA LA RELEASE
-        //editor.putBoolean(firstTimeLaunchKey,value);
+
         editor.putBoolean(config, value);
         editor.apply();
     }

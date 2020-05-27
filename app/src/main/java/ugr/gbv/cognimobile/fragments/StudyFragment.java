@@ -20,6 +20,7 @@ import com.aware.Aware;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
 
@@ -68,7 +69,7 @@ public class StudyFragment extends Fragment {
     }
 
     public void checkNewStudy(){
-        if(emptyStudy()) {
+        if (emptyStudy() || !CognimobilePreferences.getHasUserJoinedStudy(context)) {
             showNoStudy();
         }
         else{
@@ -110,6 +111,7 @@ public class StudyFragment extends Fragment {
                 null,
                 null
         );
+        CognimobilePreferences.setHasUserJoinedStudy(context, false);
         showNoStudy();
     }
 }

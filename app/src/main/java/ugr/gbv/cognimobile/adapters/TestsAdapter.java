@@ -5,8 +5,6 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,31 +13,21 @@ import androidx.recyclerview.widget.RecyclerView;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
-import ugr.gbv.cognimobile.interfaces.TestsAdapterClickHandler;
 
 public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder>{
     private Cursor cursor;
-    final private TestsAdapterClickHandler quitTestHandler;
     final private TestClickHandler onClickHandler;
 
-    public TestsAdapter(Cursor pCursor, TestsAdapterClickHandler pHandler, TestClickHandler testClickHandler) {
+    public TestsAdapter(Cursor pCursor, TestClickHandler testClickHandler) {
         cursor = pCursor;
-        quitTestHandler = pHandler;
         onClickHandler = testClickHandler;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        ImageButton quitTestButton;
-        TextView quitTestButtonLabel;
-        LinearLayout quitTestButtonContainer;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
-            quitTestButton = itemView.findViewById(R.id.quitTestButton);
-            quitTestButtonLabel = itemView.findViewById(R.id.quitTestButtonLabel);
-            quitTestButtonContainer = itemView.findViewById(R.id.quitTestButtonContainer);
-            quitTestButton.setOnClickListener(this);
         }
 
         @Override
@@ -47,17 +35,10 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder>{
             int adapterPosition = getAdapterPosition();
             cursor.moveToPosition(adapterPosition);
 
-            if(v.getId() == quitTestButton.getId() ||
-                v.getId() == quitTestButtonLabel.getId() ||
-                v.getId() == quitTestButtonContainer.getId()
-            ){
-                quitTestHandler.quitTest(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.NAME)));
+            if (adapterPosition >= 0 && adapterPosition < cursor.getCount()) {
+                onClickHandler.onClick(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA)));
             }
-            else{
-                if(adapterPosition >= 0 && adapterPosition < cursor.getCount()) {
-                    onClickHandler.onClick(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA)));
-                }
-            }
+
         }
 
 

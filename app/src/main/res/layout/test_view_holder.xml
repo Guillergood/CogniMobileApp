@@ -31,56 +31,6 @@
             app:layout_constraintVertical_chainStyle="packed"
             app:srcCompat="@android:color/darker_gray" />
 
-        <LinearLayout
-            android:id="@+id/quitTestButtonContainer"
-            style="@style/QuickActionButtonContainer"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@color/vivid_red"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/guideline4"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageButton
-                android:id="@+id/quitTestButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/vivid_red"
-                android:contentDescription="@string/quit_test_contentDescription"
-                android:padding="12dp"
-                android:tint="@color/white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/guideline3"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_delete_forever_black_24dp" />
-
-            <TextView
-                android:id="@+id/quitTestButtonLabel"
-                style="@style/QuickActionButtonLabel"
-                android:layout_width="@dimen/width_text_card_buttons"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/quit_test_contentDescription"
-                android:textColor="@color/white"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="284dp"
-            android:layout_marginEnd="111dp"
-            android:layout_marginBottom="120dp"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintGuide_begin="284dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

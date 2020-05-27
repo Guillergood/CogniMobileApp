@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
@@ -70,7 +71,7 @@ public abstract class Task extends Fragment {
     final static int ONLY_LANGUAGE = 2;
     Activity parent;
     EditText firstInput;
-
+    Handler handler;
 
 
     public Task(){
@@ -84,6 +85,9 @@ public abstract class Task extends Fragment {
     }
 
     private void loadNextTask(){
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
         if(TextToSpeechLocal.isInitialized())
             TextToSpeechLocal.stop();
         callBack.loadContent();

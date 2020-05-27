@@ -240,7 +240,6 @@ public class DrawTask extends Task implements LoadContent {
 
 
 
-    //TODO: hacer un nuevo interface para esto.
     @Override
     public JsonAnswerWrapper getJsonAnswerWrapper() {
         return null;

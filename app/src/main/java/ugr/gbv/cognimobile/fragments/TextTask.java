@@ -517,7 +517,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     //-------------------UI-------------------//
 
     private void countDownTask(int millis) {
-        Handler handler = new Handler();
+        handler = new Handler();
         handler.postDelayed(() -> {
             taskEnded = true;
             hideInputs();
@@ -774,15 +774,15 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void showEditElements() {
-
-        if (firstInput.getVisibility() != View.VISIBLE) {
-            firstInput.setVisibility(View.VISIBLE);
-            submitAnswerContainer.setVisibility(View.VISIBLE);
-            rearrangeSubmitAnswerContainer();
-        }
-        else{
-            firstInput.setVisibility(View.GONE);
-            submitAnswerContainer.setVisibility(View.GONE);
+        if (taskEnded) {
+            if (firstInput.getVisibility() != View.VISIBLE) {
+                firstInput.setVisibility(View.VISIBLE);
+                submitAnswerContainer.setVisibility(View.VISIBLE);
+                rearrangeSubmitAnswerContainer();
+            } else {
+                firstInput.setVisibility(View.GONE);
+                submitAnswerContainer.setVisibility(View.GONE);
+            }
         }
 
 
@@ -1094,12 +1094,12 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitAnswerButton.setOnClickListener(v -> {
             adapter.editWord(word, firstInput.getText().toString());
             clearInputs();
-            if(taskType == Task.FLUENCY)
+            if (taskType == Task.FLUENCY) {
                 showEditElements();
-            else {
-                enableWordList();
-                restoreSubmitButton();
             }
+            enableWordList();
+            restoreSubmitButton();
+
 
         });
     }

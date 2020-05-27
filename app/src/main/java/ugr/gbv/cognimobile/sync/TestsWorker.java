@@ -3,7 +3,6 @@ package ugr.gbv.cognimobile.sync;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
@@ -17,11 +16,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
@@ -45,7 +44,8 @@ public class TestsWorker extends Worker {
 
 
         String testURLString = Aware.getSetting(workerContext,Provider.DB_TBL_TESTS);
-        String[] arrayLinks = testURLString.split(",");
+        String[] arrayLinks = getTestsLinks(testURLString);
+
 
         int inserted = 0;
 
@@ -65,7 +65,7 @@ public class TestsWorker extends Worker {
 
         }
 
-        Log.d("WORKERS", "Tests worker termino :" + System.currentTimeMillis());
+        //Log.d("WORKERS", "Tests worker termino :" + System.currentTimeMillis());
 
 
         if (inserted > 0) {
@@ -120,14 +120,15 @@ public class TestsWorker extends Worker {
 
 
         try {
-            HttpsURLConnection connection = (HttpsURLConnection) htmlUrlSource.openConnection();
+            //TODO CAMBIAR A Https
+            HttpURLConnection connection = (HttpURLConnection) htmlUrlSource.openConnection();
 
             InputStream in = connection.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8), 8);
             StringBuilder str = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                str.append(line);
+                str.append(line.replaceAll("&quot;", "\""));
             }
             in.close();
             html = str.toString();
@@ -136,5 +137,37 @@ public class TestsWorker extends Worker {
         }
 
         return html;
+    }
+
+    private String[] getTestsLinks(@NonNull String urlString) {
+        ArrayList<String> urls = new ArrayList<>();
+
+        URL htmlUrlSource;
+
+        Uri testQueryUri = Uri.parse(urlString).buildUpon()
+                .build();
+        try {
+            htmlUrlSource = new URL(testQueryUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            htmlUrlSource = null;
+        }
+
+
+        try {
+            HttpURLConnection connection = (HttpURLConnection) htmlUrlSource.openConnection();
+
+            InputStream in = connection.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8), 8);
+            String line;
+            while ((line = reader.readLine()) != null) {
+                urls.add(line.replaceAll("<[^>]*>", "").trim());
+            }
+            in.close();
+        } catch (IOException e) {
+            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
+        }
+
+        return urls.toArray(new String[0]);
     }
 }

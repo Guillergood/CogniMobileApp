@@ -37,6 +37,7 @@ import java.util.UUID;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
@@ -208,9 +209,8 @@ public class MainActivity extends AppCompatActivity
                 DataSender.getInstance().postToServer(DataSender.INSERT, "tests",array, getApplicationContext());*/
                 break;
             case R.id.nav_settings:
-                WorkerManager.getInstance().initiateWorkers(getApplicationContext());
-                //actualFragment = new SettingsFragments();
-                //loadFragment();
+                actualFragment = new SettingsFragments();
+                loadFragment();
                 //speechToText();
                 //Aware.startBattery(getApplicationContext());
                 /*JSONObject jsonObject2 = new JSONObject();
@@ -413,6 +413,7 @@ public class MainActivity extends AppCompatActivity
                 count = studies.getCount();
             }
 
+            WorkerManager.getInstance().initiateWorkers(getApplicationContext());
             runOnUiThread(this::reloadFragment);
         });
 
