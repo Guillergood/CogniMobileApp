@@ -53,7 +53,8 @@ public class TestsWorker extends Worker {
             for (String link : arrayLinks) {
                 String testJson = getHtml(link);
                 ContentValues[] data = retrieveDataFromHtml(testJson);
-                inserted += bulkInsert(data);
+                if (data != null)
+                    inserted += bulkInsert(data);
             }
         } else {
             String testJson = getHtml(testURLString);

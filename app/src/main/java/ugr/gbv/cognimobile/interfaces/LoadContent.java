@@ -15,6 +15,10 @@ public interface LoadContent {
     void showKeyboard(Activity activity);
     JsonAnswerWrapper getJsonAnswerWrapper();
 
+    JsonAnswerWrapper getJsonContextEvents();
+
+    JsonAnswerWrapper getJsonContextData();
+
     Locale getLanguage();
 
     int checkTypos(ArrayList<String> words);

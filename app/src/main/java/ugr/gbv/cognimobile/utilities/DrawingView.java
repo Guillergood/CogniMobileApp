@@ -23,6 +23,7 @@ public class DrawingView extends View {
     private Paint drawPaint,canvasPaint;
     private Bitmap canvasBitmap;
     private Canvas drawCanvas;
+    private ArrayList<Point> drawnTraces;
     private ArrayList<Point> drawPoints;
     private ArrayList<Point> erasedPoints;
     boolean initialized = false;
@@ -31,6 +32,7 @@ public class DrawingView extends View {
 
     public DrawingView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        drawnTraces = new ArrayList<>();
         drawPoints = new ArrayList<>();
         erasedPoints = new ArrayList<>();
         setUpDrawing();
@@ -75,6 +77,7 @@ public class DrawingView extends View {
                     drawPath.moveTo(touchX, touchY);
                     drawPath.lineTo(touchX, touchY);
                     drawPoints.add(new Point(touchX, touchY));
+                    drawnTraces.add(new Point(touchX, touchY));
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -85,6 +88,7 @@ public class DrawingView extends View {
                 case MotionEvent.ACTION_UP:
                     drawPath.moveTo(touchX, touchY);
                     drawPoints.add(new Point(touchX, touchY));
+                    drawnTraces.add(new Point(touchX, touchY));
                     break;
 
                 default:
@@ -154,7 +158,6 @@ public class DrawingView extends View {
     }
 
     private void drawPath(){
-
         for (Point point : drawPoints) {
             if (initialized) {
                 drawPath.lineTo(point.getX(), point.getY());
@@ -168,28 +171,25 @@ public class DrawingView extends View {
     }
 
     public float[] getDrawnPath() {
-
-        int size = drawPoints.size() * 2;
-
-        float[] value = new float[size];
-
-        for (int i = 0, k = 0; i < size; i += 2, ++k) {
-            value[i] = drawPoints.get(k).getX();
-            value[i + 1] = drawPoints.get(k).getY();
-        }
-
-        return value;
+        return retrievePointsFromArrayList(drawPoints);
     }
 
     public float[] getErasedPath() {
+        return retrievePointsFromArrayList(erasedPoints);
+    }
 
-        int size = erasedPoints.size() * 2;
+    public float[] getDrawnTraces() {
+        return retrievePointsFromArrayList(drawnTraces);
+    }
+
+    private float[] retrievePointsFromArrayList(ArrayList<Point> arrayList) {
+        int size = arrayList.size() * 2;
 
         float[] value = new float[size];
 
         for (int i = 0, k = 0; i < size; i += 2, ++k) {
-            value[i] = erasedPoints.get(k).getX();
-            value[i + 1] = erasedPoints.get(k).getY();
+            value[i] = arrayList.get(k).getX();
+            value[i + 1] = arrayList.get(k).getY();
         }
 
         return value;

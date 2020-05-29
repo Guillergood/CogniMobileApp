@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_settings:
                 actualFragment = new SettingsFragments();
+                initiateWorkerManager();
                 loadFragment();
                 //speechToText();
                 //Aware.startBattery(getApplicationContext());
@@ -349,10 +350,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-    private void goToTest(String data) {
+    private void goToTest(int id) {
         Intent intent = new Intent(this, Test.class);
-        intent.putExtra("data",data);
+        intent.putExtra("id", id);
         startActivity(intent);
     }
 
@@ -398,8 +398,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClick(String data) {
-        goToTest(data);
+    public void onClick(int id) {
+        goToTest(id);
     }
 
 
@@ -412,8 +412,7 @@ public class MainActivity extends AppCompatActivity
                 Cursor studies = Aware.getStudy(getApplicationContext(), "");
                 count = studies.getCount();
             }
-
-            WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+            //runOnUiThread(this::initiateWorkerManager);
             runOnUiThread(this::reloadFragment);
         });
 
@@ -426,6 +425,10 @@ public class MainActivity extends AppCompatActivity
         ft.detach(actualFragment);
         ft.attach(actualFragment);
         ft.commit();
+    }
+
+    private void initiateWorkerManager() {
+        WorkerManager.getInstance().initiateWorkers(getApplicationContext());
     }
 
 }

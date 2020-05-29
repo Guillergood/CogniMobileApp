@@ -6,6 +6,8 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.view.inputmethod.EditorInfo;
@@ -22,10 +24,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
@@ -73,6 +77,8 @@ public abstract class Task extends Fragment {
     EditText firstInput;
     Handler handler;
 
+    ArrayList<String> characterChange;
+    ArrayList<Long> timeBetweenAnswers;
 
     public Task(){
         loaded = false;
@@ -82,9 +88,24 @@ public abstract class Task extends Fragment {
         lastIndex = 0;
         length = 0;
         score = 0;
+        characterChange = new ArrayList<>();
+        timeBetweenAnswers = new ArrayList<>();
     }
 
     private void loadNextTask(){
+        try {
+            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericSkippedTask, taskEnded);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeNextTask, ContextDataRetriever.addTimeStamp());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
@@ -147,7 +168,14 @@ public abstract class Task extends Fragment {
             }
         });
 
-        centerButton.setOnClickListener(dialogInterface -> showDialog());
+        centerButton.setOnClickListener(dialogInterface -> {
+            showDialog();
+            try {
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeHelp, ContextDataRetriever.addTimeStamp());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private void showDialog(){
@@ -158,6 +186,32 @@ public abstract class Task extends Fragment {
         animationView.setImageAssetsFolder("images");
         animationView.playAnimation();
         builder.show();
+    }
+
+    void addTextWatcherToInput() {
+        firstInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                characterChange.add(s.toString());
+                /*if(before < count){
+                    characterAdditions.add(s.toString());
+                }
+                else{
+                    characterRemovals.add(s.toString());
+                }*/
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
 

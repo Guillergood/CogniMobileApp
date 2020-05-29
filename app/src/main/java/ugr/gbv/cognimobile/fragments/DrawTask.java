@@ -3,6 +3,7 @@ package ugr.gbv.cognimobile.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.DrawingView;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.PathGenerator;
@@ -40,11 +42,15 @@ public class DrawTask extends Task implements LoadContent {
     private Bundle bundle;
 
     private ArrayList<Button> pressedButtons;
+    private ArrayList<String> alreadyPressedButtons;
+    private ArrayList<Long> timeBetweenClicks;
 
 
     public DrawTask(int taskType, LoadContent callBack, @Nullable Bundle bundle){
         this.taskType = taskType;
         pressedButtons = new ArrayList<>();
+        alreadyPressedButtons = new ArrayList<>();
+        timeBetweenClicks = new ArrayList<>();
         this.callBack = callBack;
         if(bundle != null){
             this.bundle = bundle;
@@ -167,6 +173,9 @@ public class DrawTask extends Task implements LoadContent {
                             drawingView.drawToPoint(sequence.get(i1));
                             continua = false;
                             pressedButtons.add(button1);
+                            timeBetweenClicks.add(ContextDataRetriever.addTimeStamp());
+                        } else {
+                            alreadyPressedButtons.add(button1.getTag().toString());
                         }
                     }
                 }
@@ -182,6 +191,7 @@ public class DrawTask extends Task implements LoadContent {
 
 
         }
+
 
     }
 
@@ -240,8 +250,19 @@ public class DrawTask extends Task implements LoadContent {
 
 
 
+
     @Override
     public JsonAnswerWrapper getJsonAnswerWrapper() {
+        return null;
+    }
+
+    @Override
+    public JsonAnswerWrapper getJsonContextEvents() {
+        return null;
+    }
+
+    @Override
+    public JsonAnswerWrapper getJsonContextData() {
         return null;
     }
 
@@ -259,23 +280,67 @@ public class DrawTask extends Task implements LoadContent {
         callBack.getJsonAnswerWrapper().addField("width", drawingView.getCanvasWidth());
         callBack.getJsonAnswerWrapper().addFloatArray("points_sequence", drawingView.getDrawnPath());
 
+
         switch (taskType) {
             case GRAPH:
                 setScoring();
                 callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answer);
                 callBack.getJsonAnswerWrapper().addField("score",score);
                 callBack.getJsonAnswerWrapper().addFloatArray("erased_paths", drawingView.getErasedPath());
-                callBack.getJsonAnswerWrapper().addTaskField();
+
+
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificATMAlreadyClickedButton, ContextDataRetriever.retrieveInformationFromStringArrayList(alreadyPressedButtons));
+                callBack.getJsonContextEvents().addFloatArray(ContextDataRetriever.SpecificATMPoints, drawingView.getDrawnPath());
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificATMDistanceBetweenCircles, ContextDataRetriever.retrieveInformationFromButtonArrayList(pressedButtons));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificATMTimeBetweenClicks, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenClicks));
                 break;
             case CUBE:
+                callBack.getJsonAnswerWrapper().addField("times_wipe_canvas", getResources().getInteger(R.integer.undo_times) - undoTimes);
+                Pair<String, String> cubeTraces = packTraces();
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSCubeStartDraw, cubeTraces.first);
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSCubeEndDraw, cubeTraces.second);
+                callBack.getJsonContextEvents().addFloatArray(ContextDataRetriever.SpecificVSCubePoints, drawingView.getDrawnPath());
+                break;
             case WATCH:
                 callBack.getJsonAnswerWrapper().addField("times_wipe_canvas", getResources().getInteger(R.integer.undo_times) - undoTimes);
-                callBack.getJsonAnswerWrapper().addTaskField();
+                Pair<String, String> clockTraces = packTraces();
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSClockStartDraw, clockTraces.first);
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSClockEndDraw, clockTraces.second);
+                callBack.getJsonContextEvents().addFloatArray(ContextDataRetriever.SpecificVSClockPoints, drawingView.getDrawnPath());
                 break;
             default:
                 throw new RuntimeException("INVALID TASKTYPE");
 
         }
+        //TODO POSIBLE ERROR
+        callBack.getJsonAnswerWrapper().addTaskField();
+        callBack.getJsonContextEvents().addTaskField();
+    }
+
+
+    private Pair<String, String> packTraces() {
+        float[] drawnTraces = drawingView.getDrawnTraces();
+        StringBuilder startStringBuilder = new StringBuilder();
+        StringBuilder endStringBuilder = new StringBuilder();
+        for (int i = 0, k = 0; k < drawnTraces.length; ++i, k += 2) {
+            if (i % 2 == 0) {
+                startStringBuilder.append(drawnTraces[k]);
+                startStringBuilder.append(":");
+                startStringBuilder.append(drawnTraces[k + 1]);
+                startStringBuilder.append(",");
+            } else {
+                endStringBuilder.append(drawnTraces[k]);
+                endStringBuilder.append(":");
+                endStringBuilder.append(drawnTraces[k + 1]);
+                endStringBuilder.append(",");
+            }
+
+        }
+        if (startStringBuilder.length() > 0)
+            startStringBuilder.deleteCharAt(startStringBuilder.length() - 1);
+        if (endStringBuilder.length() > 0)
+            endStringBuilder.deleteCharAt(endStringBuilder.length() - 1);
+        return new Pair<>(startStringBuilder.toString(), endStringBuilder.toString());
     }
 
 

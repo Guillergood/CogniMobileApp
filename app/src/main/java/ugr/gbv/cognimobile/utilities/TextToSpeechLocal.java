@@ -101,6 +101,7 @@ public class TextToSpeechLocal {
                 if(index < array.length) {
                     callback.setIndex(index);
                     textToSpeech.speak(array[index], TextToSpeech.QUEUE_ADD, null, Integer.toString(index));
+                    callback.registerTimeStamp();
                 }
                 else{
                     index = 0;

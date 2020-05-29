@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.ImageConversor;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
@@ -141,9 +142,11 @@ public class ImageTask extends Task {
                 break;
         }
 
-        if (imagesArray.length == 1) {
+        if (imagesArray.length <= 1) {
             setNextButtonStandardBehaviour();
         }
+
+        addTextWatcherToInput();
 
 
         return mainView;
@@ -234,7 +237,10 @@ public class ImageTask extends Task {
         callBack.getJsonAnswerWrapper().addStringArray("expected_answers", expectedAnswers);
         callBack.getJsonAnswerWrapper().addField("task_type", taskType);
         callBack.getJsonAnswerWrapper().addField("score",score);
+        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
         callBack.getJsonAnswerWrapper().addTaskField();
+        callBack.getJsonContextEvents().addTaskField();
     }
 
     @Override
@@ -255,9 +261,10 @@ public class ImageTask extends Task {
                     }
                 }
 
-
             }
 
+        } else {
+            timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
         }
     }
 }

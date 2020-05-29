@@ -68,7 +68,7 @@ public class StudyFragment extends Fragment {
         return view;
     }
 
-    public void checkNewStudy(){
+    private void checkNewStudy() {
         if (emptyStudy() || !CognimobilePreferences.getHasUserJoinedStudy(context)) {
             showNoStudy();
         }

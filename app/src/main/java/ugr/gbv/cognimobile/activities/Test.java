@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
@@ -43,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.DataSender;
@@ -62,6 +64,8 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
     private int totalScore;
     private View mContentView;
     private JsonAnswerWrapper jsonAnswerWrapper;
+    private JsonAnswerWrapper jsonContextEvents;
+    private JsonAnswerWrapper jsonContextData;
     private String name;
     private Locale language;
 
@@ -82,8 +86,15 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
         mContentView = findViewById(R.id.fullscreen_content);
         hideNavBar();
 
+        String where = Provider.Cognimobile_Data._ID + " = ?";
+        String[] selectionArgs = {Integer.toString(getIntent().getIntExtra("id", 0))};
+        String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
+        Cursor cursor = getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
+        assert cursor != null;
+        cursor.moveToFirst();
+        String rawJson = cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA));
 
-        String rawJson = getIntent().getStringExtra("data");
+        cursor.close();
 
         try {
             fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
@@ -107,6 +118,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
             String language = reader.getString("language");
             this.language = new Locale(language);
             jsonAnswerWrapper = new JsonAnswerWrapper(name, language);
+            jsonContextEvents = new JsonAnswerWrapper(name, language);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -171,6 +183,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
             try {
                 jsonAnswerWrapper.addTotalScore(totalScore);
                 DataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
+                DataSender.getInstance().postToServer("insert", "contextEvents", jsonContextEvents.getJSONArray(), getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -196,6 +209,16 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
     @Override
     public JsonAnswerWrapper getJsonAnswerWrapper() {
         return jsonAnswerWrapper;
+    }
+
+    @Override
+    public JsonAnswerWrapper getJsonContextEvents() {
+        return jsonContextEvents;
+    }
+
+    @Override
+    public JsonAnswerWrapper getJsonContextData() {
+        return jsonContextData;
     }
 
 
@@ -381,4 +404,5 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
 
         new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
+
 }
