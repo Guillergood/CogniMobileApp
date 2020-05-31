@@ -1,6 +1,7 @@
 package ugr.gbv.cognimobile.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.activities.About;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 
 public class SettingsFragments extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -37,6 +39,13 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
                     if (getString(R.string.pref_config).equals(key)) {
                         String[] entries = getResources().getStringArray(R.array.configEntries);
                         preference.setDefaultValue(entries[CognimobilePreferences.getConfig(context)]);
+                    }
+                    if (getString(R.string.pref_about).equals(key)) {
+                        preference.setOnPreferenceClickListener(preference1 -> {
+                            Intent intent = new Intent(context, About.class);
+                            startActivity(intent);
+                            return true;
+                        });
                     }
                 }
             }

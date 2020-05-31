@@ -188,7 +188,7 @@ public class DataSender implements Serializable {
 
     private String formatData(JSONArray data) throws JSONException {
 
-        double timestamp = System.currentTimeMillis();
+        double timestamp = System.currentTimeMillis() / 1000.0;
 
 
         JSONObject jsonParam = new JSONObject();

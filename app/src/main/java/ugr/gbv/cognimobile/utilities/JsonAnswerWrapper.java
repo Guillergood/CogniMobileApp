@@ -2,9 +2,6 @@ package ugr.gbv.cognimobile.utilities;
 
 import android.net.Uri;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,11 +47,6 @@ public class JsonAnswerWrapper {
         subJsonObject.put(key, jsonArray);
     }
 
-    public void addImageArray(String key, String[] array) throws JSONException {
-        Gson gson = new GsonBuilder().disableHtmlEscaping().create();
-        String jsonInString = gson.toJson(array);
-        subJsonObject.put(key, jsonInString);
-    }
 
     public void addFloatArray(String key, float[] array) throws JSONException {
         JSONArray jsonArray = new JSONArray(array);
