@@ -94,29 +94,31 @@ public class DataSender implements Serializable {
                 int code = conn.getResponseCode();
 
 
-                if (code == 200) {
-                    ContentValues contentValues = new ContentValues();
-                    long millis = getMillisThirtyDaysAhead();
-                    contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
-                    contentValues.put(Provider.Cognimobile_Data.DONE, 1);
-                    updateValues(Provider.CONTENT_URI_TESTS, contentValues, context, data);
-                    contentValues.remove(Provider.Cognimobile_Data.DONE);
-                    contentValues.put(Provider.Cognimobile_Data.SYNCED, 1);
-                    deleteResult(context, data);
-                } else {
-                    if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
-                        ContentValues[] contentValues = new ContentValues[1];
-                        ContentValues value = new ContentValues();
-                        value.put(Provider.Cognimobile_Data.NAME, data.getJSONObject(0).getString("name"));
-                        value.put(Provider.Cognimobile_Data.DATA, data.toString());
-                        value.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
+                if (!data.getJSONObject(0).getString("name").isEmpty()) {
+                    if (code == 200) {
+                        ContentValues contentValues = new ContentValues();
+                        long millis = getMillisThirtyDaysAhead();
+                        contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
+                        contentValues.put(Provider.Cognimobile_Data.DONE, 1);
+                        updateValues(Provider.CONTENT_URI_TESTS, contentValues, context, data);
+                        contentValues.remove(Provider.Cognimobile_Data.DONE);
+                        contentValues.put(Provider.Cognimobile_Data.SYNCED, 1);
+                        deleteResult(context, data);
+                    } else {
+                        if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
+                            ContentValues[] contentValues = new ContentValues[1];
+                            ContentValues value = new ContentValues();
+                            value.put(Provider.Cognimobile_Data.NAME, data.getJSONObject(0).getString("name"));
+                            value.put(Provider.Cognimobile_Data.DATA, data.toString());
+                            value.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
 
-                        context.getContentResolver().bulkInsert(
-                                Provider.Cognimobile_Data.CONTENT_URI_RESULTS,
-                                contentValues
-                        );
+                            context.getContentResolver().bulkInsert(
+                                    Provider.Cognimobile_Data.CONTENT_URI_RESULTS,
+                                    contentValues
+                            );
+                        }
+
                     }
-
                 }
 
 

@@ -412,7 +412,7 @@ public class MainActivity extends AppCompatActivity
                 Cursor studies = Aware.getStudy(getApplicationContext(), "");
                 count = studies.getCount();
             }
-            //runOnUiThread(this::initiateWorkerManager);
+            runOnUiThread(this::initiateWorkerManager);
             runOnUiThread(this::reloadFragment);
         });
 

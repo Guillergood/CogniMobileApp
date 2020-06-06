@@ -79,4 +79,20 @@ public class JsonAnswerWrapper {
     public String encodeUtf8ForUrl(String string) {
         return Uri.encode(string);
     }
+
+    public String getFieldString(String key) throws JSONException {
+        return subJsonObject.getString(key);
+    }
+
+    public Long getFieldLong(String key) throws JSONException {
+        return subJsonObject.getLong(key);
+    }
+
+    public int getFieldInt(String key) throws JSONException {
+        return subJsonObject.getInt(key);
+    }
+
+    public JSONArray getFieldArray(String key) throws JSONException {
+        return subJsonObject.getJSONArray(key);
+    }
 }

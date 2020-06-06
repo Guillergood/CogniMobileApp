@@ -29,44 +29,53 @@ public class ContextDataRetriever {
     public static final String SpecificVSClockPoints = "SpecificVSClockPoints";
 
     public static final String SpecificNamingCharacterChange = "SpecificNamingCharacterChange";
-    public static final String SpecificNamingTimeToAnswer = "SpecificNamingTimeToAnswer";
+    public static final String SpecificNamingStartWriting = "SpecificNamingStartWriting";
+    public static final String SpecificNamingSubmitAnswer = "SpecificNamingSubmitAnswer";
 
     public static final String SpecificMemoryCharacterChange = "SpecificMemoryCharacterChange";
     public static final String SpecificMemoryScrollingList = "SpecificMemoryScrollingList";
     public static final String SpecificMemorySettlingList = "SpecificMemorySettlingList";
-    public static final String SpecificMemoryTimeToAnswer = "SpecificMemoryTimeToAnswer";
+    public static final String SpecificMemoryStartWriting = "SpecificMemoryStartWriting";
+    public static final String SpecificMemorySubmitAnswer = "SpecificMemorySubmitAnswer";
 
     public static final String SpecificAttentionNumbersItemPosition = "SpecificAttentionNumbersItemPosition";
-    public static final String SpecificAttentionNumbersTimeToAnswer = "SpecificAttentionNumbersTimeToAnswer";
+    public static final String SpecificAttentionNumbersStartWriting = "SpecificAttentionNumbersStartWriting";
     public static final String SpecificAttentionNumbersItemPositionBackwards = "SpecificAttentionNumbersItemPositionBackwards";
-    public static final String SpecificAttentionNumbersTimeToAnswerBackwards = "SpecificAttentionNumbersTimeToAnswerBackwards";
+    public static final String SpecificAttentionNumbersSubmitAnswer = "SpecificAttentionNumbersSubmitAnswer";
 
     public static final String SpecificAttentionLettersTimeToAnswer = "SpecificAttentionLettersTimeToAnswer";
     public static final String SpecificAttentionLettersSoundTimes = "SpecificAttentionLettersSoundTimes";
 
+    public static final String SpecificSubtractionCharacterChange = "SpecificSubtractionCharacterChange";
+    public static final String SpecificSubtractionStartWriting = "SpecificSubtractionStartWriting";
+    public static final String SpecificSubtractionSubmitAnswer = "SpecificSubtractionSubmitAnswer";
+
+    public static final String SpecificSRCharacterChange = "SpecificSRCharacterChange";
+    public static final String SpecificSRStartWriting = "SpecificSRStartWriting";
+    public static final String SpecificSRSubmitAnswer = "SpecificSRSubmitAnswer";
+
+
     public static final String SpecificFluencyCharacterChange = "SpecificFluencyCharacterChange";
     public static final String SpecificFluencyScrollingList = "SpecificFluencyScrollingList";
     public static final String SpecificFluencySettlingList = "SpecificFluencySettlingList";
-    public static final String SpecificFluencyTimeToAnswer = "SpecificFluencyTimeToAnswer";
+    public static final String SpecificFluencyStartWriting = "SpecificFluencyStartWriting";
+    public static final String SpecificFluencySubmitAnswer = "SpecificFluencySubmitAnswer";
+
+    public static final String SpecificAbstractionCharacterChange = "SpecificAbstractionCharacterChange";
+    public static final String SpecificAbstractionStartWriting = "SpecificAbstractionStartWriting";
+    public static final String SpecificAbstractionSubmitAnswer = "SpecificAbstractionSubmitAnswer";
 
     public static final String SpecificRecallCharacterChange = "SpecificRecallCharacterChange";
     public static final String SpecificRecallScrollingList = "SpecificRecallScrollingList";
     public static final String SpecificRecallSettlingList = "SpecificRecallSettlingList";
-    public static final String SpecificRecallTimeToAnswer = "SpecificRecallTimeToAnswer";
+    public static final String SpecificRecallStartWriting = "SpecificRecallStartWriting";
     public static final String SpecificRecallNumbersOfWords = "SpecificRecallNumbersOfWords";
     public static final String SpecificRecallNumbersOfCorrectWords = "SpecificRecallNumbersOfCorrectWords";
-
-    public static final String SpecificSRCharacterChange = "SpecificSRCharacterChange";
-    public static final String SpecificSRTimeToAnswer = "SpecificSRTimeToAnswer";
-
-    public static final String SpecificAbstractionCharacterChange = "SpecificAbstractionCharacterChange";
-    public static final String SpecificAbstractionTimeToAnswer = "SpecificAbstractionTimeToAnswer";
-
-    public static final String SpecificSubtractionCharacterChange = "SpecificSubtractionCharacterChange";
-    public static final String SpecificSubtractionTimeToAnswer = "SpecificSubtractionTimeToAnswer";
+    public static final String SpecificRecallSubmitAnswer = "SpecificRecallSubmitAnswer";
 
     public static final String SpecificOrientationCharacterChange = "SpecificOrientationCharacterChange";
-    public static final String SpecificOrientationTimeToAnswer = "SpecificOrientationTimeToAnswer";
+    public static final String SpecificOrientationStartWriting = "SpecificOrientationStartWriting";
+    public static final String SpecificOrientationSubmitAnswer = "SpecificOrientationSubmitAnswer";
 
     public static String retrieveInformationFromIntegerArrayList(ArrayList<Integer> arrayList) {
         StringBuilder stringBuilder = new StringBuilder();

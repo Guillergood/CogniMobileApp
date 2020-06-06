@@ -312,9 +312,8 @@ public class DrawTask extends Task implements LoadContent {
                 throw new RuntimeException("INVALID TASKTYPE");
 
         }
-        //TODO POSIBLE ERROR
-        callBack.getJsonAnswerWrapper().addTaskField();
-        callBack.getJsonContextEvents().addTaskField();
+
+
     }
 
 

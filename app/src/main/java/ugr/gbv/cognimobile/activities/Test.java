@@ -182,8 +182,8 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
         else{
             try {
                 jsonAnswerWrapper.addTotalScore(totalScore);
-                DataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
                 DataSender.getInstance().postToServer("insert", "contextEvents", jsonContextEvents.getJSONArray(), getApplicationContext());
+                DataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }

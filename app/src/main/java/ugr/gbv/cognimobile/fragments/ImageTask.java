@@ -159,6 +159,8 @@ public class ImageTask extends Task {
 
         setScoring();
 
+        addSubmitTime();
+
         selected++;
         ImageView nextImage = mainView.findViewById(imagesId[selected]);
         nextImage.setVisibility(View.VISIBLE);
@@ -172,6 +174,7 @@ public class ImageTask extends Task {
     }
 
     private void clearInputs() {
+        clearedByMethod = true;
         firstInput.getText().clear();
     }
 
@@ -233,14 +236,14 @@ public class ImageTask extends Task {
     @Override
     void saveResults() throws JSONException {
         setScoring();
+        addSubmitTime();
         callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answers);
         callBack.getJsonAnswerWrapper().addStringArray("expected_answers", expectedAnswers);
         callBack.getJsonAnswerWrapper().addField("task_type", taskType);
         callBack.getJsonAnswerWrapper().addField("score",score);
         callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
-        callBack.getJsonAnswerWrapper().addTaskField();
-        callBack.getJsonContextEvents().addTaskField();
+        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
     }
 
     @Override
@@ -263,8 +266,6 @@ public class ImageTask extends Task {
 
             }
 
-        } else {
-            timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
         }
     }
 }

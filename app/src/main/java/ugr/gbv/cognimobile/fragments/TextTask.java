@@ -62,9 +62,6 @@ import static android.app.Activity.RESULT_OK;
 
 public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
-
-
-
     //CHECKERS VARS
     private String[] array;
     private ArrayList<String> answers;
@@ -75,7 +72,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private RelativeLayout playableArea;
     private TextView countdownText;
     private TextView additionalTaskText;
-    //private EditText firstInput;
     private LinearLayout submitAnswerContainer;
     private RecyclerView recyclerView;
     private WordListAdapter adapter;
@@ -89,7 +85,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private ArrayList<Long> scrollingTimes;
     private ArrayList<Long> settlingTimes;
     //NUMBERS
-    private ArrayList<Long> fillingTimes;
     private ArrayList<Integer> positionFilling;
     //LETTERS
     private ArrayList<Long> soundTimes;
@@ -109,7 +104,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         expectedAnswers = new ArrayList<>();
         scrollingTimes = new ArrayList<>();
         settlingTimes = new ArrayList<>();
-        fillingTimes = new ArrayList<>();
         positionFilling = new ArrayList<>();
         soundTimes = new ArrayList<>();
         clickingTimes = new ArrayList<>();
@@ -189,11 +183,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
 
         providedTask = true;
-        try {
-            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeBeforeTask, ContextDataRetriever.addTimeStamp());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
 
 
         displayHelpAtBeginning = bundle.getBoolean("display_help");
@@ -208,11 +198,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         if (!TextToSpeechLocal.isInitialized()) {
             setProgressDialog();
         } else {
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeStartTask, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
             startTask();
         }
 
@@ -277,6 +262,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
 
     private void startTask(){
+
+        try {
+            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeStartTask, ContextDataRetriever.addTimeStamp());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         if(taskType != RECALL && taskType != ATTENTION_SUBTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
             new CountDownTimer(context.getResources().getInteger(R.integer.default_time), context.getResources().getInteger(R.integer.one_seg_millis)) {
 
@@ -387,6 +379,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
 
             firstDone = true;
+            addSubmitTime();
 
             startButton.setVisibility(View.VISIBLE);
             startButton.setOnClickListener(v1 -> {
@@ -409,12 +402,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         setVariousInputs();
         enumeration();
         View.OnClickListener clickListener = v -> {
-            taskEnded = true;
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            addSubmitTime();
             hideInputs();
             taskIsEnded();
         };
@@ -451,6 +439,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         submitAnswerButton.setOnClickListener(v -> {
             if (!firstInput.getText().toString().isEmpty()) {
+                addSubmitTime();
                 if (index == length) {
                     submitAnswerButton.setVisibility(View.GONE);
                     hideInputs();
@@ -463,7 +452,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     additionalTaskText.setText(displayAnotherSubtraction);
                     index++;
                 }
-                timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
+                //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
                 clearInputs();
             } else
                 Toast.makeText(context, "PROVIDE DATA", Toast.LENGTH_LONG).show();
@@ -472,15 +461,16 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         showUserInput();
         hideMicro();
-        //addTextWatcherToInput();
+        addTextWatcherToInput();
     }
 
     private void repeatPhrase(String[] phrases) {
         array = phrases;
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         View.OnClickListener clickListener = v -> {
+            addSubmitTime();
             answers.add(firstInput.getText().toString());
-            timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
+            //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             clearInputs();
             ++index;
             hideInputs();
@@ -491,7 +481,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
         };
 
-        //addTextWatcherToInput();
+        addTextWatcherToInput();
 
         submitAnswerButton.setOnClickListener(clickListener);
         rightButton.setOnClickListener(clickListener);
@@ -506,6 +496,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         firstInput.requestFocus();
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         enableWordList();
+        addTextWatcherToInput();
         countDownTask(getResources().getInteger(R.integer.one_minute_millis));
     }
 
@@ -517,8 +508,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         showUserInput();
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         submitAnswerButton.setOnClickListener(v -> {
+            addSubmitTime();
             this.answers.add(firstInput.getText().toString());
-            timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
+            //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             if(index >= length){
                 hideInputs();
                 taskIsEnded();
@@ -530,7 +522,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
         });
 
-        //addTextWatcherToInput();
+        addTextWatcherToInput();
         length = array.length;
 
     }
@@ -540,6 +532,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         array = words;
         showUserInput();
         enableWordList();
+        addTextWatcherToInput();
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
     }
 
@@ -550,8 +543,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         showUserInput();
 
         submitAnswerButton.setOnClickListener(v -> {
+            addSubmitTime();
             answers.add(firstInput.getText().toString());
-            timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
+            //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             clearInputs();
             ++index;
             if(index >= length){
@@ -565,7 +559,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
         });
 
-        //addTextWatcherToInput();
+        addTextWatcherToInput();
         length = questions.length;
         additionalTaskText.setText(array[index]);
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
@@ -600,6 +594,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void clearInputs() {
+        clearedByMethod = true;
         firstInput.getText().clear();
         if(variousInputs != null) {
             for (int i = 1; i < variousInputs.size(); ++i) {
@@ -649,9 +644,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     if(count > 0) {
                         if (variousInputs.size() > index+1) {
                             variousInputs.get(index+1).requestFocus();
-                            fillingTimes.add(ContextDataRetriever.addTimeStamp());
-                            positionFilling.add(index);
                         }
+                        addWritingTime();
+                        positionFilling.add(index);
                     }
                 }
 
@@ -714,6 +709,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     index=1;
                     if (variousInputs.size() > index) {
                         variousInputs.get(index).requestFocus();
+                        addWritingTime();
+                        positionFilling.add(index);
                     }
                 }
             }
@@ -817,9 +814,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitButtonLabel.setText(R.string.add_word);
         submitAnswerButton.setOnClickListener(v -> {
             if (!firstInput.getText().toString().isEmpty()) {
+                addSubmitTime();
                 adapter.addWord(firstInput.getText().toString());
                 recyclerView.scrollToPosition(0);
-                timeBetweenAnswers.add(ContextDataRetriever.addTimeStamp());
+                //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             }
             else
                 Toast.makeText(context,"PROVIDE DATA",Toast.LENGTH_LONG).show();
@@ -1029,14 +1027,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                         callBack.getJsonAnswerWrapper().addArrayList("answer_backwards", answers);
                         callBack.getJsonAnswerWrapper().addStringArray("expected_answer_backwards", array);
                         callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersItemPositionBackwards, ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
-                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersTimeToAnswerBackwards, ContextDataRetriever.retrieveInformationFromLongArrayList(fillingTimes));
+                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                     } else {
                         callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                         callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
                         callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersItemPosition, ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
-                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(fillingTimes));
                         positionFilling.clear();
-                        fillingTimes.clear();
                     }
 
                 }
@@ -1050,7 +1047,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencySettlingList, ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencySubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case RECALL:
@@ -1061,19 +1059,22 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallSettlingList, ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallNumbersOfWords, array.length);
                 setScoring();
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallNumbersOfCorrectWords, score);
                 break;
 
             case MEMORY:
+                startWritingTimes.remove(startWritingTimes.size() - 1);
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemorySettlingList, ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemorySubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 break;
             case ATTENTION_LETTERS:
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
@@ -1087,14 +1088,16 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             case ATTENTION_SUBTRACTION:
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case LANGUAGE:
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case ABSTRACTION:
@@ -1102,14 +1105,16 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 callBack.getJsonAnswerWrapper().addStringArray("words", array);
                 callBack.getJsonAnswerWrapper().addArrayList("expected_answer", expectedAnswers);
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case ORIENTATION:
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 callBack.getJsonAnswerWrapper().addStringArray("questions", array);
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenAnswers));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
 
@@ -1137,12 +1142,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 if (firstDone) {
                     checkReverseAnswerArray();
                     addScoreToJson();
-                    try {
-                        callBack.getJsonAnswerWrapper().addTaskField();
+                    /*try {
                         callBack.getJsonContextEvents().addTaskField();
                     } catch (JSONException e) {
                         ErrorHandler.getInstance().displayError(context, e.getMessage());
-                    }
+                    }*/
                 } else {
                     checkAnswerArray();
                 }
@@ -1177,12 +1181,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         if (taskType != ATTENTION_NUMBERS) {
             addScoreToJson();
-            try {
-                callBack.getJsonAnswerWrapper().addTaskField();
+            /*try {
                 callBack.getJsonContextEvents().addTaskField();
             } catch (JSONException e) {
                 ErrorHandler.getInstance().displayError(context, e.getMessage());
-            }
+            }*/
         }
 
 
@@ -1196,6 +1199,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             showEditElements();
         changeSubmitButton();
         submitAnswerButton.setOnClickListener(v -> {
+            addSubmitTime();
             adapter.editWord(word, firstInput.getText().toString());
             clearInputs();
             if (taskType == Task.FLUENCY) {
