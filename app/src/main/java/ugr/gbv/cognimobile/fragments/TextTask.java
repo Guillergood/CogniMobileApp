@@ -1067,6 +1067,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
 
             case MEMORY:
+                answers = adapter.getAllWords();
                 startWritingTimes.remove(startWritingTimes.size() - 1);
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
@@ -1142,15 +1143,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 if (firstDone) {
                     checkReverseAnswerArray();
                     addScoreToJson();
-                    /*try {
-                        callBack.getJsonContextEvents().addTaskField();
-                    } catch (JSONException e) {
-                        ErrorHandler.getInstance().displayError(context, e.getMessage());
-                    }*/
                 } else {
                     checkAnswerArray();
                 }
-
                 break;
 
             case ATTENTION_LETTERS:
@@ -1182,7 +1177,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         if (taskType != ATTENTION_NUMBERS) {
             addScoreToJson();
             /*try {
-                callBack.getJsonContextEvents().addTaskField();
+                callBack.getJsonAnswerWrapper().addTaskField();
             } catch (JSONException e) {
                 ErrorHandler.getInstance().displayError(context, e.getMessage());
             }*/

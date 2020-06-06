@@ -17,8 +17,6 @@ public interface LoadContent {
 
     JsonAnswerWrapper getJsonContextEvents();
 
-    JsonAnswerWrapper getJsonContextData();
-
     Locale getLanguage();
 
     int checkTypos(ArrayList<String> words);

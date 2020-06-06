@@ -261,10 +261,6 @@ public class DrawTask extends Task implements LoadContent {
         return null;
     }
 
-    @Override
-    public JsonAnswerWrapper getJsonContextData() {
-        return null;
-    }
 
     @Override
     public int checkTypos(ArrayList<String> words) {

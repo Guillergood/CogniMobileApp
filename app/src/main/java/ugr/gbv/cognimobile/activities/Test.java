@@ -65,7 +65,6 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
     private View mContentView;
     private JsonAnswerWrapper jsonAnswerWrapper;
     private JsonAnswerWrapper jsonContextEvents;
-    private JsonAnswerWrapper jsonContextData;
     private String name;
     private Locale language;
 
@@ -216,10 +215,6 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
         return jsonContextEvents;
     }
 
-    @Override
-    public JsonAnswerWrapper getJsonContextData() {
-        return jsonContextData;
-    }
 
 
     private void initKeyBoardListener() {

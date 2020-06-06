@@ -108,6 +108,7 @@ public abstract class Task extends Fragment {
             }
             callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeNextTask, ContextDataRetriever.addTimeStamp());
             callBack.getJsonContextEvents().addTaskField();
+            callBack.getJsonAnswerWrapper().addTaskField();
 
         } catch (JSONException e) {
             e.printStackTrace();
