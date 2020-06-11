@@ -76,6 +76,10 @@ public class CognimobilePreferences {
         return sp.getBoolean(config, true);
     }
 
+    /**
+     * @param context
+     * @param value
+     */
 
     public static void setNotifications(Context context, boolean value) {
 

@@ -40,17 +40,19 @@ import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
+import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
 import ugr.gbv.cognimobile.sync.WorkerManager;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
-        QRCallback, TestClickHandler {
+        QRCallback, TestClickHandler, LoadDialog {
 
     private final int LINK_CODE = 1;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
@@ -63,6 +65,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.layout_actividad_principal);
         initBottomNavBar();
 
+        ErrorHandler.setCallback(this);
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();
@@ -195,39 +198,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_tests:
                 actualFragment = new TestsFragment(this);
                 loadFragment();
-                //goToTest();
-                //dataTest();
-                /*JSONObject jsonObject = new JSONObject();
-                JSONArray array = new JSONArray();
-                try {
-                    jsonObject.put("test_1","https://pastebin.com/raw/pX0Mcbn4");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                array.put(jsonObject);
-
-                DataSender.getInstance().postToServer(DataSender.INSERT, "tests",array, getApplicationContext());*/
                 break;
             case R.id.nav_settings:
                 actualFragment = new SettingsFragments();
-                initiateWorkerManager();
                 loadFragment();
-                //speechToText();
-                //Aware.startBattery(getApplicationContext());
-                /*JSONObject jsonObject2 = new JSONObject();
-                JSONArray array2 = new JSONArray();
-                try {
-                    double date = System.currentTimeMillis();
-                    jsonObject2.put("start",0);
-                    jsonObject2.put("end",date);
-
-                } catch (JSONException e) {
-                    ErrorHandler.getInstance().displayError(getApplicationContext(),e.getMessage());
-                }
-                array2.put(jsonObject2);
-                DataSender.getInstance().postToServer(DataSender.QUERY, "tests",array2, getApplicationContext());*/
                 break;
-
         }
 
 
@@ -431,5 +406,26 @@ public class MainActivity extends AppCompatActivity
         WorkerManager.getInstance().initiateWorkers(getApplicationContext());
     }
 
+    @Override
+    public void loadDialog(String message) {
+        runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+            builder.setTitle(MainActivity.this.getString(R.string.error_occurred));
+            builder.setMessage(message);
+            builder.setCancelable(false);
+            builder.setPositiveButton(MainActivity.this.getString(R.string.continue_next_task), (dialog, which) -> {
+                dialog.dismiss();
+            });
+            builder.show();
+        });
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ErrorHandler.setCallback(this);
+    }
 }
 

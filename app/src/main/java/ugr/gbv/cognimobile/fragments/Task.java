@@ -202,7 +202,7 @@ public abstract class Task extends Fragment {
                 try {
                     saveResults();
                 } catch (JSONException e) {
-                    ErrorHandler.getInstance().displayError(context, e.getMessage());
+                    ErrorHandler.displayError(e.getMessage());
                 }
                 loadNextTask();
             });

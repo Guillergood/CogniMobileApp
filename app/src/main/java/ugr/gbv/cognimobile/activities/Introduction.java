@@ -22,12 +22,45 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 
+/**
+ * Introduction.class is the activity where animations about the app will be displayed
+ */
 public class Introduction extends Activity {
     private ViewPager2 viewPager;
     private int[] layouts;
-    private Button next,skip;
+    private Button next, skip;
 
+    // Behaviour of the ViewPager
+    ViewPager2.OnPageChangeCallback viewCallback = new ViewPager2.OnPageChangeCallback() {
 
+        @Override
+        public void onPageSelected(int position) {
+            if (CognimobilePreferences.getFirstTimeLaunch(getBaseContext())) {
+                if (position == layouts.length - 1) {
+                    next.setText(getResources().getString(R.string.proceed_button));
+                    skip.setVisibility(View.GONE);
+                } else {
+                    next.setText(getResources().getString(R.string.next_button));
+                    skip.setVisibility(View.VISIBLE);
+                }
+            } else {
+                if (position == layouts.length - 1) {
+                    next.setVisibility(View.INVISIBLE);
+                } else {
+                    if (next.getVisibility() == View.INVISIBLE)
+                        next.setVisibility(View.VISIBLE);
+                    next.setText(getResources().getString(R.string.next_button));
+                }
+            }
+        }
+
+    };
+
+    /**
+     * OnCreate method to create the view and instantiate all the elements and put the info,
+     *
+     * @param savedInstanceState contains the most recent data from the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,32 +74,27 @@ public class Introduction extends Activity {
                 R.layout.introduction_3
         };
 
-        boolean go_out = true;
-        if(getIntent().hasExtra("see-again")){
-            go_out = false;
-        }
 
-        if(!CognimobilePreferences.getFirstTimeLaunch(getBaseContext()) &&
-                go_out){
+        //It will only be displayed on the first launch.
+        if (!CognimobilePreferences.getFirstTimeLaunch(getBaseContext())) {
             goToMainMenu();
         }
 
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE|
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+
         viewPager = findViewById(R.id.view_pager);
-
-
         skip = findViewById(R.id.skip_button);
-        if(!go_out)
-            skip.setVisibility(View.INVISIBLE);
         next = findViewById(R.id.next_button);
 
         changeStatusBarColor();
 
-
+        //ViewPager that will contains all the layouts to be swiped
         viewPagerAdapter = new ViewPagerAdapter();
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.registerOnPageChangeCallback(viewCallback);
+        //TabLayout will be the dots displayed on the bottom of the activity
         TabLayout tabLayout = findViewById(R.id.tabDots);
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> tab.setText("")
@@ -75,8 +103,7 @@ public class Introduction extends Activity {
             int current = getItem();
             if(current< layouts.length){
                 viewPager.setCurrentItem(current);
-            }
-            else {
+            } else {
                 goToMainMenu();
             }
 
@@ -85,39 +112,17 @@ public class Introduction extends Activity {
         skip.setOnClickListener(view -> goToMainMenu());
     }
 
-    private int getItem(){
+    /**
+     * This method retrieves thew next page that should be displayed.
+     *
+     * @return The item to be displayed
+     */
+    private int getItem() {
         return viewPager.getCurrentItem() + 1;
     }
 
 
-    ViewPager2.OnPageChangeCallback viewCallback = new ViewPager2.OnPageChangeCallback() {
-
-        @Override
-        public void onPageSelected(int position) {
-            if(CognimobilePreferences.getFirstTimeLaunch(getBaseContext())) {
-                if (position == layouts.length - 1) {
-                    next.setText(getResources().getString(R.string.proceed_button));
-                    skip.setVisibility(View.GONE);
-                } else {
-                    next.setText(getResources().getString(R.string.next_button));
-                    skip.setVisibility(View.VISIBLE);
-                }
-            }
-            else{
-                if (position == layouts.length - 1) {
-                    next.setVisibility(View.INVISIBLE);
-                } else {
-                    if(next.getVisibility() == View.INVISIBLE)
-                        next.setVisibility(View.VISIBLE);
-                    next.setText(getResources().getString(R.string.next_button));
-                }
-            }
-        }
-
-    };
-
-
-    private void changeStatusBarColor(){
+    private void changeStatusBarColor() {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(Color.TRANSPARENT);
@@ -161,9 +166,7 @@ public class Introduction extends Activity {
         }
     }
 
-
-
-    public class ZoomOutPageTransformer implements ViewPager2.PageTransformer {
+    public static class ZoomOutPageTransformer implements ViewPager2.PageTransformer {
         private static final float MIN_SCALE = 0.85f;
         private static final float MIN_ALPHA = 0.5f;
 

@@ -85,7 +85,7 @@ public class TestsWorker extends Worker {
         try {
             testsValues = JsonParserTests.getInstance().parse(link, workerContext);
         } catch (JSONException e) {
-            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
+            ErrorHandler.displayError(e.getMessage());
         }
 
         return testsValues;
@@ -134,7 +134,7 @@ public class TestsWorker extends Worker {
             in.close();
             html = str.toString();
         } catch (IOException e) {
-            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
+            ErrorHandler.displayError(e.getMessage());
         }
 
         return html;
@@ -166,7 +166,7 @@ public class TestsWorker extends Worker {
             }
             in.close();
         } catch (IOException e) {
-            ErrorHandler.getInstance().displayError(workerContext, e.getMessage());
+            ErrorHandler.displayError(e.getMessage());
         }
 
         return urls.toArray(new String[0]);

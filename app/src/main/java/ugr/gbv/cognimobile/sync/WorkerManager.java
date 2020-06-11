@@ -70,23 +70,23 @@ public class WorkerManager {
 
         PeriodicWorkRequest deleteRequest =
                 new PeriodicWorkRequest.Builder(DeleteWorker.class,
-                        context.getResources().getInteger(R.integer.fifteen),
-                        TimeUnit.MINUTES)
+                        context.getResources().getInteger(R.integer.thirty),
+                        TimeUnit.DAYS)
                         .setConstraints(constraints)
                         .addTag(DELETE_TAG)
                         .build();
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DOWNLOAD_UID,
-                        ExistingPeriodicWorkPolicy.REPLACE, downloadRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, downloadRequest);
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(UPLOAD_UID,
-                        ExistingPeriodicWorkPolicy.REPLACE, uploadRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, uploadRequest);
 
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DELETE_UID,
-                        ExistingPeriodicWorkPolicy.REPLACE, deleteRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);
 
     }
 

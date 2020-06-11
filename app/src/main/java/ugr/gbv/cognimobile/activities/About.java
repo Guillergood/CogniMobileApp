@@ -18,8 +18,18 @@ import mehdi.sakout.aboutpage.Element;
 import ugr.gbv.cognimobile.BuildConfig;
 import ugr.gbv.cognimobile.R;
 
+
+/**
+ * About.class is the activity where all the information about the app is displayed
+ */
 public class About extends AppCompatActivity {
 
+    /**
+     * OnCreate method to create the view and instantiate all the elements and put the info,
+     * AboutPage is used to develop this {@see <a href="https://github.com/medyo/android-about-page">https://github.com/medyo/android-about-page</a>}
+     *
+     * @param savedInstanceState contains the most recent data from the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +49,11 @@ public class About extends AppCompatActivity {
         setContentView(aboutPage);
     }
 
+    /**
+     * This method returns a button with all the license of the third party components
+     *
+     * @return Element, view that contains all logic for the data to be displayed
+     */
     private Element getThirdPartyElements() {
         Element licenseElement = new Element();
         final String copyrights = "Third party components";
@@ -64,7 +79,11 @@ public class About extends AppCompatActivity {
         return licenseElement;
     }
 
-
+    /**
+     * This method returns a button with the license of the Cognimobile components
+     *
+     * @return Element, view that contains all the data to be displayed
+     */
     Element getLicenseTerms() {
         Element licenseElement = new Element();
         final String copyrights = getString(R.string.app_name) + " " + Calendar.getInstance().get(Calendar.YEAR);

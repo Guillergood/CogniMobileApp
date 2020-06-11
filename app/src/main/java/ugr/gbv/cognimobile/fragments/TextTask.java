@@ -375,7 +375,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             try {
                 saveResults();
             } catch (JSONException e) {
-                ErrorHandler.getInstance().displayError(context, e.getMessage());
+                ErrorHandler.displayError(e.getMessage());
             }
 
             firstDone = true;
@@ -421,7 +421,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         playableArea.setOnClickListener(v -> {
             if(index > 0 && lastIndex != index) {
                 answers.add(array[index - 1]);
-                Toast.makeText(context, "CLICK!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.click_done, Toast.LENGTH_SHORT).show();
                 lastIndex = index;
                 clickingTimes.add(ContextDataRetriever.addTimeStamp());
             }
@@ -455,7 +455,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
                 clearInputs();
             } else
-                Toast.makeText(context, "PROVIDE DATA", Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.provide_data, Toast.LENGTH_LONG).show();
         });
         length = times;
 
@@ -820,7 +820,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             }
             else
-                Toast.makeText(context,"PROVIDE DATA",Toast.LENGTH_LONG).show();
+                Toast.makeText(context, R.string.provide_data, Toast.LENGTH_LONG).show();
 
             clearInputs();
         });
@@ -1297,7 +1297,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         try {
             callBack.getJsonAnswerWrapper().addField("score",score);
         } catch (JSONException e) {
-            ErrorHandler.getInstance().displayError(context, e.getMessage());
+            ErrorHandler.displayError(e.getMessage());
         }
     }
 

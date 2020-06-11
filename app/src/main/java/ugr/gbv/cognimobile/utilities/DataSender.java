@@ -124,7 +124,7 @@ public class DataSender implements Serializable {
 
                 conn.disconnect();
             } catch (IOException | JSONException e) {
-                ErrorHandler.getInstance().displayError(context, e.getMessage());
+                ErrorHandler.displayError(e.getMessage());
             }
         });
 

@@ -29,6 +29,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
@@ -47,6 +48,7 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.utilities.DataSender;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
@@ -56,7 +58,7 @@ import ugr.gbv.cognimobile.utilities.JsonParserTests;
  * An example full-screen activity that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-public class Test extends AppCompatActivity implements LoadContent, SpellCheckerSession.SpellCheckerSessionListener {
+public class Test extends AppCompatActivity implements LoadContent, LoadDialog, SpellCheckerSession.SpellCheckerSessionListener {
 
     private static final int MY_DATA_CHECK_CODE = 1050;
     private ArrayList<Task> fragments;
@@ -77,6 +79,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ErrorHandler.setCallback(this);
         setContentView(R.layout.activity_test);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -297,7 +300,7 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
                         TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
                 startActivity(installIntent);
 
-                ErrorHandler.getInstance().displayError(this, "TTS had to install the new language");
+                ErrorHandler.displayError("TTS had to install the new language");
             }
         }
     }
@@ -393,11 +396,25 @@ public class Test extends AppCompatActivity implements LoadContent, SpellChecker
             super.onBackPressed();
             finish();
         } else {
-            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.click_back, Toast.LENGTH_SHORT).show();
         }
         this.doubleBackToExitPressedOnce = true;
 
         new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
 
+    @Override
+    public void loadDialog(String message) {
+        runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
+
+            builder.setTitle(Test.this.getString(R.string.error_occurred));
+            builder.setMessage(message);
+            builder.setCancelable(false);
+            builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> {
+                dialog.dismiss();
+            });
+            builder.show();
+        });
+    }
 }
