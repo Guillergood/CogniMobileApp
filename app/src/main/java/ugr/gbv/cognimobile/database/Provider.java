@@ -22,6 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class to make CRUD operations on the local database
+ * Template from AWARE
+ *
+ * @see <a href="https://awareframework.com/creating-a-context-provider/">https://awareframework.com/creating-a-context-provider/</a>
+ */
 public class Provider extends ContentProvider {
 
 
@@ -70,7 +76,6 @@ public class Provider extends ContentProvider {
     }
 
 
-
     public static final String DB_TBL_TESTS = "tests";
     public static final String DB_TBL_RESULTS = "results";
 
@@ -80,7 +85,7 @@ public class Provider extends ContentProvider {
     };
 
 
-    //Game table fields
+    //Cognimobile table fields
     private static final String DB_TBL_TESTS_FIELDS =
             Cognimobile_Data._ID + " integer primary key autoincrement," +
                     Cognimobile_Data.TIMESTAMP + " real default 0," +
@@ -105,12 +110,12 @@ public class Provider extends ContentProvider {
 
     private static final String DB_TBL_RESULTS_FIELDS =
             Cognimobile_Data._ID + " integer primary key autoincrement," +
-            Cognimobile_Data.TIMESTAMP + " real default 0," +
-            Cognimobile_Data.DEVICE_ID + " text default ''," +
-            Cognimobile_Data.DATA + " longtext default ''," +
-            Cognimobile_Data.NAME + " longtext default ''," +
-            Cognimobile_Data.SYNCED + " integer default 0," +
-            Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
+                    Cognimobile_Data.TIMESTAMP + " real default 0," +
+                    Cognimobile_Data.DEVICE_ID + " text default ''," +
+                    Cognimobile_Data.DATA + " longtext default ''," +
+                    Cognimobile_Data.NAME + " longtext default ''," +
+                    Cognimobile_Data.SYNCED + " integer default 0," +
+                    Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
 
     public static final String[] TABLES_FIELDS = {
             DB_TBL_TESTS_FIELDS,
@@ -122,6 +127,7 @@ public class Provider extends ContentProvider {
     private DatabaseHelper dbHelper;
     private static SQLiteDatabase database;
     private HashMap<String, String> tableMap;
+
     private void initialiseDatabase() {
         if (dbHelper == null)
             dbHelper = new DatabaseHelper(getContext(), DATABASE_NAME, null, DATABASE_VERSION, DATABASE_TABLES, TABLES_FIELDS);
@@ -138,7 +144,6 @@ public class Provider extends ContentProvider {
         AUTHORITY = context.getPackageName() + ".provider";
         return AUTHORITY;
     }
-
 
 
     @Override
@@ -240,15 +245,13 @@ public class Provider extends ContentProvider {
         database.setTransactionSuccessful();
         database.endTransaction();
         if (id > 0) {
-            Uri dataUri = null;
+            Uri dataUri;
             List<String> segments = uri.getPathSegments();
-            if(segments.get(segments.size()-1).equals(DB_TBL_TESTS)){
+            if (segments.get(segments.size() - 1).equals(DB_TBL_TESTS)) {
                 dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_TESTS, id);
-            }
-            else if(segments.get(segments.size()-1).equals(DB_TBL_RESULTS)){
+            } else if (segments.get(segments.size() - 1).equals(DB_TBL_RESULTS)) {
                 dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_RESULTS, id);
-            }
-            else{
+            } else {
                 throw new RuntimeException("PETO EN PROVIDER.java:244");
             }
 

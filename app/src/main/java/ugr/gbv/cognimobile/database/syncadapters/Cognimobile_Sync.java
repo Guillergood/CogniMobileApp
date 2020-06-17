@@ -11,6 +11,9 @@ import com.aware.syncadapters.AwareSyncAdapter;
 
 import ugr.gbv.cognimobile.database.Provider;
 
+/**
+ * Class needed by AWARE to make automatic updates from server.
+ */
 public class Cognimobile_Sync extends Service {
     private AwareSyncAdapter sSyncAdapter = null;
     private static final Object sSyncAdapterLock = new Object();

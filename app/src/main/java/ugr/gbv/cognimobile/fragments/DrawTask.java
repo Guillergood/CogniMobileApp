@@ -1,6 +1,5 @@
 package ugr.gbv.cognimobile.fragments;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Pair;
@@ -24,13 +23,19 @@ import java.util.ArrayList;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.interfaces.LoadDraw;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.DrawingView;
-import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.PathGenerator;
 import ugr.gbv.cognimobile.utilities.Point;
 
-public class DrawTask extends Task implements LoadContent {
+/**
+ * Class to display the task type "Draw":
+ * {@link Task#GRAPH}
+ * {@link Task#CUBE}
+ * {@link Task#WATCH}
+ */
+public class DrawTask extends Task implements LoadDraw {
 
 
     private DrawingView drawingView;
@@ -46,17 +51,32 @@ public class DrawTask extends Task implements LoadContent {
     private ArrayList<Long> timeBetweenClicks;
 
 
-    public DrawTask(int taskType, LoadContent callBack, @Nullable Bundle bundle){
+    /**
+     * Constructor
+     *
+     * @param taskType type of the task
+     * @param callBack callback to pass the parent the events
+     * @param bundle   bundle of information to be filled into the task
+     */
+    public DrawTask(int taskType, LoadContent callBack, @Nullable Bundle bundle) {
         this.taskType = taskType;
         pressedButtons = new ArrayList<>();
         alreadyPressedButtons = new ArrayList<>();
         timeBetweenClicks = new ArrayList<>();
         this.callBack = callBack;
-        if(bundle != null){
+        if (bundle != null) {
             this.bundle = bundle;
         }
     }
 
+
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onViewCreated(View, Bundle)}
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -64,11 +84,24 @@ public class DrawTask extends Task implements LoadContent {
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * Also sets all the necessary elements for the task to be displayed and be completed.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.draw_task,container, false);
+        view = inflater.inflate(R.layout.draw_task, container, false);
         leftButtonContainer = view.findViewById(R.id.leftButtonContainer);
         leftButtonContainer.setVisibility(View.INVISIBLE);
         drawingView = view.findViewById(R.id.drawingSpace);
@@ -123,14 +156,25 @@ public class DrawTask extends Task implements LoadContent {
         return view;
     }
 
+    /**
+     * Decrements the undoTimes variable
+     */
     private void decrementUndoAction() {
         undoTimes--;
     }
 
+    /**
+     * Checks if the user can click the undo button
+     *
+     * @return true if the user has the possibility, false if not.
+     */
     private boolean checkIfHasUndoActions() {
         return undoTimes > 0;
     }
 
+    /**
+     * Restores the last button, only on task type {@link Task#GRAPH}.
+     */
     private void undoLastButton() {
 
         if (answer.size() > 0) {
@@ -142,6 +186,9 @@ public class DrawTask extends Task implements LoadContent {
 
     }
 
+    /**
+     * Displays how many attempts the user has left to push the undo button.
+     */
     private void showUndoTimes() {
         if (undoTimes > 0)
             Toast.makeText(context, getResources().getString(R.string.times_left, undoTimes), Toast.LENGTH_LONG).show();
@@ -149,16 +196,21 @@ public class DrawTask extends Task implements LoadContent {
             Toast.makeText(context, getResources().getString(R.string.no_times_left), Toast.LENGTH_LONG).show();
     }
 
+    /**
+     * Draws on top of the canvas the buttons to be clicked, only on task type {@link Task#GRAPH}.
+     *
+     * @param points Coordinates where the points will be drawn.
+     */
     private void drawButtons(ArrayList<Point> points) {
         CardView layout = view.findViewById(R.id.cardView);
 
         String[] tags = context.getResources().getStringArray(R.array.graphsValues);
 
 
-        for (int i = 0; i < points.size();++i) {
+        for (int i = 0; i < points.size(); ++i) {
             Button button = new Button(context);
             button.setId(View.generateViewId());
-            button.setBackground(getResources().getDrawable(R.drawable.circle_no_fill,context.getTheme()));
+            button.setBackground(getResources().getDrawable(R.drawable.circle_no_fill, context.getTheme()));
             button.setText(tags[i]);
             button.setTag(points.get(i).getLabel());
             button.setOnClickListener(v -> {
@@ -183,11 +235,11 @@ public class DrawTask extends Task implements LoadContent {
             });
             layout.addView(button);
             int dimens = getResources().getDimensionPixelSize(R.dimen.circle);
-            int halfDimen = dimens/2;
+            int halfDimen = dimens / 2;
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(dimens, dimens);
             button.setLayoutParams(lp);
-            button.setX(points.get(i).getX()-halfDimen);
-            button.setY(points.get(i).getY()-halfDimen);
+            button.setX(points.get(i).getX() - halfDimen);
+            button.setY(points.get(i).getY() - halfDimen);
 
 
         }
@@ -196,9 +248,12 @@ public class DrawTask extends Task implements LoadContent {
     }
 
 
+    /**
+     * Overrides {@link LoadDraw#loadDraw()}
+     */
     @Override
-    public void loadContent() {
-        if(!loaded) {
+    public void loadDraw() {
+        if (!loaded) {
 
             ImageView imageView = view.findViewById(R.id.banner_image);
             bannerText = view.findViewById(R.id.banner_text);
@@ -238,36 +293,10 @@ public class DrawTask extends Task implements LoadContent {
         }
     }
 
-    @Override
-    public void hideKeyboard(Activity activity) {
 
-    }
-
-    @Override
-    public void showKeyboard(Activity activity) {
-
-    }
-
-
-
-
-    @Override
-    public JsonAnswerWrapper getJsonAnswerWrapper() {
-        return null;
-    }
-
-    @Override
-    public JsonAnswerWrapper getJsonContextEvents() {
-        return null;
-    }
-
-
-    @Override
-    public int checkTypos(ArrayList<String> words) {
-        return 0;
-    }
-
-
+    /**
+     * Overrides {@link Task#saveResults()}
+     */
     @Override
     void saveResults() throws JSONException {
 
@@ -313,6 +342,13 @@ public class DrawTask extends Task implements LoadContent {
     }
 
 
+    /**
+     * Converts the points where the traces(starting point and end point) that user has drawn
+     * on the canvas.
+     *
+     * @return a pair, where the first one is the first positions the user has drawn (x:y) and
+     * on the second element of the pair is the last positions the user has drawn (x:y)
+     */
     private Pair<String, String> packTraces() {
         float[] drawnTraces = drawingView.getDrawnTraces();
         StringBuilder startStringBuilder = new StringBuilder();
@@ -338,7 +374,9 @@ public class DrawTask extends Task implements LoadContent {
         return new Pair<>(startStringBuilder.toString(), endStringBuilder.toString());
     }
 
-
+    /**
+     * Overrides {@link Task#setScoring()}
+     */
     @Override
     void setScoring() {
         int size = answer.size();

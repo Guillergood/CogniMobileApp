@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.utilities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -15,7 +16,7 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-import ugr.gbv.cognimobile.interfaces.LoadContent;
+import ugr.gbv.cognimobile.interfaces.LoadDraw;
 
 public class DrawingView extends View {
 
@@ -27,7 +28,7 @@ public class DrawingView extends View {
     private ArrayList<Point> drawPoints;
     private ArrayList<Point> erasedPoints;
     boolean initialized = false;
-    private LoadContent callBack;
+    private LoadDraw callBack;
     private boolean freeDrawing;
 
     public DrawingView(Context context, @Nullable AttributeSet attrs) {
@@ -59,12 +60,13 @@ public class DrawingView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawBitmap(canvasBitmap,0,0,canvasPaint);
-        canvas.drawPath(drawPath,drawPaint);
-        callBack.loadContent();
+        canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
+        canvas.drawPath(drawPath, drawPaint);
+        callBack.loadDraw();
     }
 
-   @Override
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         if(freeDrawing) {
             int action = event.getAction();
@@ -98,7 +100,7 @@ public class DrawingView extends View {
 
             invalidate();
         }
-       return freeDrawing;
+        return freeDrawing;
     }
 
     public void clearCanvas()
@@ -134,7 +136,7 @@ public class DrawingView extends View {
         invalidate();
     }
 
-    public void setCallBack(LoadContent callBack,boolean isTaskFreeDrawing){
+    public void setCallBack(LoadDraw callBack, boolean isTaskFreeDrawing) {
         this.callBack = callBack;
         freeDrawing = isTaskFreeDrawing;
     }

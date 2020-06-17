@@ -7,8 +7,18 @@ import androidx.preference.PreferenceManager;
 
 import ugr.gbv.cognimobile.R;
 
+
+/**
+ * Class to store all User preferences
+ */
 public class CognimobilePreferences {
 
+    /**
+     * Get preference for the first time launch
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @return true if it is the first time launch, false if not.
+     */
     public static boolean getFirstTimeLaunch(Context context) {
         /* Key for accessing the preference for first time launch */
         String firstTimeLaunchKey = context.getString(R.string.pref_first_time);
@@ -22,7 +32,13 @@ public class CognimobilePreferences {
     }
 
 
-    public static void setFirstTimeLaunch(Context context, boolean value){
+    /**
+     * Set preference for the first time launch
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @param value   to be introduced into the preferences.
+     */
+    public static void setFirstTimeLaunch(Context context, boolean value) {
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sp.edit();
@@ -49,7 +65,7 @@ public class CognimobilePreferences {
         return sp.getInt(config, 0);
     }
 
-
+    //TODO: CAMBIAR PARA LA RELEASE
     public static void setConfig(Context context, int value) {
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -64,6 +80,12 @@ public class CognimobilePreferences {
         editor.apply();
     }
 
+    /**
+     * Get preference for the notifications
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @return true if the user has notifications enabled, false if not.
+     */
     public static boolean getNotifications(Context context) {
         /* Key for accessing the preference for first time launch */
         String config = context.getString(R.string.pref_notifications);
@@ -77,10 +99,11 @@ public class CognimobilePreferences {
     }
 
     /**
-     * @param context
-     * @param value
+     * Set preference for the notifications
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @param value   to be introduced into the preferences.
      */
-
     public static void setNotifications(Context context, boolean value) {
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
@@ -94,6 +117,12 @@ public class CognimobilePreferences {
         editor.apply();
     }
 
+    /**
+     * Get if the user has joined a study
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @return true if the user has joined a study, false if not.
+     */
     public static boolean getHasUserJoinedStudy(Context context) {
         /* Key for accessing the preference for first time launch */
         String config = context.getString(R.string.pref_joined_study);
@@ -107,6 +136,12 @@ public class CognimobilePreferences {
     }
 
 
+    /**
+     * Set if the user has joined a study
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @param value   to be introduced into the preferences.
+     */
     public static void setHasUserJoinedStudy(Context context, boolean value) {
 
         SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
