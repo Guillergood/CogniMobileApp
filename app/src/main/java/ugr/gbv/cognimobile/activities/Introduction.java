@@ -121,51 +121,29 @@ public class Introduction extends Activity {
         return viewPager.getCurrentItem() + 1;
     }
 
-
+    /**
+     * This method changes the color of the Status bar (top of the android phone).
+     * It makes the Status bar transparent
+     */
     private void changeStatusBarColor() {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(Color.TRANSPARENT);
     }
 
-
-    public class ViewPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-        ViewPagerAdapter() {
-        }
-
-        @NonNull
-        @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(viewType, parent, false);
-            view.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            return new SliderViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return layouts[position];
-        }
-
-        @Override
-        public int getItemCount() {
-            return layouts.length;
-        }
-
-        class SliderViewHolder extends RecyclerView.ViewHolder {
-
-            SliderViewHolder(View view) {
-                super(view);
-            }
-        }
+    /**
+     * This method allows to get to the main menu activity.
+     */
+    private void goToMainMenu() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 
+    /**
+     * ZoomOutPageTransformer is a inner class used only for the ViewPager.
+     * This class manages the visual effects when swiped from one layout to another.
+     */
     public static class ZoomOutPageTransformer implements ViewPager2.PageTransformer {
         private static final float MIN_SCALE = 0.85f;
         private static final float MIN_ALPHA = 0.5f;
@@ -205,9 +183,44 @@ public class Introduction extends Activity {
         }
     }
 
-    private void goToMainMenu(){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+    /**
+     * ViewPagerAdapter is a inner class used only for the ViewPager.
+     * This class manages the layouts on the ViewPager
+     */
+    public class ViewPagerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+        ViewPagerAdapter() {
+        }
+
+        @NonNull
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(viewType, parent, false);
+            view.setLayoutParams(new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            return new SliderViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return layouts[position];
+        }
+
+        @Override
+        public int getItemCount() {
+            return layouts.length;
+        }
+
+        class SliderViewHolder extends RecyclerView.ViewHolder {
+
+            SliderViewHolder(View view) {
+                super(view);
+            }
+        }
     }
 }

@@ -1,9 +1,9 @@
 package ugr.gbv.cognimobile.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.NotificationManager;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -26,17 +26,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.aware.Aware;
-import com.aware.Aware_Preferences;
 import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
@@ -49,6 +46,10 @@ import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 
+/**
+ * MainActivity.class is the core activity that links every component, allowing the user to
+ * navigate between activities
+ */
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
@@ -59,6 +60,11 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
     private Fragment actualFragment;
 
+    /**
+     * OnCreate method to create the view and instantiate all the elements and put the info,
+     *
+     * @param savedInstanceState contains the most recent data from the activity
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,13 +114,22 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
+    /**
+     * onRequestPermissionsResult method allows to catch information from a requested permission.
+     * Using the {@link #requestPermissions(String[], int)} method:
+     *
+     * @param requestCode  Application specific request code to match with a result
+     *                     reported to {@link #onRequestPermissionsResult(int, String[], int[])}.
+     *                     Should be >= 0.
+     * @param permissions  The requested permissions. Must be non-null and not empty.
+     * @param grantResults The requested permissions granted. Must be non-null and not empty.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
 
-        if(permissions.length > 0 && grantResults.length == permissions.length){
+        if (permissions.length > 0 && grantResults.length == permissions.length) {
 
             Aware.startAWARE(getApplicationContext());
 
@@ -127,14 +142,13 @@ public class MainActivity extends AppCompatActivity
                     if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_CHANNEL_GENERAL) ) {
                         isRunning = true;
                     }
-                }
-                else{
+                } else{
                     isRunning = isMyServiceRunning();
                 }
             }
 
 
-            if(!isRunning) {
+            if (!isRunning) {
                 Intent aware = new Intent(this, Aware.class);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(aware);
@@ -145,14 +159,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * initBottomNavBar initializes the bottom navigation bar.
+     */
     private void initBottomNavBar() {
         BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(this);
     }
 
+    /**
+     * isMyServiceRunning checks if AWARE Framework is actually running or not.
+     *
+     * @return true if the service is running, false if not.
+     */
     private boolean isMyServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        if(manager != null) {
+        if (manager != null) {
             for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
                 if (Aware.class.getName().equals(service.service.getClassName())) {
                     return true;
@@ -164,9 +186,7 @@ public class MainActivity extends AppCompatActivity
 
 
     /**
-     * Devuelve "true" si se ha podido hacer la transsicion de un fragment a otro.
-     * En otro caso "false"
-     *
+     * loadFragment allows to replace fragments from the actual activity.
      */
     private void loadFragment(){
         if(actualFragment != null){
@@ -179,13 +199,10 @@ public class MainActivity extends AppCompatActivity
 
 
     /**
-     * Manejando para ir cambiando de fragmento, en funcion de qué botón se pinche de la barra de
-     * navegación inferior.
+     * Called when an item in the navigation menu is selected.
      *
-     *
-     * @param menuItem Elemento que se ha pinchado
-     * @return booleano valor de la función loadFragment dependiendo de si es valido fragmento
-     * o no devolverá "true" o "false"
+     * @param menuItem The selected item
+     * @return true to display the item as the selected item
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -209,86 +226,14 @@ public class MainActivity extends AppCompatActivity
         return true;
 
 
-
     }
 
 
-
-    /*private void dataTest() {
-
-        Thread task = new Thread(){
-            @Override
-            public void run() {
-                HashMap<String, String> params = new HashMap<>();
-                params.put("device_id",Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID));
-
-
-                try {
-
-                    String formattedData = formatData();
-
-                    params.put("data",formattedData);
-
-                    String connectionURLString = URLDecoder.decode(buildURL("participants","insert"),"ascii");
-
-
-                    URL url = new URL(connectionURLString);
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setDoOutput(true);
-                    conn.connect();
-
-
-                    String postInformation = buildPostInformation(params);
-
-
-                    sendData(conn,postInformation);
-
-
-                    Log.i("STATUS", String.valueOf(conn.getResponseCode()));
-                    Log.i("MSG" , conn.getResponseMessage());
-
-                    conn.disconnect();
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        task.start();
-
-
-
-
-    }*/
-
-
-
-
-
-
-
-    private void crearDatos(){
-        ContentValues new_data = new ContentValues();
-
-
-        if (Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID).length() == 0) {
-            UUID uuid = UUID.randomUUID();
-            Aware.setSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID, uuid.toString());
-
-        }
-
-        new_data.put(Provider.DEVICE_ID, Aware.getSetting(getApplicationContext(), Aware_Preferences.DEVICE_ID));
-        new_data.put(Provider.TIMESTAMP, System.currentTimeMillis());
-        //put the rest of the columns you defined
-
-        //Insert the data to the ContentProvider
-        getContentResolver().insert(Provider.CONTENT_URI_TESTS, new_data);
-
-    }
-
-
+    /**
+     * hasUserConnectivity method checks the user connectivity
+     *
+     * @return true when the user has connection, false if not.
+     */
     private boolean hasUserConnectivity() {
         // Checking internet connectivity
         ConnectivityManager connectivityMgr = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -299,12 +244,26 @@ public class MainActivity extends AppCompatActivity
         return activeNetwork != null;
     }
 
+    /**
+     * onActivityResult method allows to catch information from a child activity.
+     * Using the {@link #setResult(int)} , {@link #setResult(int, Intent)} methods:
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode  The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param data        An Intent, which can return result data to the caller
+     *                    (various data can be attached to Intent "extras").
+     *                    <p>
+     *                    It catches the link url to be consumed by AWARE.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == LINK_CODE){
-            if(resultCode == RESULT_OK && data != null){
+        if (requestCode == LINK_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
                 String link = data.getStringExtra(INTENT_LINK_LABEL);
-                if(link != null){
+                if (link != null) {
                     Aware.joinStudy(this, link);
                     if (hasUserConnectivity()) {
                         CognimobilePreferences.setHasUserJoinedStudy(this, true);
@@ -315,16 +274,21 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
 
-            }
-            else {
+            } else {
                 Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();
             }
         }
 
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 
+    /**
+     * This method allows to handle the click from the {@link #onClick(int)}}, and starts the activity
+     * Test, with the test information saved on the database.
+     *
+     * @param id id number of the test to be conducted.
+     */
     private void goToTest(int id) {
         Intent intent = new Intent(this, Test.class);
         intent.putExtra("id", id);
@@ -346,12 +310,19 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * This method allows to go the Tutorial activity.
+     */
     private void goToTutorial() {
         Intent intent = new Intent(this, TutorialTest.class);
         startActivity(intent);
     }
 
 
+    /**
+     * This method allows to go the ReadQR activity. Where the user is allowed to get the link
+     * from the study. Also checks if the app has the appropriate permissions to do the task.
+     */
     @Override
     public void goToQRActivity() {
         boolean permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED;
@@ -372,14 +343,18 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * This method handles the clicks on the TestFragment.
+     */
     @Override
     public void onClick(int id) {
         goToTest(id);
     }
 
-
+    /**
+     * This method reload the UI when the user joins into a study.
+     */
     private void reloadUiWhenJoined() {
-
         Handler handler = new Handler();
         handler.post(() -> {
             int count = 0;
@@ -394,6 +369,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    /**
+     * This method reload the UI fragment when the user joins into a study.
+     */
     @Override
     public void reloadFragment() {
         final FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -402,10 +380,16 @@ public class MainActivity extends AppCompatActivity
         ft.commit();
     }
 
+    /**
+     * Initiates the periodic tasks using {@link WorkerManager#initiateWorkers(Context)}.
+     */
     private void initiateWorkerManager() {
         WorkerManager.getInstance().initiateWorkers(getApplicationContext());
     }
 
+    /**
+     * Displays the error from {@link ErrorHandler#displayError(String)}}.
+     */
     @Override
     public void loadDialog(String message) {
         runOnUiThread(() -> {
@@ -414,14 +398,16 @@ public class MainActivity extends AppCompatActivity
             builder.setTitle(MainActivity.this.getString(R.string.error_occurred));
             builder.setMessage(message);
             builder.setCancelable(false);
-            builder.setPositiveButton(MainActivity.this.getString(R.string.continue_next_task), (dialog, which) -> {
-                dialog.dismiss();
-            });
+            builder.setPositiveButton(MainActivity.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
             builder.show();
         });
 
     }
 
+    /**
+     * This method overrides {@link Activity#onStart}, adding the
+     * {@link ErrorHandler#setCallback(LoadDialog)} routine to it.
+     */
     @Override
     protected void onStart() {
         super.onStart();

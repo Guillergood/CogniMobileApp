@@ -1,6 +1,5 @@
 package ugr.gbv.cognimobile.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -9,7 +8,9 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
@@ -55,8 +56,7 @@ import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.JsonParserTests;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * Test allows the user to do a test from the local database.
  */
 public class Test extends AppCompatActivity implements LoadContent, LoadDialog, SpellCheckerSession.SpellCheckerSessionListener {
 
@@ -74,7 +74,15 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     private String wordToCheck;
     private boolean doubleBackToExitPressedOnce;
 
-
+    /**
+     * OnCreate method to create the view and instantiate all the elements and put the info,
+     * Also retrieves the test information from with the
+     * {@link android.content.ContentResolver#query(Uri, String[], Bundle, CancellationSignal)}
+     * method. It needs to be done this way because the test could be bigger than 2MB limit
+     * establish by {@link Intent}
+     *
+     * @param savedInstanceState contains the most recent data from the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,37 +138,47 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
         startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
 
-        // Upon interacting with UI controls, delay any scheduled hide()
-        // operations to prevent the jarring behavior of controls going away
-        // while interacting with the UI.
-
 
     }
 
-    @SuppressLint("InlinedApi")
-    private void hideNavBar(){
+    /**
+     * Allows to hide the upper navigation bar, to make the activity fullscreen
+     */
+    private void hideNavBar() {
         mContentView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                //| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                //| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         );
     }
 
+    /**
+     * loadFragment allows to replace fragments from the actual activity.
+     */
     private void loadFragment(@NonNull Fragment fragment) {
         getSupportFragmentManager()
-        .beginTransaction()
-        .replace(R.id.fullscreen_content, fragment)
-        .commit();
+                .beginTransaction()
+                .replace(R.id.fullscreen_content, fragment)
+                .commit();
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-    }
-
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     * The default implementation simply returns false to have the normal
+     * processing happen (calling the item's Runnable or sending a message to
+     * its Handler as appropriate).  You can use this method for any items
+     * for which you would like to do processing without those other
+     * facilities.
+     *
+     * <p>Derived classes should call through to the base class for it to
+     * perform the default menu handling.</p>
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     * proceed, true to consume it here.
+     * @see #onCreateOptionsMenu
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -172,6 +190,9 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Override of the method {@link LoadContent#loadContent()}
+     */
     @Override
     public void loadContent() {
         if (index > 1)
@@ -180,12 +201,11 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         hideKeyboard(this);
         if (index < fragments.size()) {
             loadFragment(fragments.get(index));
-        }
-        else{
+        } else{
             try {
                 jsonAnswerWrapper.addTotalScore(totalScore);
                 DataSender.getInstance().postToServer("insert", "contextEvents", jsonContextEvents.getJSONArray(), getApplicationContext());
-                DataSender.getInstance().postToServer("insert", "results",jsonAnswerWrapper.getJSONArray(), getApplicationContext());
+                DataSender.getInstance().postToServer("insert", "results", jsonAnswerWrapper.getJSONArray(), getApplicationContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -193,20 +213,31 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         }
     }
 
+
+    /**
+     * Override of the method {@link LoadContent#hideKeyboard(Activity)}
+     */
     @Override
     public void hideKeyboard(Activity activity) {
         View view = activity.findViewById(android.R.id.content);
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            if (imm != null)
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
+    /**
+     * Override of the method {@link LoadContent#showKeyboard(Activity)}
+     */
     @Override
     public void showKeyboard(Activity activity) {
         InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        if (inputMethodManager != null) {
+            inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        }
     }
+
 
     @Override
     public JsonAnswerWrapper getJsonAnswerWrapper() {
@@ -219,7 +250,10 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     }
 
 
-
+    /**
+     * Method that listens all events and looking for the display or hide of the keyboard to
+     * change the layout, making the UI responsive.
+     */
     private void initKeyBoardListener() {
         // Threshold for minimal keyboard height.
         final int MIN_KEYBOARD_HEIGHT_PX = 150;
@@ -276,15 +310,40 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         });
     }
 
+    /**
+     * Getter for the name of the test.
+     *
+     * @return the name of the test
+     */
     public String getName() {
         return name;
     }
 
+
+    /**
+     * Override of {@link LoadContent#getLanguage()}
+     *
+     * @return The language used by the test
+     */
     @Override
     public Locale getLanguage() {
         return language;
     }
 
+    /**
+     * onActivityResult method allows to catch information from a child activity.
+     * Using the {@link #setResult(int)} , {@link #setResult(int, Intent)} methods:
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode  The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param data        An Intent, which can return result data to the caller
+     *                    (various data can be attached to Intent "extras").
+     *                    <p>
+     *                    It checks that the Text-To-Speech functionality is up-to-date with the languages needed.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -310,6 +369,14 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
     }
 
+
+    /**
+     * Method that checks one user word.
+     * If the suggested words are different than the submitted word, is an user error to be
+     * consider on the score of the test task.
+     *
+     * @param results Array of suggested words.
+     */
     @Override
     public void onGetSentenceSuggestions(SentenceSuggestionsInfo[] results) {
         for (SentenceSuggestionsInfo result : results) {
@@ -324,6 +391,12 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
     }
 
+    /**
+     * Method that checks if the user has submitted correct words.
+     * Uses {@link #onGetSentenceSuggestions(SentenceSuggestionsInfo[])} to check every word.
+     *
+     * @param input Array of the user words.
+     */
     @Override
     public int checkTypos(ArrayList<String> input) {
         typos = 0;
@@ -350,6 +423,10 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
     }
 
+
+    /**
+     * Displays a pop-up message with an animation telling that the user has completed the test.
+     */
     private void showTestCompletedDialog() {
         Dialog builder = new Dialog(this);
         builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -390,6 +467,11 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     }
 
 
+    /**
+     * This method allows to double tap to quit the test.
+     * This has been done in case that the user presses accidentally the back button,
+     * it would quit it.
+     */
     @Override
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
@@ -403,6 +485,9 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
 
+    /**
+     * Override of the method {@link LoadDialog#loadDialog(String)}
+     */
     @Override
     public void loadDialog(String message) {
         runOnUiThread(() -> {
@@ -411,9 +496,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             builder.setTitle(Test.this.getString(R.string.error_occurred));
             builder.setMessage(message);
             builder.setCancelable(false);
-            builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> {
-                dialog.dismiss();
-            });
+            builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
             builder.show();
         });
     }

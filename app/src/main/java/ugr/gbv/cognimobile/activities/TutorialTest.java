@@ -14,8 +14,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import ugr.gbv.cognimobile.R;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * Class that will allow to display the instructions about how to use the app to the user.
  */
 public class TutorialTest extends AppCompatActivity {
 
@@ -24,6 +23,11 @@ public class TutorialTest extends AppCompatActivity {
     FloatingActionButton nextButton;
 
 
+    /**
+     * OnCreate method to create the view and instantiate all the elements and put the info,
+     *
+     * @param savedInstanceState contains the most recent data from the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,9 +52,10 @@ public class TutorialTest extends AppCompatActivity {
 
     }
 
+    /**
+     * Displays the first message to the user.
+     */
     private void displayWelcomeDialog() {
-
-
         textView.setText(R.string.tutorial_welcome_meessage);
 
 
@@ -62,6 +67,9 @@ public class TutorialTest extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Shows the message that describes the top area.
+     */
     private void showTopArea() {
 
         textView.setText(R.string.tutorial_top_message);
@@ -77,6 +85,9 @@ public class TutorialTest extends AppCompatActivity {
 
     }
 
+    /**
+     * Shows the message that describes the center area.
+     */
     private void showCenterArea() {
 
         CardView centerArea = findViewById(R.id.cardView);
@@ -96,6 +107,9 @@ public class TutorialTest extends AppCompatActivity {
 
     }
 
+    /**
+     * Shows the message that describes the bottom area.
+     */
     private void showBottomArea() {
 
         CardView bottomArea = findViewById(R.id.cardViewBottom);
