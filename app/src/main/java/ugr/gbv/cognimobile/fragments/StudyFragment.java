@@ -47,7 +47,6 @@ public class StudyFragment extends Fragment {
 
     /**
      * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
-     * Also sets all the necessary elements for the task to be displayed and be completed.
      *
      * @param inflater           The LayoutInflater object that can be used to inflate
      *                           any views in the fragment,
@@ -102,7 +101,7 @@ public class StudyFragment extends Fragment {
     }
 
     /**
-     * Makes the UI components visible.
+     * Makes the Study components visible.
      */
     private void showStudy() {
         studyCard.setVisibility(View.VISIBLE);

@@ -16,6 +16,12 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.WriteTestLink;
 
 /**
+ * Class to read a QR
+ * Retrieved from AWARE
+ *
+ * @see <a href="https://github.com/denzilferreira/aware-client/blob/master/aware-phone/src/main/java/com/aware/phone/ui/Aware_QRCode.java">https://github.com/denzilferreira/aware-client/blob/master/aware-phone/src/main/java/com/aware/phone/ui/Aware_QRCode.java</a>
+ */
+/**
  * Created by denzil on 27/10/15.
  */
 public class ReadQR extends Activity implements ZBarScannerView.ResultHandler {

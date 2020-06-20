@@ -59,7 +59,18 @@ import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 import static android.app.Activity.RESULT_OK;
-
+/**
+ * Class to display the task type "Text":
+ * {@link Task#MEMORY}
+ * {@link Task#ATTENTION_NUMBERS}
+ * {@link Task#ATTENTION_LETTERS}
+ * {@link Task#ATTENTION_SUBTRACTION}
+ * {@link Task#LANGUAGE}
+ * {@link Task#FLUENCY}
+ * {@link Task#ABSTRACTION}
+ * {@link Task#RECALL}
+ * {@link Task#ORIENTATION}
+ */
 public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //CHECKERS VARS
@@ -96,7 +107,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private boolean onlyNumbersInputAccepted;
     private boolean firstDone;
 
-
+    /**
+     * Constructor
+     *
+     * @param taskType type of the task
+     * @param callBack callback to pass the parent the events
+     * @param bundle   bundle of information to be filled into the task
+     */
     public TextTask(int taskType, LoadContent callBack, @NonNull Bundle bundle) {
         this.callBack = callBack;
         this.taskType = taskType;
@@ -112,6 +129,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         this.bundle = bundle;
     }
 
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onViewCreated(View, Bundle)}
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -119,7 +143,19 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
-
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * Also sets all the necessary elements for the task to be displayed and be completed.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -185,7 +221,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         providedTask = true;
 
 
-
         displayHelpAtBeginning = bundle.getBoolean("display_help");
 
         array = new String[0];
@@ -194,6 +229,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         return mainView;
     }
 
+
+    /**
+     * Start the task if the Text-to-Speech is loaded, otherwise it will display a pop-up
+     * until it finish loading.
+     */
     private void isTTSinitialized() {
         if (!TextToSpeechLocal.isInitialized()) {
             setProgressDialog();
@@ -203,6 +243,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
+    /**
+     * Sets and displays the progress dialog.
+     */
     private void setProgressDialog() {
         int llPadding = 30;
         LinearLayout ll = new LinearLayout(context);
@@ -224,7 +267,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         llParam.gravity = Gravity.CENTER;
         TextView tvText = new TextView(context);
-        tvText.setText("Loading ...");
+        tvText.setText(R.string.loading);
         tvText.setTextColor(Color.parseColor("#000000"));
         tvText.setTextSize(20);
         tvText.setLayoutParams(llParam);
@@ -249,7 +292,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
 
-    private void setNextButtonLoopTask(){
+    /**
+     * Sets the next button to a non-standard behaviour, where a loop must be done.
+     */
+    private void setNextButtonLoopTask() {
         rightButton.setOnClickListener(v -> {
             hideInputs();
             clearInputs();
@@ -260,8 +306,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
 
-
-    private void startTask(){
+    /**
+     * Starts the task
+     */
+    private void startTask() {
 
         try {
             callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeStartTask, ContextDataRetriever.addTimeStamp());
@@ -269,7 +317,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             e.printStackTrace();
         }
 
-        if(taskType != RECALL && taskType != ATTENTION_SUBTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
+        if (taskType != RECALL && taskType != ATTENTION_SUBTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
             new CountDownTimer(context.getResources().getInteger(R.integer.default_time), context.getResources().getInteger(R.integer.one_seg_millis)) {
 
                 public void onTick(long millisUntilFinished) {
@@ -299,7 +347,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                             tapLetter(bundle.getStringArray("letters"));
                             break;
                         case LANGUAGE:
-                            repeatPhrase(bundle.getStringArray("phrases"));
+                            repeatPhrase(Objects.requireNonNull(bundle.getStringArray("phrases")));
                             break;
                         case FLUENCY:
                             fluency();
@@ -318,7 +366,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     recall(bundle.getStringArray("words"));
                     break;
                 case ORIENTATION:
-                    orientation(bundle.getStringArray("questions"));
+                    orientation(Objects.requireNonNull(bundle.getStringArray("questions")));
                     break;
                 case ATTENTION_SUBTRACTION:
                     subtractions(bundle.getInt("minuend"), bundle.getInt("subtracting"), bundle.getInt("times"));
@@ -452,7 +500,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     additionalTaskText.setText(displayAnotherSubtraction);
                     index++;
                 }
-                //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
                 clearInputs();
             } else
                 Toast.makeText(context, R.string.provide_data, Toast.LENGTH_LONG).show();
@@ -470,7 +517,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         View.OnClickListener clickListener = v -> {
             addSubmitTime();
             answers.add(firstInput.getText().toString());
-            //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             clearInputs();
             ++index;
             hideInputs();
@@ -510,7 +556,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitAnswerButton.setOnClickListener(v -> {
             addSubmitTime();
             this.answers.add(firstInput.getText().toString());
-            //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             if(index >= length){
                 hideInputs();
                 taskIsEnded();
@@ -545,7 +590,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitAnswerButton.setOnClickListener(v -> {
             addSubmitTime();
             answers.add(firstInput.getText().toString());
-            //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
             clearInputs();
             ++index;
             if(index >= length){
@@ -569,6 +613,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //-------------------UI-------------------//
 
+    /**
+     * Sets a countdown to the task.
+     *
+     * @param millis the time milliseconds where the countdown will start with.
+     */
     private void countDownTask(int millis) {
         handler = new Handler();
         handler.postDelayed(() -> {
@@ -583,20 +632,26 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }, millis);
     }
 
+    /**
+     * Hides the microphone button.
+     */
     private void hideMicro() {
         sttButtonContainer.setVisibility(View.GONE);
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(mainLayout);
-        constraintSet.connect(R.id.submitButtonContainer,ConstraintSet.RIGHT,R.id.textTaskLayout,ConstraintSet.RIGHT,8);
-        constraintSet.connect(R.id.submitButtonContainer,ConstraintSet.LEFT,R.id.textTaskLayout,ConstraintSet.LEFT,8);
+        constraintSet.connect(R.id.submitButtonContainer, ConstraintSet.RIGHT, R.id.textTaskLayout, ConstraintSet.RIGHT, 8);
+        constraintSet.connect(R.id.submitButtonContainer, ConstraintSet.LEFT, R.id.textTaskLayout, ConstraintSet.LEFT, 8);
         constraintSet.applyTo(mainLayout);
         rearrangeSubmitAnswerContainer();
     }
 
+    /**
+     * Clears the text in the inputs
+     */
     private void clearInputs() {
         clearedByMethod = true;
         firstInput.getText().clear();
-        if(variousInputs != null) {
+        if (variousInputs != null) {
             for (int i = 1; i < variousInputs.size(); ++i) {
                 mainLayout.removeView(variousInputs.get(i));
             }
@@ -604,10 +659,16 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }
     }
 
+    /**
+     * Clears the answers array
+     */
     private void clearAnswers() {
         answers.clear();
     }
 
+    /**
+     * Sets various inputs in the task.
+     */
     private void setVariousInputs() {
         int[] numbersId = new int[array.length];
         numbersId[0] = firstInput.getId();
@@ -662,7 +723,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 }
             });
 
-            if(i == array.length-1){
+            if (i == array.length - 1) {
                 editText.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
             }
 
@@ -671,8 +732,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             set.connect(editText.getId(), ConstraintSet.TOP, numbersId[i - 1], ConstraintSet.TOP, 0);
             set.constrainHeight(editText.getId(), dimens);
             set.constrainWidth(editText.getId(), dimens);
-            set.setTranslationX(editText.getId(),positionX);
-            set.setVisibility(editText.getId(),ConstraintSet.INVISIBLE);
+            set.setTranslationX(editText.getId(), positionX);
+            set.setVisibility(editText.getId(), ConstraintSet.INVISIBLE);
             mainLayout.addView(editText);
             set.applyTo(mainLayout);
 
@@ -681,7 +742,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }
     }
 
-    private void placeFirstInput(){
+    /**
+     * Place the first input in the task, the others inputs will be next to it.
+     */
+    private void placeFirstInput() {
         ConstraintSet set = new ConstraintSet();
         set.clone(mainLayout);
 
@@ -689,8 +753,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         set.constrainHeight(firstInput.getId(), dimens);
         set.constrainWidth(firstInput.getId(), dimens);
 
-        int portion = mainLayout.getWidth()/array.length;
-        int positionX = portion-mainLayout.getWidth()/2;
+        int portion = mainLayout.getWidth() / array.length;
+        int positionX = portion - mainLayout.getWidth() / 2;
         set.setTranslationX(firstInput.getId(), positionX);
         set.applyTo(mainLayout);
 
@@ -722,14 +786,17 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         });
 
         firstInput.setOnFocusChangeListener((v, hasFocus) -> {
-            if(hasFocus){
+            if (hasFocus) {
                 index = Integer.parseInt(v.getTag().toString());
             }
         });
 
     }
 
-    private void changeInputFilterAndType(){
+    /**
+     * Change the input filter and type to numbers
+     */
+    private void changeInputFilterAndType() {
         firstInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         firstInput.setKeyListener(DigitsKeyListener.getInstance("123456789"));
         InputFilter[] inputArray = new InputFilter[1];
@@ -737,8 +804,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         firstInput.setFilters(inputArray);
     }
 
+    /**
+     * Sets the text in the top banner.
+     */
     private void setTaskInstructions() {
-        switch (taskType){
+        switch (taskType) {
             case MEMORY:
                 bannerText.setText(R.string.memory_instructions);
                 break;
@@ -771,6 +841,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }
     }
 
+    /**
+     * Shows the inputs
+     */
     private void showUserInput() {
         additionalTaskText.setVisibility(View.VISIBLE);
         firstInput.setVisibility(View.VISIBLE);
@@ -778,22 +851,25 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitAnswerContainer.setVisibility(View.VISIBLE);
         sttButtonContainer.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
-        if(variousInputs != null && variousInputs.size() > 0){
-            for (EditText editText:variousInputs){
+        if (variousInputs != null && variousInputs.size() > 0) {
+            for (EditText editText : variousInputs) {
                 editText.setVisibility(View.VISIBLE);
             }
         }
         callBack.showKeyboard(parent);
     }
 
+    /**
+     * Hide the inputs
+     */
     private void hideInputs() {
         additionalTaskText.setVisibility(View.INVISIBLE);
         firstInput.setVisibility(View.INVISIBLE);
         submitAnswerContainer.setVisibility(View.INVISIBLE);
         sttButtonContainer.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
-        if(variousInputs != null && variousInputs.size() > 0){
-            for (EditText editText:variousInputs){
+        if (variousInputs != null && variousInputs.size() > 0) {
+            for (EditText editText : variousInputs) {
                 editText.setVisibility(View.INVISIBLE);
             }
         }
@@ -801,15 +877,24 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
-    private void showCountdownAgain(){
+    /**
+     * Displays the countdown task again.
+     */
+    private void showCountdownAgain() {
         countdownText.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Clears the recycler view.
+     */
     private void clearRecyclerView() {
         adapter.removeAllWords();
     }
 
-    private void enableWordList(){
+    /**
+     * Enables the list of words in the task.
+     */
+    private void enableWordList() {
         TextView submitButtonLabel = mainView.findViewById(R.id.submitButtonLabel);
         submitButtonLabel.setText(R.string.add_word);
         submitAnswerButton.setOnClickListener(v -> {
@@ -817,27 +902,34 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 addSubmitTime();
                 adapter.addWord(firstInput.getText().toString());
                 recyclerView.scrollToPosition(0);
-                //startWritingTimes.add(ContextDataRetriever.addTimeStamp());
-            }
-            else
+            } else
                 Toast.makeText(context, R.string.provide_data, Toast.LENGTH_LONG).show();
 
             clearInputs();
         });
     }
 
+    /**
+     * Changes the submit button icon.
+     */
     private void changeSubmitButton() {
         submitAnswerButton.setImageResource(R.drawable.ic_check_black_24dp);
         TextView submitButtonLabel = mainView.findViewById(R.id.submitButtonLabel);
         submitButtonLabel.setText(R.string.save);
     }
 
+    /**
+     * Restores the submit button icon.
+     */
     private void restoreSubmitButton() {
         submitAnswerButton.setImageResource(R.drawable.add_word_24dp);
         TextView submitButtonLabel = mainView.findViewById(R.id.submitButtonLabel);
         submitButtonLabel.setText(R.string.add_word);
     }
 
+    /**
+     * Displays the edit elements in the word layout.
+     */
     private void showEditElements() {
         if (taskEnded) {
             if (firstInput.getVisibility() != View.VISIBLE) {
@@ -853,7 +945,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
-    private void rearrangeSubmitAnswerContainer(){
+    /**
+     * Rearrange the UI to be clearer and more responsive.
+     */
+    private void rearrangeSubmitAnswerContainer() {
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(mainLayout);
         constraintSet.connect(submitAnswerContainer.getId(), ConstraintSet.START, mainLayout.getId(), ConstraintSet.START, (int) getResources().getDimension(R.dimen.default_margin));
@@ -867,15 +962,21 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //-------------------TTS-------------------//
 
+    /**
+     * Overrides {@link TTSHandler#startTTS()}
+     */
     @Override
     public void startTTS() {
         startButton.setClickable(true);
     }
 
+    /**
+     * Overrides {@link TTSHandler#TTSEnded()}
+     */
     @Override
     public void TTSEnded() {
         final Handler handler = new Handler(Looper.getMainLooper());
-        if(taskType != ATTENTION_LETTERS) {
+        if (taskType != ATTENTION_LETTERS) {
             handler.post(this::showUserInput);
             switch (CognimobilePreferences.getConfig(context)) {
                 case DEFAULT:
@@ -891,8 +992,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     break;
             }
 
-        }
-        else{
+        } else {
             taskEnded = true;
             try {
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
@@ -904,16 +1004,27 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
+    /**
+     * It does not allow the input to be clicked, to force the user to use only microphone.
+     */
     private void cantEdit() {
         firstInput.setEnabled(false);
         firstInput.setKeyListener(null);
     }
 
+    /**
+     * Text-to-Speech enumeration.
+     */
     private void enumeration() {
         TextToSpeechLocal.enumerate(array);
     }
 
-    private void speakPhrase(String phrase){
+    /**
+     * Text-to-Speech speaks the given phrase.
+     *
+     * @param phrase to be spoken
+     */
+    private void speakPhrase(String phrase) {
         TextToSpeechLocal.readOutLoud(phrase);
     }
 
@@ -936,24 +1047,36 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         super.onStop();
     }
 
-
+    /**
+     * onActivityResult method allows to catch information from a another activity.
+     * This method retrieves the text from the Speech-to-Text function.
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode  The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param data        An Intent, which can return result data to the caller
+     *                    (various data can be attached to Intent "extras").
+     *                    <p>
+     *                    It catches the link url to be consumed by AWARE.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == TextToSpeechLocal.STT_CODE){
+        if (requestCode == TextToSpeechLocal.STT_CODE) {
             if (resultCode == RESULT_OK && null != data) {
-                ArrayList results = data
+                ArrayList<String> results = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (results != null) {
                     String answer = null;
                     for (Object result : results) {
                         String option = result.toString();
-                        if(onlyNumbersInputAccepted){
-                            if(answer == null || answer.isEmpty())
-                                answer = option.replaceAll("\\D","");
-                        }
-                        else{
-                            if(answer == null || answer.isEmpty())
-                                answer = option.replaceAll("\\d","");
+                        if (onlyNumbersInputAccepted) {
+                            if (answer == null || answer.isEmpty())
+                                answer = option.replaceAll("\\D", "");
+                        } else {
+                            if (answer == null || answer.isEmpty())
+                                answer = option.replaceAll("\\d", "");
                         }
 
                     }
@@ -982,12 +1105,14 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
 
-
+    /**
+     * Calls Speech-to-Text functionality
+     */
     private void callSTT() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,1000);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         try {
             startActivityForResult(intent, TextToSpeechLocal.STT_CODE);
@@ -1002,10 +1127,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //-------------------GETTERS-------------------//
 
+    /**
+     * Gets the playable area of the task
+     *
+     * @return the playable area of the task
+     */
     RelativeLayout getPlayableArea() {
         return playableArea;
     }
 
+    /**
+     * Gets the main layout
+     *
+     * @return the main layout
+     */
     public ConstraintLayout getMainLayout() {
         return mainLayout;
     }
@@ -1014,6 +1149,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //-------------------INTERFACES-------------------//
 
+    /**
+     * Overrides {@link Task#saveResults()}
+     *
+     * @throws JSONException if the json was not able to handle the information.
+     */
     @Override
     void saveResults() throws JSONException {
         callBack.getJsonAnswerWrapper().addField("task_type", taskType);
@@ -1124,9 +1264,14 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     }
 
+    /**
+     * Get letters occurrences to put some information context in the json results.
+     *
+     * @return number of letters occurrences
+     */
     private int getLetterOccurrences() {
         Matcher matcher
-                = Pattern.compile(bundle.getString("target_letter"))
+                = Pattern.compile(Objects.requireNonNull(bundle.getString("target_letter")))
                 .matcher(Arrays.toString(array));
         int res = 0;
 
@@ -1136,6 +1281,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         return res;
     }
 
+    /**
+     * Overrides {@link Task#setScoring()} ()}
+     */
     @Override
     void setScoring() {
         switch (taskType) {
@@ -1176,21 +1324,21 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         if (taskType != ATTENTION_NUMBERS) {
             addScoreToJson();
-            /*try {
-                callBack.getJsonAnswerWrapper().addTaskField();
-            } catch (JSONException e) {
-                ErrorHandler.getInstance().displayError(context, e.getMessage());
-            }*/
         }
 
 
     }
 
 
+    /**
+     * Overrides {@link TextTaskCallback#editWord(String)} ()}
+     *
+     * @param word to be edited
+     */
     @Override
     public void editWord(String word) {
         firstInput.setText(word);
-        if(taskType == Task.FLUENCY)
+        if (taskType == Task.FLUENCY)
             showEditElements();
         changeSubmitButton();
         submitAnswerButton.setOnClickListener(v -> {
@@ -1207,11 +1355,19 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         });
     }
 
+    /**
+     * Overrides {@link TTSHandler#setIndex(int)}
+     *
+     * @param index to be set on the fragment.
+     */
     @Override
     public void setIndex(int index) {
         this.index = index;
     }
 
+    /**
+     * Overrides {@link TTSHandler#TTSisInitialized()}
+     */
     @Override
     public void TTSisInitialized() {
         if (progressDialog != null)
@@ -1220,6 +1376,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             startTask();
     }
 
+    /**
+     * Overrides {@link TTSHandler#registerTimeStamp()}
+     */
     @Override
     public void registerTimeStamp() {
         soundTimes.add(ContextDataRetriever.addTimeStamp());
@@ -1230,9 +1389,19 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     //-------------------CHECKERS-------------------------//
 
+    /**
+     * Sets the expected answers if the task needs it.
+     *
+     * @param answers expected answers.
+     */
     private void setExpectedAnswers(String[] answers) {
         expectedAnswers = new ArrayList<>(Arrays.asList(answers));
     }
+
+
+    /*
+     * METHODS TO CHECK THE SCORE OF THE TASKS.
+     */
 
     private void checkOrientation() {
         score = answers.size() > 0 ? score + 1 : score;
