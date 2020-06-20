@@ -20,8 +20,6 @@ import ugr.gbv.cognimobile.activities.WriteTestLink;
  * Retrieved from AWARE
  *
  * @see <a href="https://github.com/denzilferreira/aware-client/blob/master/aware-phone/src/main/java/com/aware/phone/ui/Aware_QRCode.java">https://github.com/denzilferreira/aware-client/blob/master/aware-phone/src/main/java/com/aware/phone/ui/Aware_QRCode.java</a>
- */
-/**
  * Created by denzil on 27/10/15.
  */
 public class ReadQR extends Activity implements ZBarScannerView.ResultHandler {
@@ -54,9 +52,7 @@ public class ReadQR extends Activity implements ZBarScannerView.ResultHandler {
 
         button.setLayoutParams(layoutParams);
 
-        button.setOnClickListener(v -> {
-            goToActivityWrittenLink();
-        });
+        button.setOnClickListener(v -> goToActivityWrittenLink());
 
         ListView list = new ListView(this);
         list.setId(android.R.id.list);

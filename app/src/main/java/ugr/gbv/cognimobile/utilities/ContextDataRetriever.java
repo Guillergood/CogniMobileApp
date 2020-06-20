@@ -5,6 +5,9 @@ import android.widget.Button;
 
 import java.util.ArrayList;
 
+/**
+ * Class to collect contextual information about the user.
+ */
 public class ContextDataRetriever {
 
     //EVENTS
@@ -77,6 +80,12 @@ public class ContextDataRetriever {
     public static final String SpecificOrientationStartWriting = "SpecificOrientationStartWriting";
     public static final String SpecificOrientationSubmitAnswer = "SpecificOrientationSubmitAnswer";
 
+    /**
+     * Unwrap the data from an Integer Arraylist
+     *
+     * @param arrayList to unwrap
+     * @return a string to put inside the json
+     */
     public static String retrieveInformationFromIntegerArrayList(ArrayList<Integer> arrayList) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList.size(); ++i) {
@@ -88,6 +97,12 @@ public class ContextDataRetriever {
         return stringBuilder.toString();
     }
 
+    /**
+     * Unwrap the data from a Long Arraylist
+     *
+     * @param arrayList to unwrap
+     * @return a string to put inside the json
+     */
     public static String retrieveInformationFromLongArrayList(ArrayList<Long> arrayList) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList.size(); ++i) {
@@ -99,6 +114,12 @@ public class ContextDataRetriever {
         return stringBuilder.toString();
     }
 
+    /**
+     * Unwrap the data from a String Arraylist
+     *
+     * @param arrayList to unwrap
+     * @return a string to put inside the json
+     */
     public static String retrieveInformationFromStringArrayList(ArrayList<String> arrayList) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < arrayList.size(); ++i) {
@@ -110,6 +131,12 @@ public class ContextDataRetriever {
         return stringBuilder.toString();
     }
 
+    /**
+     * Unwrap the data from a Button Arraylist
+     *
+     * @param arrayList to unwrap
+     * @return a string to put inside the json
+     */
     public static String retrieveInformationFromButtonArrayList(ArrayList<Button> arrayList) {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 1; i < arrayList.size(); ++i) {
@@ -121,10 +148,23 @@ public class ContextDataRetriever {
         return stringBuilder.toString();
     }
 
+
+    /**
+     * Retrieves the current time in milliseconds.
+     *
+     * @return the current time in milliseconds
+     */
     public static long addTimeStamp() {
         return System.currentTimeMillis();
     }
 
+    /**
+     * Calculates the distance in dp from two views.
+     *
+     * @param firstView  first view
+     * @param secondView second view
+     * @return the distance between them in dp.
+     */
     private static int getDistanceBetweenViews(View firstView, View secondView) {
         int[] firstPosition = new int[2];
         int[] secondPosition = new int[2];

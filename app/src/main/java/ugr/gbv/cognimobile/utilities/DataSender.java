@@ -24,23 +24,35 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
 
+/**
+ * Class to send the data to the server
+ */
 public class DataSender implements Serializable {
 
 
     private static volatile DataSender instantiated;
     public final static String INSERT = "insert";
-    public final static String QUERY = "query";
 
-    private DataSender(){
+    /**
+     * Private constructor "singleton" pattern
+     */
+    private DataSender() {
 
-        if (instantiated != null){
+        if (instantiated != null) {
             throw new RuntimeException("Use .getInstance() to instantiate TestDataSender");
         }
     }
 
+    /**
+     * Get instance of the singleton instance
+     *
+     * @return the unique instance of the class
+     */
     public static DataSender getInstance() {
         if (instantiated == null) {
             synchronized (DataSender.class) {
@@ -51,6 +63,14 @@ public class DataSender implements Serializable {
         return instantiated;
     }
 
+    /**
+     * Post a command in the server, using a RESTful API
+     *
+     * @param command using any of the CRUD ones
+     * @param table   the name of the table to commit the command
+     * @param data    the data to post
+     * @param context parent activity context
+     */
     public void postToServer(String command, String table, @NonNull JSONArray data, Context context) {
 
 
@@ -60,38 +80,23 @@ public class DataSender implements Serializable {
 
         Thread thread = new Thread(() -> {
             try {
-                switch (command) {
-                    case INSERT:
-                        String formattedData = formatData(data);
-                        params.put("data", formattedData);
-                        break;
-                /*case QUERY:
-                    double timestamp = System.currentTimeMillis();
-                    double zero = 0.0;
-                    params.put("start","\"0\"");
-                    params.put("end", "\""+timestamp+"\"");
-                    break;*/
-                    default:
-                        throw new IllegalStateException("Unexpected value: " + command);
+                if (INSERT.equals(command)) {
+                    String formattedData = formatData(data);
+                    params.put("data", formattedData);
+                } else {
+                    throw new IllegalStateException("Unexpected value: " + command);
                 }
 
                 String urlString = buildURL(table, command, context);
 
 
                 URL url = new URL(urlString);
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setDoOutput(true);
-                conn.connect();
-
-
-                String postInformation = buildPostInformation(params);
-
-
-                sendData(conn, postInformation);
-
-
-                int code = conn.getResponseCode();
+                int code = 0;
+                if (urlString.contains("https")) {
+                    code = sendWithHttps(url, params);
+                } else if (urlString.contains("http")) {
+                    code = sendWithHttp(url, params);
+                }
 
 
                 if (!data.getJSONObject(0).getString("name").isEmpty()) {
@@ -100,7 +105,7 @@ public class DataSender implements Serializable {
                         long millis = getMillisThirtyDaysAhead();
                         contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
                         contentValues.put(Provider.Cognimobile_Data.DONE, 1);
-                        updateValues(Provider.CONTENT_URI_TESTS, contentValues, context, data);
+                        updateValues(contentValues, context, data);
                         contentValues.remove(Provider.Cognimobile_Data.DONE);
                         contentValues.put(Provider.Cognimobile_Data.SYNCED, 1);
                         deleteResult(context, data);
@@ -122,7 +127,6 @@ public class DataSender implements Serializable {
                 }
 
 
-                conn.disconnect();
             } catch (IOException | JSONException e) {
                 ErrorHandler.displayError(e.getMessage());
             }
@@ -131,10 +135,69 @@ public class DataSender implements Serializable {
         thread.start();
 
 
-
-
     }
 
+    /**
+     * Send data with http url
+     *
+     * @param url    url where the data will be sent
+     * @param params parameters to send
+     * @return http connection
+     * @throws IOException in case that there is no connection established.
+     */
+    private int sendWithHttp(URL url, HashMap<String, Object> params) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.connect();
+
+
+        String postInformation = buildPostInformation(params);
+
+
+        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+        wr.writeBytes(postInformation);
+        wr.flush();
+        wr.close();
+
+        int value = conn.getResponseCode();
+        conn.disconnect();
+        return value;
+    }
+
+    /**
+     * Send data with https url
+     *
+     * @param url    url where the data will be sent
+     * @param params parameters to send
+     * @return http connection
+     * @throws IOException in case that there is no connection established.
+     */
+    private int sendWithHttps(URL url, HashMap<String, Object> params) throws IOException {
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.connect();
+
+
+        String postInformation = buildPostInformation(params);
+
+
+        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+        wr.writeBytes(postInformation);
+        wr.flush();
+        wr.close();
+
+        return conn.getResponseCode();
+    }
+
+    /**
+     * Checks if the test is in the local database
+     *
+     * @param context Parent context
+     * @param name    of the test to check
+     * @return true if it is, false if not.
+     */
     private boolean isItAlreadyOnTheDatabase(Context context, String name) {
 
         boolean value = false;
@@ -153,6 +216,11 @@ public class DataSender implements Serializable {
         return value;
     }
 
+    /**
+     * Get thirty days ahead of the current time in milliseconds
+     *
+     * @return thirty days ahead of the current time in milliseconds
+     */
     private long getMillisThirtyDaysAhead() {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(c.get(Calendar.MILLISECOND));
@@ -161,19 +229,30 @@ public class DataSender implements Serializable {
         return c.getTimeInMillis();
     }
 
-    private long getCurrentMillis() {
-        Calendar c = Calendar.getInstance();
-        return c.getTimeInMillis();
-    }
 
-    private void updateValues(Uri uri, ContentValues values, Context context, JSONArray data) throws JSONException {
+    /**
+     * Update values to mark those tests that has been sent successfully to the server.
+     *
+     * @param values  to update
+     * @param context from the parent activity
+     * @param data    to get the name of the test
+     * @throws JSONException in case that the json is invalid.
+     */
+    private void updateValues(ContentValues values, Context context, JSONArray data) throws JSONException {
         String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
         String[] selectionArgs = {data.getJSONObject(0).getString("name")};
 
-        context.getContentResolver().update(uri, values, where, selectionArgs);
+        context.getContentResolver().update(Provider.CONTENT_URI_TESTS, values, where, selectionArgs);
 
     }
 
+    /**
+     * Delete results that has been sent successfully to the server.
+     *
+     * @param context from the parent activity
+     * @param data    to get the name of the test
+     * @throws JSONException in case that the json is invalid.
+     */
     private void deleteResult(Context context, JSONArray data) throws JSONException {
         String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
         String[] selectionArgs = {data.getJSONObject(0).getString("name")};
@@ -181,22 +260,19 @@ public class DataSender implements Serializable {
     }
 
 
-    private void sendData(HttpURLConnection conn,String postInformation) throws IOException {
-        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-        wr.writeBytes(postInformation);
-        wr.flush();
-        wr.close();
-    }
-
+    /**
+     * Formats the json data field from AWARE database.
+     *
+     * @param data to put in the server database.
+     * @throws JSONException in case that the json is invalid.
+     */
     private String formatData(JSONArray data) throws JSONException {
 
         double timestamp = System.currentTimeMillis() / 1000.0;
 
 
         JSONObject jsonParam = new JSONObject();
-        //jsonParam.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
         jsonParam.put("timestamp", timestamp);
-        //TODO array de resultados.
         jsonParam.put("data", data);
 
         JSONArray realData = new JSONArray();
@@ -206,13 +282,19 @@ public class DataSender implements Serializable {
         return realData.toString();
     }
 
-    private String buildPostInformation(HashMap<String,Object> params) {
+    /**
+     * Append parameters to the url where the information will be sent
+     *
+     * @param params to put inside the url
+     * @return the complete url with parameters
+     */
+    private String buildPostInformation(HashMap<String, Object> params) {
         StringBuilder postVariables = new StringBuilder();
         int i = 0;
 
         for (String key : params.keySet()) {
 
-            if (i != 0){
+            if (i != 0) {
                 postVariables.append("&");
             }
             postVariables.append(key).append("=")
@@ -224,8 +306,13 @@ public class DataSender implements Serializable {
     }
 
 
+    /**
+     * Build the url where the information will be sent
+     *
+     * @return the complete url with parameters
+     */
     private String buildURL(String table, String command, Context context) {
-        Cursor studies = Aware.getStudy(context,"");
+        Cursor studies = Aware.getStudy(context, "");
         studies.moveToFirst();
         String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
         Uri studyUri = Uri.parse(urlDb);
