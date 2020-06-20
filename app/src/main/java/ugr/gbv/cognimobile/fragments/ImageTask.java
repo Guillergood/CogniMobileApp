@@ -33,6 +33,10 @@ import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 import static android.app.Activity.RESULT_OK;
 
+/**
+ * Class to display the task type "Image":
+ * {@link Task#IMAGE}
+ */
 public class ImageTask extends Task {
 
     private static final int STT_CODE = 2;
@@ -44,7 +48,13 @@ public class ImageTask extends Task {
     private Bundle bundle;
     private LinearLayout sttButtonContainer;
 
-    public ImageTask(LoadContent callBack,Bundle bundle){
+    /**
+     * Constructor
+     *
+     * @param callBack callback to pass the parent the events
+     * @param bundle   bundle of information to be filled into the task
+     */
+    public ImageTask(LoadContent callBack, Bundle bundle) {
         this.callBack = callBack;
         selected = 0;
         taskType = Task.IMAGE;
@@ -52,6 +62,13 @@ public class ImageTask extends Task {
         answers = new ArrayList<>();
     }
 
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onViewCreated(View, Bundle)}
+     *
+     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -59,6 +76,19 @@ public class ImageTask extends Task {
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * Also sets all the necessary elements for the task to be displayed and be completed.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -97,7 +127,6 @@ public class ImageTask extends Task {
         firstInput.setFocusableInTouchMode(true);
         firstInput.requestFocus();
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
-
 
 
         for (int i = 0; i < imagesArray.length; ++i) {
@@ -152,6 +181,11 @@ public class ImageTask extends Task {
         return mainView;
     }
 
+    /**
+     * Goes to the next task to complete, it can be:
+     * - More images to recognize.
+     * - Next task.
+     */
     private void nextTask() {
 
         ImageView actualImage = mainView.findViewById(imagesId[selected]);
@@ -173,12 +207,18 @@ public class ImageTask extends Task {
 
     }
 
+    /**
+     * Clears the text in the inputs
+     */
     private void clearInputs() {
         clearedByMethod = true;
         firstInput.getText().clear();
     }
 
 
+    /**
+     * Call the Text-to-Speech function, {@link TextToSpeechLocal}.
+     */
     private void callSTT() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
@@ -194,6 +234,9 @@ public class ImageTask extends Task {
         }
     }
 
+    /**
+     * Hides the microphone button.
+     */
     private void hideMicro() {
         sttButtonContainer.setVisibility(View.GONE);
     }
@@ -204,23 +247,36 @@ public class ImageTask extends Task {
     }
 
 
+    /**
+     * onActivityResult method allows to catch information from a another activity.
+     * This method retrieves the text from the Speech-to-Text function.
+     *
+     * @param requestCode The integer request code originally supplied to
+     *                    startActivityForResult(), allowing you to identify who this
+     *                    result came from.
+     * @param resultCode  The integer result code returned by the child activity
+     *                    through its setResult().
+     * @param data        An Intent, which can return result data to the caller
+     *                    (various data can be attached to Intent "extras").
+     *                    <p>
+     *                    It catches the link url to be consumed by AWARE.
+     */
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == STT_CODE){
+        if (requestCode == STT_CODE) {
             if (resultCode == RESULT_OK && null != data) {
-                ArrayList results = data
+                ArrayList<String> results = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (results != null) {
                     String answer = null;
                     for (Object result : results) {
                         String option = result.toString();
 
-                        if(answer == null || answer.isEmpty())
-                            answer = option.replaceAll("\\d","");
+                        if (answer == null || answer.isEmpty())
+                            answer = option.replaceAll("\\d", "");
 
 
                     }
-
                     if(answer !=null) {
                         firstInput.setText(answer);
                     }
@@ -232,7 +288,9 @@ public class ImageTask extends Task {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
+    /**
+     * Overrides {@link Task#saveResults()}
+     */
     @Override
     void saveResults() throws JSONException {
         setScoring();
@@ -240,15 +298,18 @@ public class ImageTask extends Task {
         callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answers);
         callBack.getJsonAnswerWrapper().addStringArray("expected_answers", expectedAnswers);
         callBack.getJsonAnswerWrapper().addField("task_type", taskType);
-        callBack.getJsonAnswerWrapper().addField("score",score);
+        callBack.getJsonAnswerWrapper().addField("score", score);
         callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
         callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
         callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
     }
 
+    /**
+     * Overrides {@link Task#setScoring()}
+     */
     @Override
     void setScoring() {
-        if(selected < imagesId.length) {
+        if (selected < imagesId.length) {
             if (firstInput.getText().toString().isEmpty()) {
                 answers.add("");
             } else {

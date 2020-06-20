@@ -35,6 +35,9 @@ import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
+/**
+ * Parent class to hold all the specific task.
+ */
 public abstract class Task extends Fragment {
 
     protected Context context;
@@ -86,7 +89,10 @@ public abstract class Task extends Fragment {
     ArrayList<Long> submitAnswerTimes;
     private boolean writing;
 
-    public Task(){
+    /**
+     * Constructor
+     */
+    public Task() {
         loaded = false;
         providedTask = false;
         taskEnded = false;
@@ -100,7 +106,10 @@ public abstract class Task extends Fragment {
         clearedByMethod = false;
     }
 
-    private void loadNextTask(){
+    /**
+     * Load the next task to be completed by the user.
+     */
+    private void loadNextTask() {
         try {
             checkIfUserHasSkippedTask();
             if (taskType < Task.MEMORY) {
@@ -116,11 +125,14 @@ public abstract class Task extends Fragment {
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
-        if(TextToSpeechLocal.isInitialized())
+        if (TextToSpeechLocal.isInitialized())
             TextToSpeechLocal.stop();
         callBack.loadContent();
     }
 
+    /**
+     * Adds the time when the submit button was clicked to the contextual data.
+     */
     void addSubmitTime() {
         if (writing) {
             submitAnswerTimes.add(ContextDataRetriever.addTimeStamp());
@@ -128,6 +140,9 @@ public abstract class Task extends Fragment {
         }
     }
 
+    /**
+     * Adds the time when the user has started typing to the contextual data.
+     */
     void addWritingTime() {
         if (!writing && !clearedByMethod) {
             writing = true;
@@ -137,6 +152,11 @@ public abstract class Task extends Fragment {
     }
 
 
+    /**
+     * Checks if the user has skipped a task
+     *
+     * @throws JSONException if the contextual data was not able to put the information.
+     */
     private void checkIfUserHasSkippedTask() throws JSONException {
         boolean skipped = false;
         switch (taskType) {
@@ -188,6 +208,9 @@ public abstract class Task extends Fragment {
         }
     }
 
+    /**
+     * Sets the next button to its standard behaviour, go to the next task.
+     */
     void setNextButtonStandardBehaviour() {
 
         rightButton.setOnClickListener(view -> {
@@ -214,20 +237,29 @@ public abstract class Task extends Fragment {
     }
 
 
-    public void hideBanner(){
+    /**
+     * Hides the top of the screen banner
+     */
+    public void hideBanner() {
         banner.setVisibility(View.GONE);
     }
 
-    public void displayBanner(){
+    /**
+     * Shows the top of the screen banner
+     */
+    public void displayBanner() {
         banner.setVisibility(View.VISIBLE);
     }
 
 
-    void buildDialog(){
+    /**
+     * Builds the help dialog to be displayed when the user clicks the "help" button.
+     */
+    void buildDialog() {
         builder = new Dialog(context);
         builder.requestWindowFeature(Window.FEATURE_NO_TITLE);
         Window window = builder.getWindow();
-        if(window != null) {
+        if (window != null) {
             window.setBackgroundDrawable(
                     new ColorDrawable(Color.TRANSPARENT));
         }
@@ -252,16 +284,22 @@ public abstract class Task extends Fragment {
         });
     }
 
-    private void showDialog(){
+    /**
+     * Displays the help dialog.
+     */
+    private void showDialog() {
         TextView textView = builder.findViewById(R.id.dialogText);
         textView.setText(bannerText.getText());
         LottieAnimationView animationView = builder.findViewById(R.id.motion);
-        animationView.setAnimation(taskType +".json");
+        animationView.setAnimation(taskType + ".json");
         animationView.setImageAssetsFolder("images");
         animationView.playAnimation();
         builder.show();
     }
 
+    /**
+     * Add the typing listener to retrieve all the information from the user.
+     */
     void addTextWatcherToInput() {
         firstInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -283,7 +321,10 @@ public abstract class Task extends Fragment {
     }
 
 
-    void taskIsEnded(){
+    /**
+     * Mark the task as completed or ended.
+     */
+    void taskIsEnded() {
         taskEnded = true;
         try {
             callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
@@ -292,70 +333,105 @@ public abstract class Task extends Fragment {
         }
         showTaskIsEnded();
         setNextButtonStandardBehaviour();
-        if(taskType == ATTENTION_LETTERS){
+        if (taskType == ATTENTION_LETTERS) {
             TextTask task = (TextTask) this;
             task.getPlayableArea().setClickable(false);
         }
     }
 
 
+    /**
+     * Shows that the task is completed on the top banner.
+     */
     private void showTaskIsEnded() {
         bannerText.setText(R.string.task_is_ended);
     }
 
+    /**
+     * Handles the action sent from the keyboard
+     *
+     * @param actionId Flag from IME options {@link EditorInfo#imeOptions}
+     * @return returning true will keep the keyboard on.
+     */
     boolean handleSubmitKeyboardButton(int actionId) {
-        // returning true will keep the keyboard on.
         boolean handled = true;
-        if(taskType > IMAGE) {
+        if (taskType > IMAGE) {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 checkIfTaskIsAboutToEnd();
                 submitAnswerButton.performClick();
                 handled = !taskEnded;
             }
-        }
-        else{
+        } else {
             rightButton.callOnClick();
         }
         return handled;
     }
 
+    /**
+     * Checks if the tasks is about to end.
+     */
     private void checkIfTaskIsAboutToEnd() {
-        switch (taskType){
+        switch (taskType) {
             case ATTENTION_SUBTRACTION:
                 taskEnded = index >= length;
                 break;
             case LANGUAGE:
             case ABSTRACTION:
             case ORIENTATION:
-                taskEnded = index >= length-1;
+                taskEnded = index >= length - 1;
                 break;
         }
     }
 
+    /**
+     * Gets the task score
+     *
+     * @return score
+     */
     public int getScore() {
         return score;
     }
 
+    /**
+     * Gets the task language
+     *
+     * @return language
+     */
     public Locale getLanguage() {
         return callBack.getLanguage();
     }
 
-    public LoadContent getCallBack() {
-        return callBack;
-    }
-
+    /**
+     * Gets the task type
+     *
+     * @return task type
+     */
     public int getTaskType() {
         return taskType;
     }
 
+    /**
+     * Gets the main layout
+     *
+     * @return main layout
+     */
     public ConstraintLayout getMainLayout() {
         return mainLayout;
     }
 
+    /**
+     * Gets if the task has ended
+     *
+     * @return if the task has ended
+     */
     public boolean hasEnded() {
         return taskEnded;
     }
 
+    /**
+     * Checks if the help button should be clicked automatically at the beginning of the task.
+     * This is configured on the tests JSON.
+     */
     void shouldDisplayHelpAtBeginning() {
         if (displayHelpAtBeginning) {
             centerButton.callOnClick();
@@ -367,10 +443,24 @@ public abstract class Task extends Fragment {
     }
 
 
+    /**
+     * Saves all the task results
+     *
+     * @throws JSONException if the json was not able to handle the information.
+     */
     abstract void saveResults() throws JSONException;
+
+    /**
+     * Sets the score of the task.
+     */
     abstract void setScoring();
 
-
+    /**
+     * OnCreate method to create the view and instantiate all the elements and put the info,
+     * Sets some contextual information also.
+     *
+     * @param savedInstanceState contains the most recent data from the activity
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
 

@@ -23,7 +23,9 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.QRCallback;
-
+/**
+ * Fragment to display the Study section in {@link ugr.gbv.cognimobile.activities.MainActivity}
+ */
 public class StudyFragment extends Fragment {
 
     private ImageView noStudyTest;
@@ -34,15 +36,33 @@ public class StudyFragment extends Fragment {
     private CardView studyCard;
     private TextView animationLabel;
 
+    /**
+     * Constructor
+     *
+     * @param callBack to call {@link ugr.gbv.cognimobile.qr_reader.ReadQR} from {@link ugr.gbv.cognimobile.activities.MainActivity}
+     */
     public StudyFragment(QRCallback callBack) {
         this.callBack = callBack;
     }
 
+    /**
+     * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * Also sets all the necessary elements for the task to be displayed and be completed.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return Return the View for the fragment's UI, or null.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.layout_study_fragment,container, false);
+        View view = inflater.inflate(R.layout.layout_study_fragment, container, false);
         noStudyTest = view.findViewById(R.id.noStudyImage);
         animationLabel = view.findViewById(R.id.noStudyLabel);
 
@@ -68,16 +88,22 @@ public class StudyFragment extends Fragment {
         return view;
     }
 
+
+    /**
+     * Checks if there is a new study to be displayed or not.
+     */
     private void checkNewStudy() {
         if (emptyStudy() || !CognimobilePreferences.getHasUserJoinedStudy(context)) {
             showNoStudy();
-        }
-        else{
+        } else {
             fetchStudy();
             showStudy();
         }
     }
 
+    /**
+     * Makes the UI components visible.
+     */
     private void showStudy() {
         studyCard.setVisibility(View.VISIBLE);
         animationLabel.setVisibility(View.INVISIBLE);
@@ -85,12 +111,17 @@ public class StudyFragment extends Fragment {
         joinStudyButton.setVisibility(View.INVISIBLE);
     }
 
+    /**
+     * Retrieves the Study information.
+     */
     private void fetchStudy() {
-        cursor = Aware.getStudy(context,"");
+        cursor = Aware.getStudy(context, "");
         cursor.moveToFirst();
     }
 
-
+    /**
+     * Makes the UI components invisible.
+     */
     private void showNoStudy() {
         studyCard.setVisibility(View.INVISIBLE);
         animationLabel.setVisibility(View.VISIBLE);
@@ -98,12 +129,20 @@ public class StudyFragment extends Fragment {
         noStudyTest.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Checks if there is a study enrolled.
+     *
+     * @return true if there is a study enrolled, false if not.
+     */
     private boolean emptyStudy() {
-        cursor = Aware.getStudy(context,"");
+        cursor = Aware.getStudy(context, "");
         cursor.moveToFirst();
         return cursor.getCount() == 0;
     }
 
+    /**
+     * Quits the enrolled study.
+     */
     private void quitStudy() {
         Aware.reset(context);
         context.getContentResolver().delete(

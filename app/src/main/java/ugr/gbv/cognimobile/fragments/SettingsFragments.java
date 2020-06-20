@@ -4,9 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 
-import androidx.preference.ListPreference;
+import androidx.fragment.app.Fragment;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceScreen;
@@ -15,9 +14,21 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.About;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 
+/**
+ * Fragment to display the Settings section in {@link ugr.gbv.cognimobile.activities.MainActivity}
+ */
 public class SettingsFragments extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Context context;
 
+
+    /**
+     * Overrides {@link PreferenceFragmentCompat#onCreatePreferences(Bundle, String)}
+     *
+     * @param savedInstanceState If the fragment is being re-created from a previous saved state,
+     *                           this is the state.
+     * @param rootKey            If non-null, this preference fragment should be rooted at the
+     *                           {@link PreferenceScreen} with this key.
+     */
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.preferences);
@@ -53,48 +64,44 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
 
     }
 
-    private void setPreferenceSummary(Preference preference, Object value) {
-        String stringValue = value.toString();
-
-        if (preference instanceof ListPreference) {
-            // For list preferences, look up the correct display value in
-            // the preference's 'entries' list (since they have separate labels/values).
-            ListPreference listPreference = (ListPreference) preference;
-            int prefIndex = listPreference.findIndexOfValue(stringValue);
-            if (prefIndex >= 0) {
-                preference.setSummary(listPreference.getEntries()[prefIndex]);
-            }
-        } else {
-            // For other preferences, set the summary to the value's simple string representation.
-            preference.setSummary(stringValue);
-        }
-    }
-
-
+    /**
+     * Overrides {@link SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(SharedPreferences, String)}
+     *
+     * @param sharedPreferences The {@link SharedPreferences} that received
+     *                          the change.
+     * @param key               The key of the preference that was changed, added, or
+     *                          removed.
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String frase = "Preference value was updated to: ";
         if (key.equals(context.getString(R.string.pref_notifications))) {
             boolean value = sharedPreferences.getBoolean(key, true);
             CognimobilePreferences.setNotifications(context, value);
-            Log.i("PREFER", frase + value);
         }
         if (key.equals(context.getString(R.string.pref_config))) {
             String value = sharedPreferences.getString(context.getString(R.string.pref_config), "");
             int intValue = Integer.parseInt(value);
             CognimobilePreferences.setConfig(context, intValue);
-            Log.i("PREFER", frase + value);
         }
 
 
     }
 
+
+    /**
+     * Overrides {@link Fragment#onResume()}
+     * to register the OnSharedPreferenceChangeListener
+     */
     @Override
     public void onResume() {
         super.onResume();
         getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
     }
 
+    /**
+     * Overrides {@link Fragment#onPause()}
+     * to unregister the OnSharedPreferenceChangeListener
+     */
     @Override
     public void onPause() {
         super.onPause();
