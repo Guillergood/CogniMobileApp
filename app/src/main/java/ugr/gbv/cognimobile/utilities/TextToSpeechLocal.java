@@ -7,7 +7,9 @@ import android.speech.tts.UtteranceProgressListener;
 import java.util.Locale;
 
 import ugr.gbv.cognimobile.interfaces.TTSHandler;
-
+/**
+ * Class to manage the Text-to-Speech functionality
+ */
 public class TextToSpeechLocal {
 
     private static TextToSpeech textToSpeech;
@@ -20,28 +22,44 @@ public class TextToSpeechLocal {
     private static Locale language;
 
 
-    public static void getInstance(Context context, TTSHandler handler, Locale pLanguage) {
+    /**
+     * One of the methods to instantiate the class
+     *
+     * @param context   from the parent activity
+     * @param handler   callback to interact with the parent activity
+     * @param pLanguage language that the Text-to-Speech functionality should speak
+     */
+    public static void instantiate(Context context, TTSHandler handler, Locale pLanguage) {
         callback = handler;
         language = pLanguage;
-        getInstance(context);
+        instantiate(context);
     }
 
-    public static void getInstance(Context context) {
+    /**
+     * One of the methods to instantiate the class
+     *
+     * @param context from the parent activity
+     */
+    public static void instantiate(Context context) {
         if (textToSpeech == null) {
             index = 0;
             shuttedDown = false;
             initializeTts(context);
-        }
-        else if(shuttedDown){
+        } else if (shuttedDown) {
             initializeTts(context);
         }
 
     }
 
-    private static synchronized void initializeTts(Context context){
-        textToSpeech=new TextToSpeech(context, status -> {
+    /**
+     * One of the methods to instantiate the Text-to-Speech functionality.
+     *
+     * @param context from the parent activity
+     */
+    private static synchronized void initializeTts(Context context) {
+        textToSpeech = new TextToSpeech(context, status -> {
             currentStatus = status;
-            if(status == TextToSpeech.SUCCESS){
+            if (status == TextToSpeech.SUCCESS) {
 
                 int result = textToSpeech.setLanguage(language);
 
@@ -62,6 +80,11 @@ public class TextToSpeechLocal {
         });
     }
 
+    /**
+     * The Text-to-Speech functionality reads the phrase.
+     *
+     * @param phrase to be spoken.
+     */
     public static void readOutLoud(String phrase) {
         textToSpeech.setSpeechRate(0.7f);
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
@@ -83,9 +106,14 @@ public class TextToSpeechLocal {
             }
         });
         // utteranceId MUST NOT BE null, otherwise callback is not called.(line 79)
-        textToSpeech.speak(phrase,TextToSpeech.QUEUE_ADD,null, "onePhrase");
+        textToSpeech.speak(phrase, TextToSpeech.QUEUE_ADD, null, "onePhrase");
     }
 
+    /**
+     * The Text-to-Speech functionality reads an array.
+     *
+     * @param array to be spoken.
+     */
     public static void enumerate(final String[] array) {
         textToSpeech.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
@@ -98,12 +126,11 @@ public class TextToSpeechLocal {
             public void onDone(String utteranceId) {
                 index++;
                 textToSpeech.playSilentUtterance(delayTts, TextToSpeech.QUEUE_ADD, null);
-                if(index < array.length) {
+                if (index < array.length) {
                     callback.setIndex(index);
                     textToSpeech.speak(array[index], TextToSpeech.QUEUE_ADD, null, Integer.toString(index));
                     callback.registerTimeStamp();
-                }
-                else{
+                } else {
                     index = 0;
                     callback.TTSEnded();
                 }
@@ -116,11 +143,14 @@ public class TextToSpeechLocal {
             }
         });
 
-        textToSpeech.speak(array[index],TextToSpeech.QUEUE_ADD,null, Integer.toString(index));
+        textToSpeech.speak(array[index], TextToSpeech.QUEUE_ADD, null, Integer.toString(index));
     }
 
+    /**
+     * Stops the Text-to-Speech functionality.
+     */
     public static void stop() {
-        if(textToSpeech != null) {
+        if (textToSpeech != null) {
             if (textToSpeech.isSpeaking()) {
                 textToSpeech.stop();
                 clearBuffer();
@@ -128,26 +158,34 @@ public class TextToSpeechLocal {
         }
     }
 
+    /**
+     * Clears the Text-to-Speech functionality.
+     */
     public static void clear() {
-        if(textToSpeech != null) {
+        if (textToSpeech != null) {
             clearBuffer();
             shuttedDown = true;
             textToSpeech.shutdown();
         }
     }
 
+    /**
+     * Clears the buffer of Text-to-Speech functionality.
+     */
     private static void clearBuffer() {
-        if(textToSpeech != null) {
+        if (textToSpeech != null) {
             textToSpeech.playSilentUtterance(1, TextToSpeech.QUEUE_FLUSH, null);
         }
     }
 
-    public static synchronized boolean isInitialized(){
+    /**
+     * Checks if the Text-to-Speech functionality is initialized.
+     *
+     * @return if the Text-to-Speech functionality is initialized.
+     */
+    public static synchronized boolean isInitialized() {
         return textToSpeech != null && currentStatus != TextToSpeech.ERROR;
     }
-
-
-
 
 
 }

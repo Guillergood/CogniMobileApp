@@ -27,7 +27,7 @@ public class WorkerManager {
     private WorkerManager() {
 
         if (instance != null) {
-            throw new RuntimeException("Use .getInstance() to instantiate UploadManager");
+            throw new RuntimeException("Use .instantiate() to instantiate UploadManager");
         }
     }
 

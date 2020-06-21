@@ -44,7 +44,7 @@ public class DataSender implements Serializable {
     private DataSender() {
 
         if (instantiated != null) {
-            throw new RuntimeException("Use .getInstance() to instantiate TestDataSender");
+            throw new RuntimeException("Use .instantiate() to instantiate TestDataSender");
         }
     }
 

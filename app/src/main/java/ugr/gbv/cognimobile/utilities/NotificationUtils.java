@@ -21,7 +21,9 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.MainActivity;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-
+/**
+ * Class to manage the notifications
+ */
 public class NotificationUtils {
 
     private static final int ACTION_IGNORE_PENDING_INTENT_ID = 909;
@@ -29,16 +31,24 @@ public class NotificationUtils {
     private static final String ACTION_DISMISS_NOTIFICATION = "ACTION_DISMISS_NOTIFICATION";
     private static volatile NotificationUtils instantiated;
 
-    private NotificationUtils(){
-        if (instantiated != null){
-            throw new RuntimeException("Use .getInstance() to instantiate NotificationUtils");
+    /**
+     * Private constructor
+     */
+    private NotificationUtils() {
+        if (instantiated != null) {
+            throw new RuntimeException("Use .instantiate() to instantiate NotificationUtils");
         }
     }
 
+    /**
+     * Getter to return the unique instance in the app.
+     *
+     * @return the unique instance in the app.
+     */
     public static NotificationUtils getInstance() {
         if (instantiated == null) {
             synchronized (NotificationUtils.class) {
-                if (instantiated == null){
+                if (instantiated == null) {
                     instantiated = new NotificationUtils();
                 }
             }
@@ -47,21 +57,14 @@ public class NotificationUtils {
         return instantiated;
     }
 
-
-    public void notifyNewTestsAvailable(int result,Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notifyNewTestsAvailableOreo(result,context);
-        }
-        else{
-            notifyNewTestsAvailableLessThanOreo(result,context);
-        }
-    }
-    
-    
-
-
+    /**
+     * Notifies that there is new tests available, only for Oreo android or above.
+     *
+     * @param tests   number of tests available
+     * @param context from the parent activity
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private static void notifyNewTestsAvailableOreo(int tests, Context context){
+    private static void notifyNewTestsAvailableOreo(int tests, Context context) {
 
         String notificationTitle = context.getString(R.string.app_name);
 
@@ -113,7 +116,7 @@ public class NotificationUtils {
                 Icon.createWithResource(context, R.drawable.ic_test_24dp_white),
                 context.getString(R.string.accept_notification),
                 pendingIntent).build();
-        
+
         Notification notification = new Notification.Builder(context,id)
                 .setSmallIcon(smallArtResourceId) //your app icon
                 .setBadgeIconType(smallArtResourceId) //your app icon
@@ -132,13 +135,53 @@ public class NotificationUtils {
                 .addAction(action)
                 .build();
 
-        if(notificationManager != null)
+        if (notificationManager != null)
             notificationManager.notify(ARTICLE_NOTIFICATION_ID, notification);
-        
+
     }
 
+    /**
+     * Action to be triggered when the user clicks the notification
+     *
+     * @param context from the parent activity
+     * @return NotificationCompat.Action to be consumed when the user clicks
+     */
+    private static NotificationCompat.Action ignoreReminderAction(Context context) {
+        Intent ignoreReminderIntent = new Intent(context, MainActivity.class);
+        ignoreReminderIntent.setAction(ACTION_DISMISS_NOTIFICATION);
 
+        PendingIntent pendingIntent = PendingIntent.getService(
+                context,
+                ACTION_IGNORE_PENDING_INTENT_ID,
+                ignoreReminderIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
 
+        return new NotificationCompat.Action
+                (R.drawable.ic_check_black_24dp,
+                        context.getString(R.string.accept_notification),
+                        pendingIntent);
+    }
+
+    /**
+     * Notifies that there is new tests available
+     *
+     * @param result  number of tests available
+     * @param context from the parent activity
+     */
+    public void notifyNewTestsAvailable(int result, Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notifyNewTestsAvailableOreo(result, context);
+        } else {
+            notifyNewTestsAvailableLessThanOreo(result, context);
+        }
+    }
+
+    /**
+     * Notifies that there is new tests available, only for below of Oreo android.
+     *
+     * @param result  number of tests available
+     * @param context from the parent activity
+     */
     private void notifyNewTestsAvailableLessThanOreo(int result, Context context) {
         String notificationTitle = context.getString(R.string.app_name);
 
@@ -156,7 +199,6 @@ public class NotificationUtils {
          */
         NotificationManager notificationManager = (NotificationManager)
                 context.getSystemService(NOTIFICATION_SERVICE);
-
 
 
         NotificationCompat.Builder notificationBuilder =
@@ -194,22 +236,6 @@ public class NotificationUtils {
             notificationManager.notify(ARTICLE_NOTIFICATION_ID, notificationBuilder.build());
         }
 
-    }
-
-    private static NotificationCompat.Action ignoreReminderAction(Context context){
-        Intent ignoreReminderIntent = new Intent(context, MainActivity.class);
-        ignoreReminderIntent.setAction(ACTION_DISMISS_NOTIFICATION);
-
-        PendingIntent pendingIntent = PendingIntent.getService(
-                context,
-                ACTION_IGNORE_PENDING_INTENT_ID,
-                ignoreReminderIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-
-        return new NotificationCompat.Action
-                (R.drawable.ic_check_black_24dp,
-                        context.getString(R.string.accept_notification),
-                        pendingIntent);
     }
 
 

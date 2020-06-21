@@ -28,7 +28,7 @@ import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
-import ugr.gbv.cognimobile.utilities.ImageConversor;
+import ugr.gbv.cognimobile.utilities.ImageConverse;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 import static android.app.Activity.RESULT_OK;
@@ -130,7 +130,7 @@ public class ImageTask extends Task {
 
 
         for (int i = 0; i < imagesArray.length; ++i) {
-            Bitmap decodedByte = ImageConversor.getInstance().decodeFromBase64(imagesArray[i]);
+            Bitmap decodedByte = ImageConverse.getInstance().decodeFromBase64(imagesArray[i]);
             ImageView imageView = new ImageView(context);
             imageView.setId(View.generateViewId());
             imageView.setImageBitmap(decodedByte);

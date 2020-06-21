@@ -22,20 +22,30 @@ import ugr.gbv.cognimobile.fragments.ImageTask;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
-
+/**
+ * Class to manage the test json
+ */
 public class JsonParserTests {
     private static volatile JsonParserTests instantiated;
 
-    private JsonParserTests(){
-        if (instantiated != null){
-            throw new RuntimeException("Use .getInstance() to instantiate JsonParserTests");
+    /**
+     * Private constructor
+     */
+    private JsonParserTests() {
+        if (instantiated != null) {
+            throw new RuntimeException("Use .instantiate() to instantiate JsonParserTests");
         }
     }
 
+    /**
+     * Getter to return the unique instance in the app.
+     *
+     * @return the unique instance in the app.
+     */
     public static JsonParserTests getInstance() {
         if (instantiated == null) {
             synchronized (JsonParserTests.class) {
-                if (instantiated == null){
+                if (instantiated == null) {
                     instantiated = new JsonParserTests();
                 }
             }
@@ -44,6 +54,14 @@ public class JsonParserTests {
         return instantiated;
     }
 
+    /**
+     * Gets the values from the json to be added in the local database
+     *
+     * @param testsJson string containing the json
+     * @param context   from the parent class
+     * @return the values from the json to be added in the local database
+     * @throws JSONException in case that something was not being handled.
+     */
     public ContentValues[] parse(String testsJson, Context context) throws JSONException {
 
         ArrayList<JSONObject> retrievedTests = new ArrayList<>();
@@ -55,20 +73,18 @@ public class JsonParserTests {
         String whereClause = Provider.Cognimobile_Data.NAME + " = ?";
 
 
-
         String[] whereArgs = new String[]{
                 reader.getString(Provider.Cognimobile_Data.NAME),
         };
         Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS,projection,whereClause,whereArgs,null);
-        if(cursor != null && cursor.getCount() > 0) {
+        if (cursor != null && cursor.getCount() > 0) {
             cursor.close();
             return null;
-        }
-        else{
+        } else {
             retrievedTests.add(reader);
 
             ContentValues[] contentValues = new ContentValues[retrievedTests.size()];
-            for(int i = 0; i < contentValues.length; ++i){
+            for (int i = 0; i < contentValues.length; ++i) {
                 ContentValues articleValue = new ContentValues();
                 articleValue.put(Provider.Cognimobile_Data.NAME, retrievedTests.get(i).getString(Provider.Cognimobile_Data.NAME));
                 articleValue.put(Provider.Cognimobile_Data.DATA, retrievedTests.get(i).toString());
@@ -83,12 +99,20 @@ public class JsonParserTests {
     }
 
 
+    /**
+     * Gets the values from the json to be displayed.
+     *
+     * @param testsJson string containing the json
+     * @param callBack  to interact with the parent activity
+     * @return an arraylist of task to be completed by the user.
+     * @throws JSONException in case that something was not being handled.
+     */
     public ArrayList<Task> parseTestToTasks(@NonNull String testsJson, LoadContent callBack) throws JSONException {
         ArrayList<Task> tasks = new ArrayList<>();
         JSONObject reader = new JSONObject(testsJson);
         int number = 0;
         int entriesNoTasks = 3;
-        String task ="task_";
+        String task = "task_";
         Bundle bundle;
         String language = reader.getString("language");
         boolean displayHelp = reader.getBoolean("display_help");
@@ -175,7 +199,7 @@ public class JsonParserTests {
 
                     bundle.putString("language", language);
                     bundle.putStringArray("questions", extractJSONArrayAsStringArray(object.getJSONArray("questions")));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                    tasks.add(new TextTask(taskType, callBack, bundle));
                     break;
             }
 
@@ -184,6 +208,13 @@ public class JsonParserTests {
         return tasks;
     }
 
+    /**
+     * Extracts the JSONArray to a String array.
+     *
+     * @param jsonArray the JSONArray
+     * @return the JSONArray as a String array.
+     * @throws JSONException in case that something was not being handled.
+     */
     private String[] extractJSONArrayAsStringArray(JSONArray jsonArray) throws JSONException {
         int totalSize = jsonArray.length();
         String[] array = new String[totalSize];

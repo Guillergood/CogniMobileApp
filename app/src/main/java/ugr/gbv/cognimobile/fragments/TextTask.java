@@ -1036,7 +1036,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     @Override
     public void onStart() {
-        TextToSpeechLocal.getInstance(context, this, callBack.getLanguage());
+        TextToSpeechLocal.instantiate(context, this, callBack.getLanguage());
         super.onStart();
     }
 
