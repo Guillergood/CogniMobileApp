@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
     private ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
     private Fragment actualFragment;
+    private Handler handler;
 
     /**
      * OnCreate method to create the view and instantiate all the elements and put the info,
@@ -361,11 +362,11 @@ public class MainActivity extends AppCompatActivity
             while (count == 0) {
                 Cursor studies = Aware.getStudy(getApplicationContext(), "");
                 count = studies.getCount();
+                studies.close();
             }
-            runOnUiThread(this::initiateWorkerManager);
+            initiateWorkerManager();
             runOnUiThread(this::reloadFragment);
         });
-
 
     }
 
@@ -382,9 +383,16 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Initiates the periodic tasks using {@link WorkerManager#initiateWorkers(Context)}.
+     * It gives time to AWARE sets the information, and then run all the workers.
      */
     private void initiateWorkerManager() {
-        WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+        handler = new Handler();
+        handler.postDelayed(
+                (Runnable) () ->
+                        runOnUiThread(() ->
+                                WorkerManager.getInstance().initiateWorkers(getApplicationContext()))
+                , getResources().getInteger(R.integer.default_time));
+
     }
 
     /**
@@ -412,6 +420,14 @@ public class MainActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         ErrorHandler.setCallback(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+        }
     }
 }
 
