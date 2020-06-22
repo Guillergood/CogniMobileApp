@@ -47,8 +47,49 @@ public class CognimobilePreferences {
         String firstTimeLaunchKey = context.getString(R.string.pref_first_time);
 
 
-        //editor.putBoolean(firstTimeLaunchKey,value);
         editor.putBoolean(firstTimeLaunchKey, value);
+        editor.apply();
+    }
+
+    /**
+     * Get preference for the input configuration in the test, the possible values are:
+     * {@link ugr.gbv.cognimobile.fragments.Task#DEFAULT}
+     * {@link ugr.gbv.cognimobile.fragments.Task#ONLY_TEXT}
+     * {@link ugr.gbv.cognimobile.fragments.TextTask#ONLY_LANGUAGE}
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     */
+    public static int getConfig(Context context) {
+        /* Key for accessing the preference for first time launch */
+        String config = context.getString(R.string.pref_config_value);
+
+        /* As usual, we use the default SharedPreferences to access the user's preferences */
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+
+        /* If a value is stored with the key, we extract it here. If not, use a default. */
+        return sp.getInt(config, 0);
+    }
+
+    /**
+     * Set preference for the input configuration in the test, the possible values are:
+     * {@link ugr.gbv.cognimobile.fragments.Task#DEFAULT}
+     * {@link ugr.gbv.cognimobile.fragments.Task#ONLY_TEXT}
+     * {@link ugr.gbv.cognimobile.fragments.TextTask#ONLY_LANGUAGE}
+     *
+     * @param context Context required for the {@link PreferenceManager}
+     * @param value   to be introduced into the preferences.
+     */
+    public static void setConfig(Context context, int value) {
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+
+        /* Key for accessing the preference for showing notifications */
+        String config = context.getString(R.string.pref_config_value);
+
+
+        editor.putInt(config, value);
         editor.apply();
     }
 

@@ -48,8 +48,8 @@ public abstract class Task extends Fragment {
     RelativeLayout banner;
     FloatingActionButton submitAnswerButton;
     ConstraintLayout mainLayout;
-    final static int DEFAULT = 0;
-    final static int ONLY_TEXT = 1;
+    public final static int DEFAULT = 0;
+    public final static int ONLY_TEXT = 1;
 
 
     int taskType;
@@ -80,7 +80,7 @@ public abstract class Task extends Fragment {
     public static final int ABSTRACTION = 10;
     public static final int RECALL = 11;
     public static final int ORIENTATION = 12;
-    final static int ONLY_LANGUAGE = 2;
+    public final static int ONLY_LANGUAGE = 2;
     Activity parent;
     EditText firstInput;
     Handler handler;
