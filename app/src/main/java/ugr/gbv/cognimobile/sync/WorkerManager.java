@@ -92,17 +92,17 @@ public class WorkerManager {
         String DOWNLOAD_UID = "download";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DOWNLOAD_UID,
-                        ExistingPeriodicWorkPolicy.REPLACE, downloadRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, downloadRequest);
 
         String UPLOAD_UID = "upload";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(UPLOAD_UID,
-                        ExistingPeriodicWorkPolicy.REPLACE, uploadRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, uploadRequest);
 
         String DELETE_UID = "delete";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DELETE_UID,
-                        ExistingPeriodicWorkPolicy.REPLACE, deleteRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);
 
     }
 
