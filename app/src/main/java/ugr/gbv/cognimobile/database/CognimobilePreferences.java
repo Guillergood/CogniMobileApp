@@ -52,34 +52,6 @@ public class CognimobilePreferences {
         editor.apply();
     }
 
-    //TODO: CAMBIAR PARA LA RELEASE
-    public static int getConfig(Context context) {
-        /* Key for accessing the preference for first time launch */
-        String config = context.getString(R.string.pref_config_value);
-
-        /* As usual, we use the default SharedPreferences to access the user's preferences */
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-
-
-        /* If a value is stored with the key, we extract it here. If not, use a default. */
-        return sp.getInt(config, 0);
-    }
-
-    //TODO: CAMBIAR PARA LA RELEASE
-    public static void setConfig(Context context, int value) {
-
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sp.edit();
-
-        /* Key for accessing the preference for showing notifications */
-        String config = context.getString(R.string.pref_config_value);
-
-
-        //editor.putBoolean(firstTimeLaunchKey,value);
-        editor.putInt(config, value);
-        editor.apply();
-    }
-
     /**
      * Get preference for the notifications
      *
