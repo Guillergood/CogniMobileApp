@@ -204,6 +204,9 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         } else{
             try {
                 jsonAnswerWrapper.addTotalScore(totalScore);
+                Intent intent = new Intent();
+                intent.putExtra("name", name);
+                setResult(RESULT_OK, intent);
                 DataSender.getInstance().postToServer("insert", "contextEvents", jsonContextEvents.getJSONArray(), getApplicationContext());
                 DataSender.getInstance().postToServer("insert", "results", jsonAnswerWrapper.getJSONArray(), getApplicationContext());
             } catch (JSONException e) {

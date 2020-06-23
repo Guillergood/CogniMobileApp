@@ -55,7 +55,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener,
         QRCallback, TestClickHandler, LoadDialog {
 
+    private static final String TEST_NAME = "name";
     private final int LINK_CODE = 1;
+    private final int TEST_CODE = 2;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
     private ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
     private Fragment actualFragment;
@@ -278,6 +280,12 @@ public class MainActivity extends AppCompatActivity
             } else {
                 Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();
             }
+        } else if (requestCode == TEST_CODE) {
+            if (resultCode == RESULT_OK && data != null) {
+                String name = data.getStringExtra(TEST_NAME);
+                TestsFragment fragment = (TestsFragment) actualFragment;
+                fragment.deleteTest(name);
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data);
@@ -293,7 +301,7 @@ public class MainActivity extends AppCompatActivity
     private void goToTest(int id) {
         Intent intent = new Intent(this, Test.class);
         intent.putExtra("id", id);
-        startActivity(intent);
+        startActivityForResult(intent, TEST_CODE);
     }
 
     private void displayTutorialDialog() {
@@ -388,7 +396,7 @@ public class MainActivity extends AppCompatActivity
     private void initiateWorkerManager() {
         handler = new Handler();
         handler.postDelayed(
-                (Runnable) () ->
+                () ->
                         runOnUiThread(() ->
                                 WorkerManager.getInstance().initiateWorkers(getApplicationContext()))
                 , getResources().getInteger(R.integer.default_time));

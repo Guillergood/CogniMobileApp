@@ -488,6 +488,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         submitAnswerButton.setOnClickListener(v -> {
             if (!firstInput.getText().toString().isEmpty()) {
                 addSubmitTime();
+                answers.add(firstInput.getText().toString());
                 if (index == length) {
                     submitAnswerButton.setVisibility(View.GONE);
                     hideInputs();
@@ -496,7 +497,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
                 } else {
                     String displayAnotherSubtraction = firstInput.getText().toString() + " - " + subtracting;
-                    answers.add(firstInput.getText().toString());
                     additionalTaskText.setText(displayAnotherSubtraction);
                     index++;
                 }

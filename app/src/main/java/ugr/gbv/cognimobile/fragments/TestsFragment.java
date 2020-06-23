@@ -132,7 +132,20 @@ public class TestsFragment extends Fragment {
         return count == 0;
     }
 
+    /**
+     * Deletes the test with the name given.
+     */
+    public void deleteTest(String name) {
+        String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
+        String[] selectionArgs = {name};
+        context.getContentResolver().delete(Provider.CONTENT_URI_TESTS, where, selectionArgs);
 
+        if (emptyTests()) {
+            showNoTests();
+        } else {
+            fetchTests();
+        }
+    }
 
 
 }
