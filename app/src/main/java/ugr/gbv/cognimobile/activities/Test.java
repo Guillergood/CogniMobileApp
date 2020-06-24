@@ -385,9 +385,15 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         for (SentenceSuggestionsInfo result : results) {
             int n = result.getSuggestionsCount();
             for (int i = 0; i < n; i++) {
-                String suggestedWord = result.getSuggestionsInfoAt(i).getSuggestionAt(0);
-                if (!suggestedWord.equals(wordToCheck)) {
-                    typos++;
+                int count = result.getSuggestionsInfoAt(i).getSuggestionsCount();
+                if (count > 0) {
+                    for (int k = 0; k < count; ++k) {
+                        String suggestedWord = result.getSuggestionsInfoAt(i).getSuggestionAt(k);
+                        if (!suggestedWord.equals(wordToCheck)) {
+                            typos++;
+                        }
+
+                    }
                 }
             }
         }
