@@ -12,13 +12,13 @@ A *standalone* app to provide:
 
 ## Screenshots
 
-![Cognimobile App screenshot 01](https://github.com/Guillergood/CogniMobileApp/blob/master/images/1.JPG?raw=true)
+![Cognimobile App screenshot 01](https://github.com/Guillergood/CogniMobileApp/blob/master/images/1.JPG?raw=true =0.5x)
 
-![Cognimobile App screenshot 02](https://github.com/Guillergood/CogniMobileApp/blob/master/images/2.JPG?raw=true)
+![Cognimobile App screenshot 02](https://github.com/Guillergood/CogniMobileApp/blob/master/images/2.JPG?raw=true =0.5x)
 
-![Cognimobile App screenshot 03](https://github.com/Guillergood/CogniMobileApp/blob/master/images/3.JPG?raw=true)
+![Cognimobile App screenshot 03](https://github.com/Guillergood/CogniMobileApp/blob/master/images/3.JPG?raw=true =0.5x)
 
-![Cognimobile App screenshot 04](https://github.com/Guillergood/CogniMobileApp/blob/master/images/4.JPG?raw=true)
+![Cognimobile App screenshot 04](https://github.com/Guillergood/CogniMobileApp/blob/master/images/4.JPG?raw=true =0.5x)
 
 
 
