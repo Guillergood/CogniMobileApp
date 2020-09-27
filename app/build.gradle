@@ -73,37 +73,19 @@ android {
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
     maven { url "https://jitpack.io" }
-
-
-    def githubProperties = new Properties()
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-    maven {
-        name = "GitHubPackages"
-
-        url = uri("https://maven.pkg.github.com/Cuberto/liquid-swipe-android")
-        credentials {
-            /** Create github.properties in root project folder file with
-             ** gpr.usr=GITHUB_USER_ID & gpr.key=PERSONAL_ACCESS_TOKEN
-             ** Or set env variable GPR_USER & GPR_API_KEY if not adding a properties file**/
-            username = githubProperties['gpr.usr'] ?: System.getenv("GPR_USER")
-            password = githubProperties['gpr.key'] ?: System.getenv("GPR_API_KEY")
-        }
-    }
 }
 
 
 dependencies {
-    def gson_version = '2.8.6'
-    def volley_version = "1.1.1"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta6"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation "androidx.constraintlayout:constraintlayout:2.0.1"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'com.google.android.material:material:1.2.1'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'androidx.annotation:annotation:1.1.0'
@@ -114,5 +96,5 @@ dependencies {
     }
     api "com.github.denzilferreira:aware-client:${awareVersion}"
     implementation "com.airbnb.android:lottie:${lottieVersion}"
-    implementation 'androidx.work:work-runtime:2.3.4'
+    implementation 'androidx.work:work-runtime:2.4.0'
 }

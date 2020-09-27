@@ -30,7 +30,7 @@ The server to host the project needs:
 
 ## How to use
 
-- Install the [lastest version](https://github.com/Guillergood/CogniMobileApp/raw/0ddd5d05e3bf80322eedaf63a309228bbd33e692/lastest_version/app-release-unsigned.apk)
+- Install the [latest version](https://github.com/Guillergood/CogniMobileApp/raw/0ddd5d05e3bf80322eedaf63a309228bbd33e692/lastest_version/app-release-unsigned.apk)
 - Or clone the repository and deploy your version.
 
 ## License
