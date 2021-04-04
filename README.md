@@ -5,7 +5,7 @@
 This app is part of the [Cognimobile Project](https://github.com/Guillergood/CogniMobilePlatform)
 
 ## What's inside
-A *standalone* app to provide: 
+A *standalone* app to provide:
 - cognitive tests based on the populars ones.
 - studies and share mobile context information, for application researchers, thanks to the [AWARE Framework](https://github.com/denzilferreira/aware-client)
 
@@ -30,7 +30,7 @@ The server to host the project needs:
 
 ## How to use
 
-- Install the [latest version](https://github.com/Guillergood/CogniMobileApp/raw/0ddd5d05e3bf80322eedaf63a309228bbd33e692/lastest_version/app-release-unsigned.apk)
+- Install the [latest version](https://github.com/Guillergood/CogniMobileApp/blob/master/lastest_version/app-release-unsigned.apk?raw=true)
 - Or clone the repository and deploy your version.
 
 ## License
