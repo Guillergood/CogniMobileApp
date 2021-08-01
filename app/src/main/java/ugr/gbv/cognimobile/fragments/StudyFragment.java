@@ -17,6 +17,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.aware.Aware;
+import com.aware.providers.Aware_Provider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ugr.gbv.cognimobile.R;
@@ -116,6 +117,15 @@ public class StudyFragment extends Fragment {
     private void fetchStudy() {
         cursor = Aware.getStudy(context, "");
         cursor.moveToFirst();
+        int columnName = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_TITLE);
+        int columnDeviceId = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_DEVICE_ID);
+        if(columnName > 0 && columnDeviceId > 0){
+            TextView name = studyCard.findViewById(R.id.studyNameViewholder);
+            TextView description = studyCard.findViewById(R.id.studyDescriptionViewholder);
+            name.setText(cursor.getString(columnName));
+            String descriptionText = getString(R.string.device_id) + cursor.getString(columnDeviceId);
+            description.setText(descriptionText);
+        }
     }
 
     /**

@@ -92,4 +92,5 @@
     <string name="click_done">CLICK!</string>
     <string name="provide_data">PROVIDE DATA</string>
     <string name="loading">Loading …</string>
+    <string name="device_id" translatable="false">Device id: \n</string>
 </resources>
