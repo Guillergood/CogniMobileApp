@@ -29,6 +29,7 @@
         android:text="@string/no_studies_active"
         android:textSize="@dimen/banner_text"
         android:visibility="gone"
+        android:textColor="@color/gray"
         app:layout_constraintBottom_toTopOf="@+id/joinStudyButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,10 +70,11 @@
                 android:scaleType="centerCrop"
                 android:text="@string/app_name"
                 android:textAppearance="@style/NexaFont"
+                android:textColor="@color/gray"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_chainStyle="packed"
-                app:srcCompat="@android:color/darker_gray" />
+                 />
 
             <LinearLayout
                 android:id="@+id/quitStudyButtonContainer"
@@ -91,11 +93,11 @@
                     android:background="@color/vivid_red"
                     android:contentDescription="@string/quit_study_contentDescription"
                     android:padding="12dp"
-                    android:tint="@color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_delete_forever_black_24dp" />
+                    app:srcCompat="@drawable/ic_delete_forever_black_24dp"
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/quitStudyButtonLabel"
@@ -104,7 +106,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:text="@string/quit_study_contentDescription"
-                    android:textColor="@color/white"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -143,11 +144,13 @@
             android:id="@+id/joinStudyButton"
             style="@style/QuickActionButton"
             android:padding="@dimen/small_padding"
-            android:src="@drawable/ic_add_new_study_black_24dp" />
+            android:src="@drawable/ic_add_new_study_black_24dp"
+            android:contentDescription="@string/join_study_label" />
 
         <TextView
             android:id="@+id/joinStudyLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/gray"
             android:text="@string/join_study_label" />
     </LinearLayout>
 

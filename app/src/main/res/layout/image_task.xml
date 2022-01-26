@@ -24,6 +24,7 @@
         <TextView
             android:id="@+id/centerButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/help_button" />
     </LinearLayout>
 
@@ -47,6 +48,7 @@
         <TextView
             android:id="@+id/rightButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/next_button" />
     </LinearLayout>
 
@@ -86,6 +88,7 @@
             android:layout_marginRight="16dp"
             android:layout_toStartOf="@+id/banner_image"
             android:textSize="@dimen/banner_text"
+            android:textColor="@color/black"
             android:text="@string/animal_instructions" />
     </RelativeLayout>
 
@@ -145,6 +148,7 @@
         <TextView
             android:id="@+id/sttButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/sttLabel" />
     </LinearLayout>
 

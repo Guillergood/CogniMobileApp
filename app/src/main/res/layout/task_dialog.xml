@@ -30,6 +30,7 @@
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
             android:textAlignment="center"
+            android:textColor="@color/black"
             android:justificationMode="inter_word">
 
         </TextView>

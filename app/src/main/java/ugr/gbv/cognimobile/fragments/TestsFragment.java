@@ -31,6 +31,8 @@ public class TestsFragment extends Fragment {
     private Context context;
     private TestClickHandler callBack;
 
+    public TestsFragment() {}
+
     /**
      * Constructor
      *

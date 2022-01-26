@@ -26,13 +26,13 @@
             android:maxLines="6"
             android:scaleType="centerCrop"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@android:color/darker_gray"
             app:layout_constraintBottom_toBottomOf="@+id/icon_edit"
             app:layout_constraintDimensionRatio="H,16:9"
             app:layout_constraintEnd_toStartOf="@+id/icon_edit"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:srcCompat="@android:color/darker_gray" />
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <EditText
             android:id="@+id/editWord"

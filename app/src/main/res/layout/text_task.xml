@@ -24,6 +24,7 @@
         <TextView
             android:id="@+id/centerButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/help_button" />
     </LinearLayout>
 
@@ -47,6 +48,7 @@
         <TextView
             android:id="@+id/rightButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/next_button" />
     </LinearLayout>
     <RelativeLayout
@@ -85,6 +87,7 @@
             android:layout_marginRight="16dp"
             android:layout_toStartOf="@+id/banner_image"
             android:textSize="@dimen/banner_text"
+            android:textColor="@color/black"
             tools:targetApi="o" />
     </RelativeLayout>
 
@@ -117,6 +120,7 @@
         app:layout_constraintEnd_toEndOf="@+id/textSpace"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/black"
         tools:visibility="visible" />
 
     <TextView
@@ -128,6 +132,7 @@
         android:paddingRight="24dp"
         android:textSize="@dimen/banner_text"
         android:visibility="gone"
+        android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/banner" />
@@ -166,6 +171,7 @@
         <TextView
             android:id="@+id/sttButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/sttLabel" />
     </LinearLayout>
 
@@ -188,6 +194,7 @@
         <TextView
             android:id="@+id/submitButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/submit_answer" />
     </LinearLayout>
 

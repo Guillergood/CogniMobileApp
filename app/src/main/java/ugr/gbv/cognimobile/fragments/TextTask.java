@@ -91,6 +91,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private ArrayList<EditText> variousInputs;
     private Bundle bundle;
     private AlertDialog progressDialog;
+    private boolean changeBanner;
 
     //MEMORY Y RECALL
     private ArrayList<Long> scrollingTimes;
@@ -127,6 +128,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         timesCompleted = 0;
         firstDone = false;
         this.bundle = bundle;
+        changeBanner = true;
     }
 
     /**
@@ -317,7 +319,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             e.printStackTrace();
         }
 
-        if (taskType != RECALL && taskType != ATTENTION_SUBTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
+        if (taskType != ATTENTION_SUBTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
             new CountDownTimer(context.getResources().getInteger(R.integer.default_time), context.getResources().getInteger(R.integer.one_seg_millis)) {
 
                 public void onTick(long millisUntilFinished) {
@@ -331,6 +333,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     rightButton.setClickable(true);
                     Objects.requireNonNull(bundle);
                     switch (taskType) {
+                        case RECALL:
+                            recall(bundle.getStringArray("words"));
+                            break;
                         case MEMORY:
                             memorization(bundle.getStringArray("words"), bundle.getInt("times"));
                             break;
@@ -362,9 +367,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }
         else{
             switch (taskType){
-                case RECALL:
-                    recall(bundle.getStringArray("words"));
-                    break;
                 case ORIENTATION:
                     orientation(Objects.requireNonNull(bundle.getStringArray("questions")));
                     break;
@@ -402,6 +404,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         enableWordList();
         if(timesCompleted == times){
+            changeBanner = false;
+            bannerText.setText(R.string.memory_instructions_last);
             setNextButtonStandardBehaviour();
         }
         addTextWatcherToInput();
@@ -523,7 +527,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             if(index >= length){
                 taskIsEnded();
             } else{
-                speakPhrase(phrases[index]);
+                showCountdownAgain();
+                startTask();
             }
         };
 
@@ -992,6 +997,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     break;
             }
 
+            changeBannerText();
         } else {
             taskEnded = true;
             try {
@@ -1003,6 +1009,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }
 
     }
+
+    private void changeBannerText() {
+        if(changeBanner) {
+            switch (taskType) {
+                case MEMORY:
+                    bannerText.setText(R.string.memory_instructions_2);
+                    break;
+                case LANGUAGE:
+                    bannerText.setText(R.string.language_instructions_2);
+                    break;
+            }
+        }
+    }
+
 
     /**
      * It does not allow the input to be clicked, to force the user to use only microphone.
@@ -1208,7 +1228,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
             case MEMORY:
                 answers = adapter.getAllWords();
-                startWritingTimes.remove(startWritingTimes.size() - 1);
+                if(startWritingTimes.size() > 0)
+                    startWritingTimes.remove(startWritingTimes.size() - 1);
                 callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
                 callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
                 callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));

@@ -26,6 +26,7 @@
         <TextView
             android:id="@+id/leftButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/undo_button" />
     </LinearLayout>
 
@@ -48,6 +49,7 @@
         <TextView
             android:id="@+id/centerButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/help_button" />
     </LinearLayout>
 
@@ -71,6 +73,7 @@
         <TextView
             android:id="@+id/rightButtonLabel"
             style="@style/QuickActionButtonLabel"
+            android:textColor="@color/black"
             android:text="@string/next_button" />
     </LinearLayout>
 
@@ -108,6 +111,7 @@
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
             android:layout_toStartOf="@+id/banner_image"
+            android:textColor="@color/black"
             android:textSize="@dimen/banner_text" />
     </RelativeLayout>
 

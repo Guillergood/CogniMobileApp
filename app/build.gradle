@@ -90,7 +90,8 @@ dependencies {
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation "androidx.preference:preference:1.1.1"
-    implementation 'com.github.medyo:android-about-page:1.2.6'
+    implementation 'io.github.medyo:android-about-page:2.0.0'
+    implementation 'org.jetbrains.anko:anko:0.10.8'
     implementation('me.dm7.barcodescanner:zbar:1.9.8') {
         exclude group: 'com.android.support', module: "support-v4"
     }
