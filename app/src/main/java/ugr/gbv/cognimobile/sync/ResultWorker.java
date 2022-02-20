@@ -19,7 +19,7 @@ import ugr.gbv.cognimobile.utilities.DataSender;
  */
 public class ResultWorker extends Worker {
 
-    private Context workerContext;
+    private final Context workerContext;
 
     /**
      * Constructor

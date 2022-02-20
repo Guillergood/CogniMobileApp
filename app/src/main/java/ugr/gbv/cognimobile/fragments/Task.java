@@ -62,7 +62,7 @@ public abstract class Task extends Fragment {
     boolean taskEnded;
     boolean displayHelpAtBeginning;
     boolean clearedByMethod;
-    ArrayList<Long> startWritingTimes;
+    final ArrayList<Long> startWritingTimes;
 
     FloatingActionButton leftButton;
     FloatingActionButton rightButton;
@@ -85,8 +85,8 @@ public abstract class Task extends Fragment {
     EditText firstInput;
     Handler handler;
 
-    ArrayList<String> characterChange;
-    ArrayList<Long> submitAnswerTimes;
+    final ArrayList<String> characterChange;
+    final ArrayList<Long> submitAnswerTimes;
     private boolean writing;
 
     /**
@@ -215,24 +215,31 @@ public abstract class Task extends Fragment {
 
         rightButton.setOnClickListener(view -> {
 
+            if(!taskEnded) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-
-            builder.setTitle(getString(R.string.confirmation));
-            builder.setMessage(getText(R.string.leave_task));
-            builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.continue_next_task), (dialog, which) -> {
+                builder.setTitle(getString(R.string.confirmation));
+                builder.setMessage(getText(R.string.leave_task));
+                builder.setCancelable(false);
+                builder.setPositiveButton(getString(R.string.continue_next_task), (dialog, which) -> {
+                    try {
+                        saveResults();
+                    } catch (JSONException e) {
+                        ErrorHandler.displayError(e.getMessage());
+                    }
+                    loadNextTask();
+                });
+                builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
+                builder.show();
+            }
+            else{
                 try {
                     saveResults();
                 } catch (JSONException e) {
                     ErrorHandler.displayError(e.getMessage());
                 }
                 loadNextTask();
-            });
-            builder.setNegativeButton(getString(R.string.cancel), (dialog, which) -> dialog.dismiss());
-            builder.show();
-
-
+            }
         });
     }
 
@@ -359,7 +366,12 @@ public abstract class Task extends Fragment {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 checkIfTaskIsAboutToEnd();
                 submitAnswerButton.performClick();
-                handled = !taskEnded;
+                if(taskType == MEMORY || taskType == RECALL){
+                    handled = true;
+                }
+                else{
+                    handled = !taskEnded;
+                }
             }
         } else {
             rightButton.callOnClick();

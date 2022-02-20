@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.res.ResourcesCompat;
 
 import org.json.JSONException;
 
@@ -46,9 +47,9 @@ public class DrawTask extends Task implements LoadDraw {
     private int undoTimes;
     private Bundle bundle;
 
-    private ArrayList<Button> pressedButtons;
-    private ArrayList<String> alreadyPressedButtons;
-    private ArrayList<Long> timeBetweenClicks;
+    private final ArrayList<Button> pressedButtons;
+    private final ArrayList<String> alreadyPressedButtons;
+    private final ArrayList<Long> timeBetweenClicks;
 
 
     /**
@@ -179,7 +180,7 @@ public class DrawTask extends Task implements LoadDraw {
 
         if (answer.size() > 0) {
             answer.remove(answer.size() - 1);
-            pressedButtons.get(pressedButtons.size() - 1).setBackground(getResources().getDrawable(R.drawable.circle_no_fill, context.getTheme()));
+            pressedButtons.get(pressedButtons.size() - 1).setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_no_fill, context.getTheme()));
             pressedButtons.get(pressedButtons.size() - 1).setTextColor(getResources().getColor(R.color.black, context.getTheme()));
             pressedButtons.remove(pressedButtons.size() - 1);
         }
@@ -210,7 +211,7 @@ public class DrawTask extends Task implements LoadDraw {
         for (int i = 0; i < points.size(); ++i) {
             Button button = new Button(context);
             button.setId(View.generateViewId());
-            button.setBackground(getResources().getDrawable(R.drawable.circle_no_fill, context.getTheme()));
+            button.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_no_fill, context.getTheme()));
             button.setText(tags[i]);
             button.setTag(points.get(i).getLabel());
             button.setOnClickListener(v -> {
@@ -219,13 +220,14 @@ public class DrawTask extends Task implements LoadDraw {
                 for (int i1 = 0; i1 < sequence.size() && continua; ++i1) {
                     if (button1.getTag().equals(sequence.get(i1).getLabel())) {
                         if(!answer.contains(button1.getTag().toString())){
-                            button1.setBackground(getResources().getDrawable(R.drawable.circle_with_fill,context.getTheme()));
+                            button1.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_with_fill, context.getTheme()));
                             button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
                             answer.add(button1.getTag().toString());
                             drawingView.drawToPoint(sequence.get(i1));
                             continua = false;
                             pressedButtons.add(button1);
                             timeBetweenClicks.add(ContextDataRetriever.addTimeStamp());
+                            startedTask();
                         } else {
                             alreadyPressedButtons.add(button1.getTag().toString());
                         }
@@ -274,13 +276,13 @@ public class DrawTask extends Task implements LoadDraw {
                     bannerText.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
-                    leftButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
+                    leftButton.setImageDrawable(ResourcesCompat.getDrawable(getResources(),R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
                     label.setText(R.string.clear_title_button);
                     bannerText.setText(R.string.cube_instructions);
                     imageView.setVisibility(View.VISIBLE);
                     break;
                 case WATCH:
-                    leftButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
+                    leftButton.setImageDrawable(ResourcesCompat.getDrawable(getResources(),R.drawable.ic_delete_forever_black_24dp, context.getTheme()));
                     label.setText(R.string.clear_title_button);
                     bannerText.setText(context.getResources().getString(R.string.clock_instructions, bundle.getString("hour")));
                     break;
@@ -291,6 +293,16 @@ public class DrawTask extends Task implements LoadDraw {
             leftButtonContainer.setVisibility(View.VISIBLE);
             loaded = true;
         }
+    }
+
+    /**
+     * Overrides {@link LoadDraw#startedTask()}
+     * This determines if a task has been started to skip it without having a confirmation
+     * {@link Task#setNextButtonStandardBehaviour()} has the logic of that confirmation
+     */
+    @Override
+    public void startedTask() {
+        taskEnded = true;
     }
 
 

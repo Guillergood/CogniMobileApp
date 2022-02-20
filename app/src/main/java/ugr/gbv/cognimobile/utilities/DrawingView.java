@@ -27,9 +27,9 @@ public class DrawingView extends View {
     private Paint drawPaint, canvasPaint;
     private Bitmap canvasBitmap;
     private Canvas drawCanvas;
-    private ArrayList<Point> drawnTraces;
-    private ArrayList<Point> drawPoints;
-    private ArrayList<Point> erasedPoints;
+    private final ArrayList<Point> drawnTraces;
+    private final ArrayList<Point> drawPoints;
+    private final ArrayList<Point> erasedPoints;
     boolean initialized = false;
     private LoadDraw callBack;
     private boolean freeDrawing;
@@ -131,6 +131,7 @@ public class DrawingView extends View {
 
             invalidate();
         }
+        callBack.startedTask();
         return freeDrawing;
     }
 

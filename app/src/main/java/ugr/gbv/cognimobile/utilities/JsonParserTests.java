@@ -33,7 +33,7 @@ public class JsonParserTests {
      */
     private JsonParserTests() {
         if (instantiated != null) {
-            throw new RuntimeException("Use .instantiate() to instantiate JsonParserTests");
+            throw new RuntimeException("Use .getInstance() to instantiate JsonParserTests");
         }
     }
 

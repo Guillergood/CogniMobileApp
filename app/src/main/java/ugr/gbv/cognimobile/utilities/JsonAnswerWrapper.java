@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * Class to manage the answers json
  */
 public class JsonAnswerWrapper {
-    private JSONObject jsonObject;
+    private final JSONObject jsonObject;
     private JSONObject subJsonObject;
     private int task;
 

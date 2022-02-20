@@ -2,7 +2,7 @@
 <resources>
     <integer name="undo_times">3</integer>
     <integer name="one_seg_millis">1000</integer>
-    <integer name="default_time">5000</integer>
+    <integer name="default_time">2000</integer>
     <integer name="one_minute_millis">60000</integer>
     <integer name="fifteen">15</integer>
     <integer name="thirty">30</integer>

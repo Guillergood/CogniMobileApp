@@ -16,7 +16,7 @@ public class TextToSpeechLocal {
     private static int currentStatus = TextToSpeech.ERROR;
     private static TTSHandler callback;
     private static boolean shuttedDown;
-    private static int delayTts = 1000;
+    private static final int delayTts = 1000;
     private static int index;
     public static final int STT_CODE = 2;
     private static Locale language;

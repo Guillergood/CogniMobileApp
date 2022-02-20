@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class Point implements Serializable {
     private float x;
     private float y;
-    private String label;
+    private final String label;
 
     /**
      * Constructor

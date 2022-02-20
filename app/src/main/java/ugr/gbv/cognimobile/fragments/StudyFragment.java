@@ -31,7 +31,7 @@ public class StudyFragment extends Fragment {
 
     private ImageView noStudyTest;
     private Context context;
-    private QRCallback callBack;
+    private final QRCallback callBack;
     private Cursor cursor;
     private FloatingActionButton joinStudyButton;
     private CardView studyCard;

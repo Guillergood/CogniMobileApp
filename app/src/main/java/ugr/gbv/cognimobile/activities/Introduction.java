@@ -31,7 +31,7 @@ public class Introduction extends Activity {
     private Button next, skip;
 
     // Behaviour of the ViewPager
-    ViewPager2.OnPageChangeCallback viewCallback = new ViewPager2.OnPageChangeCallback() {
+    final ViewPager2.OnPageChangeCallback viewCallback = new ViewPager2.OnPageChangeCallback() {
 
         @Override
         public void onPageSelected(int position) {

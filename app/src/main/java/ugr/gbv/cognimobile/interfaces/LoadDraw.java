@@ -8,4 +8,5 @@ public interface LoadDraw {
      * Tells the parent activity/fragment that it is ready to load the draw.
      */
     void loadDraw();
+    void startedTask();
 }

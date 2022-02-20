@@ -36,7 +36,7 @@ import ugr.gbv.cognimobile.utilities.NotificationUtils;
  */
 public class TestsWorker extends Worker {
 
-    private Context workerContext;
+    private final Context workerContext;
 
     /**
      * Constructor

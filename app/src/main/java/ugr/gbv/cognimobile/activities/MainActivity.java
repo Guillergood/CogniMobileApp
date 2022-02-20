@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity
     private final int LINK_CODE = 1;
     private final int TEST_CODE = 2;
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
-    private ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
+    private final ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
     private Fragment actualFragment;
     private Handler handler;
 
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
 
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (permissions.length > 0 && grantResults.length == permissions.length) {
 
             Aware.startAWARE(getApplicationContext());
@@ -142,10 +143,10 @@ public class MainActivity extends AppCompatActivity
             StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
             for (StatusBarNotification notification : notifications) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_CHANNEL_GENERAL) ) {
+                    if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_CHANNEL_GENERAL)) {
                         isRunning = true;
                     }
-                } else{
+                } else {
                     isRunning = isMyServiceRunning();
                 }
             }

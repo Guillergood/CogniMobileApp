@@ -22,7 +22,7 @@ import ugr.gbv.cognimobile.interfaces.TextTaskCallback;
  */
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyViewHolder> {
     private ArrayList<String> dataReversed;
-    TextTaskCallback taskCallback;
+    final TextTaskCallback taskCallback;
 
 
     /**
@@ -168,10 +168,10 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
      * Class to display every word.
      */
     static class MyViewHolder extends RecyclerView.ViewHolder {
-        TextView word;
-        EditText editableWord;
-        ImageButton editButton;
-        ImageButton deleteButton;
+        final TextView word;
+        final EditText editableWord;
+        final ImageButton editButton;
+        final ImageButton deleteButton;
         boolean isBeingEdited;
 
 

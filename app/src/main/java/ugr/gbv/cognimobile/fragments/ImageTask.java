@@ -44,8 +44,8 @@ public class ImageTask extends Task {
     private int[] imagesId;
     private View mainView;
     private String[] expectedAnswers;
-    private ArrayList<String> answers;
-    private Bundle bundle;
+    private final ArrayList<String> answers;
+    private final Bundle bundle;
     private LinearLayout sttButtonContainer;
 
     /**
@@ -203,6 +203,7 @@ public class ImageTask extends Task {
         clearInputs();
         if (selected >= imagesId.length - 1) {
             setNextButtonStandardBehaviour();
+            taskEnded = true;
         }
 
     }

@@ -89,18 +89,17 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private LinearLayout sttButtonContainer;
     private ExtendedFloatingActionButton startButton;
     private ArrayList<EditText> variousInputs;
-    private Bundle bundle;
+    private final Bundle bundle;
     private AlertDialog progressDialog;
-    private boolean changeBanner;
 
     //MEMORY Y RECALL
-    private ArrayList<Long> scrollingTimes;
-    private ArrayList<Long> settlingTimes;
+    private final ArrayList<Long> scrollingTimes;
+    private final ArrayList<Long> settlingTimes;
     //NUMBERS
-    private ArrayList<Integer> positionFilling;
+    private final ArrayList<Integer> positionFilling;
     //LETTERS
-    private ArrayList<Long> soundTimes;
-    private ArrayList<Long> clickingTimes;
+    private final ArrayList<Long> soundTimes;
+    private final ArrayList<Long> clickingTimes;
 
 
     //FLAGS
@@ -128,7 +127,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         timesCompleted = 0;
         firstDone = false;
         this.bundle = bundle;
-        changeBanner = true;
     }
 
     /**
@@ -303,6 +301,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             clearInputs();
             showCountdownAgain();
             clearRecyclerView();
+            recyclerView.setVisibility(View.INVISIBLE);
             startTask();
         });
     }
@@ -323,13 +322,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             new CountDownTimer(context.getResources().getInteger(R.integer.default_time), context.getResources().getInteger(R.integer.one_seg_millis)) {
 
                 public void onTick(long millisUntilFinished) {
-                    String display = Long.toString(millisUntilFinished / 1000, 10);
-                    countdownText.setText(display);
                     rightButton.setClickable(false);
                 }
 
                 public void onFinish() {
-                    countdownText.setVisibility(View.GONE);
                     rightButton.setClickable(true);
                     Objects.requireNonNull(bundle);
                     switch (taskType) {
@@ -395,7 +391,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         index = 0;
         length = times;
         enumeration();
-        if (times > 1) {
+        if (timesCompleted < length) {
             setNextButtonLoopTask();
         } else {
             setNextButtonStandardBehaviour();
@@ -404,8 +400,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
         enableWordList();
         if(timesCompleted == times){
-            changeBanner = false;
-            bannerText.setText(R.string.memory_instructions_last);
+            taskEnded = true;
             setNextButtonStandardBehaviour();
         }
         addTextWatcherToInput();
@@ -584,6 +579,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         enableWordList();
         addTextWatcherToInput();
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        taskEnded = true;
     }
 
 
@@ -886,7 +882,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      * Displays the countdown task again.
      */
     private void showCountdownAgain() {
-        countdownText.setVisibility(View.VISIBLE);
+        countdownText.setVisibility(View.INVISIBLE);
     }
 
     /**
@@ -1011,15 +1007,18 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void changeBannerText() {
-        if(changeBanner) {
-            switch (taskType) {
-                case MEMORY:
+        switch (taskType) {
+            case MEMORY:
+                if(timesCompleted < length) {
                     bannerText.setText(R.string.memory_instructions_2);
-                    break;
-                case LANGUAGE:
-                    bannerText.setText(R.string.language_instructions_2);
-                    break;
-            }
+                }
+                else{
+                    bannerText.setText(R.string.memory_instructions_last);
+                }
+                break;
+            case LANGUAGE:
+                bannerText.setText(R.string.language_instructions_2);
+                break;
         }
     }
 

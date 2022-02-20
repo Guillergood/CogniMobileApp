@@ -16,7 +16,7 @@ import ugr.gbv.cognimobile.database.Provider;
  */
 public class DeleteWorker extends Worker {
 
-    private Context workerContext;
+    private final Context workerContext;
 
     /**
      * Constructor
