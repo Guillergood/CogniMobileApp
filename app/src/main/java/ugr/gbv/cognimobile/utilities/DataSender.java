@@ -104,10 +104,12 @@ public class DataSender implements Serializable {
                         ContentValues contentValues = new ContentValues();
                         long millis = getMillisThirtyDaysAhead();
                         contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
-                        contentValues.put(Provider.Cognimobile_Data.DONE, 1);
+                        //TODO Erased DONE by the moment
+                        contentValues.put(Provider.Cognimobile_Data.DONE, 0);
                         updateValues(contentValues, context, data);
                         contentValues.remove(Provider.Cognimobile_Data.DONE);
-                        contentValues.put(Provider.Cognimobile_Data.SYNCED, 1);
+                        //TODO Erased SYNCED by the moment
+                        contentValues.put(Provider.Cognimobile_Data.SYNCED, 0);
                         deleteResult(context, data);
                     } else {
                         if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
