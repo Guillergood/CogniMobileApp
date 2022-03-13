@@ -55,7 +55,7 @@ public class WorkerManager {
         Constraints.Builder builder = new Constraints.Builder();
 
 
-        builder.setRequiredNetworkType(NetworkType.UNMETERED)
+        builder.setRequiredNetworkType(NetworkType.CONNECTED)
                 .setRequiresStorageNotLow(true);
 
 
