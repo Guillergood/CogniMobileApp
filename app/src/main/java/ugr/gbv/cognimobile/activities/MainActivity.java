@@ -1,18 +1,16 @@
 package ugr.gbv.cognimobile.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.service.notification.StatusBarNotification;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -21,12 +19,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.PermissionChecker;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.aware.Aware;
-import com.aware.ui.PermissionsHandler;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
@@ -38,9 +33,8 @@ import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
-import ugr.gbv.cognimobile.interfaces.QRCallback;
+import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
-import ugr.gbv.cognimobile.qr_reader.ReadQR;
 import ugr.gbv.cognimobile.sync.WorkerManager;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
@@ -53,7 +47,7 @@ import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener,
         NavigationView.OnNavigationItemSelectedListener,
-        QRCallback, TestClickHandler, LoadDialog {
+        ServerLinkRetrieval,TestClickHandler, LoadDialog {
 
     private static final String TEST_NAME = "name";
     private final int LINK_CODE = 1;
@@ -80,28 +74,6 @@ public class MainActivity extends AppCompatActivity
             displayTutorialDialog();
             CognimobilePreferences.setFirstTimeLaunch(getApplicationContext(), false);
         }
-
-        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_WIFI_STATE);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.CAMERA);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.BLUETOOTH_ADMIN);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_PHONE_STATE);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.GET_ACCOUNTS);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.WRITE_SYNC_SETTINGS);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SYNC_SETTINGS);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.READ_SYNC_STATS);
-        REQUIRED_PERMISSIONS.add(Manifest.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            REQUIRED_PERMISSIONS.add(Manifest.permission.FOREGROUND_SERVICE);
-        }
-
-
-        ActivityCompat.requestPermissions(this,
-                REQUIRED_PERMISSIONS.toArray(new String[0]),
-                MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -132,35 +104,20 @@ public class MainActivity extends AppCompatActivity
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
 
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (permissions.length > 0 && grantResults.length == permissions.length) {
+        //        if (requestCode == CAMERA_PERMISSION_CODE) {
+        if (requestCode == 3) {
 
-            Aware.startAWARE(getApplicationContext());
+            // Checking whether user granted the permission or not.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-            boolean isRunning = false;
-            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            assert mNotificationManager != null;
-            StatusBarNotification[] notifications = mNotificationManager.getActiveNotifications();
-            for (StatusBarNotification notification : notifications) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (notification.getNotification().getChannelId().equals(Aware.AWARE_NOTIFICATION_CHANNEL_GENERAL)) {
-                        isRunning = true;
-                    }
-                } else {
-                    isRunning = isMyServiceRunning();
-                }
+                // Showing the toast message
+                Toast.makeText(MainActivity.this, "Camera Permission Granted", Toast.LENGTH_SHORT).show();
             }
-
-
-            if (!isRunning) {
-                Intent aware = new Intent(this, Aware.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(aware);
-                } else {
-                    startService(aware);
-                }
+            else {
+                Toast.makeText(MainActivity.this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
             }
         }
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
     /**
@@ -168,26 +125,8 @@ public class MainActivity extends AppCompatActivity
      */
     private void initBottomNavBar() {
         BottomNavigationView navigation = findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(this);
+        navigation.setOnItemSelectedListener(this);
     }
-
-    /**
-     * isMyServiceRunning checks if AWARE Framework is actually running or not.
-     *
-     * @return true if the service is running, false if not.
-     */
-    private boolean isMyServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        if (manager != null) {
-            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-                if (Aware.class.getName().equals(service.service.getClassName())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
 
     /**
      * loadFragment allows to replace fragments from the actual activity.
@@ -210,26 +149,19 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-
-        switch (menuItem.getItemId()){
-            case R.id.nav_studies:
-                actualFragment = new StudyFragment(this);
-                loadFragment();
-                break;
-            case R.id.nav_tests:
-                actualFragment = new TestsFragment(this);
-                loadFragment();
-                break;
-            case R.id.nav_settings:
-                actualFragment = new SettingsFragments();
-                loadFragment();
-                break;
+        int id = menuItem.getItemId();
+        if (id == R.id.nav_studies) {
+            actualFragment = new StudyFragment(this);
+            loadFragment();
+        } else if (id == R.id.nav_tests) {
+            actualFragment = new TestsFragment(this);
+            loadFragment();
+        } else if (id == R.id.nav_settings) {
+            actualFragment = new SettingsFragments();
+            loadFragment();
         }
 
-
         return true;
-
-
     }
 
 
@@ -238,6 +170,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @return true when the user has connection, false if not.
      */
+    @SuppressLint("MissingPermission")
     private boolean hasUserConnectivity() {
         // Checking internet connectivity
         ConnectivityManager connectivityMgr = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -268,7 +201,8 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK && data != null) {
                 String link = data.getStringExtra(INTENT_LINK_LABEL);
                 if (link != null) {
-                    Aware.joinStudy(this, link);
+                    //TODO JOIN STUDY TO THE NEW SERVER
+
                     if (hasUserConnectivity()) {
                         CognimobilePreferences.setHasUserJoinedStudy(this, true);
                         reloadUiWhenJoined();
@@ -330,30 +264,6 @@ public class MainActivity extends AppCompatActivity
 
 
     /**
-     * This method allows to go the ReadQR activity. Where the user is allowed to get the link
-     * from the study. Also checks if the app has the appropriate permissions to do the task.
-     */
-    @Override
-    public void goToQRActivity() {
-        boolean permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED;
-
-        if (permissionNotGranted) {
-            ArrayList<String> permission = new ArrayList<>();
-            permission.add(Manifest.permission.CAMERA);
-
-            Intent permissions = new Intent(this, PermissionsHandler.class);
-            permissions.putExtra(PermissionsHandler.EXTRA_REQUIRED_PERMISSIONS, permission);
-            permissions.putExtra(PermissionsHandler.EXTRA_REDIRECT_ACTIVITY, getPackageName() + "/" + getPackageName() + ".qr_reader.ReadQR");
-            permissions.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(permissions);
-        } else {
-            Intent qrCode = new Intent(MainActivity.this, ReadQR.class);
-            qrCode.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            startActivityForResult(qrCode, LINK_CODE);
-        }
-    }
-
-    /**
      * This method handles the clicks on the TestFragment.
      */
     @Override
@@ -367,12 +277,6 @@ public class MainActivity extends AppCompatActivity
     private void reloadUiWhenJoined() {
         Handler handler = new Handler();
         handler.post(() -> {
-            int count = 0;
-            while (count == 0) {
-                Cursor studies = Aware.getStudy(getApplicationContext(), "");
-                count = studies.getCount();
-                studies.close();
-            }
             initiateWorkerManager();
             runOnUiThread(this::reloadFragment);
         });
@@ -437,6 +341,12 @@ public class MainActivity extends AppCompatActivity
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
+    }
+
+    @Override
+    public void goToChooseQrOrTextActivity() {
+        Intent intent = new Intent(this, ServerUrlRetrieval.class);
+        startActivity(intent);
     }
 }
 

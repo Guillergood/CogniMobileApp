@@ -13,6 +13,7 @@ import com.google.android.material.button.MaterialButton;
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.activities.ServerUrlRetrieval;
 import ugr.gbv.cognimobile.activities.WriteTestLink;
 
 /**
@@ -41,25 +42,9 @@ public class ReadQR extends Activity implements ZBarScannerView.ResultHandler {
         main.setOrientation(LinearLayout.VERTICAL);
         main.setBackgroundColor(getResources().getColor(R.color.black,getTheme()));
 
-        MaterialButton button = new MaterialButton(this);
-
-        button.setText(R.string.enter_link);
-
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-
-
-        button.setLayoutParams(layoutParams);
-
-        button.setOnClickListener(v -> goToActivityWrittenLink());
-
         ListView list = new ListView(this);
         list.setId(android.R.id.list);
         list.setVisibility(View.GONE);
-        button.setId(View.generateViewId());
-        button.setVisibility(View.VISIBLE);
-        main.addView(button);
         main.addView(mScannerView);
         main.addView(list);
         setContentView(main);
@@ -103,12 +88,10 @@ public class ReadQR extends Activity implements ZBarScannerView.ResultHandler {
         }
 
         finish();
-
-
     }
 
-    private void goToActivityWrittenLink() {
-        Intent intent = new Intent(this, WriteTestLink.class);
+    private void goToActivityServerUrlRetrieval() {
+        Intent intent = new Intent(this, ServerUrlRetrieval.class);
         startActivityForResult(intent, LINK_CODE);
     }
 

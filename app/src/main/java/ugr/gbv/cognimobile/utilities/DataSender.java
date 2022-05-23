@@ -8,10 +8,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.aware.Aware;
-import com.aware.Aware_Preferences;
-import com.aware.providers.Aware_Provider;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -73,68 +69,68 @@ public class DataSender implements Serializable {
      */
     public void postToServer(String command, String table, @NonNull JSONArray data, Context context) {
 
-
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
-
-
-        Thread thread = new Thread(() -> {
-            try {
-                if (INSERT.equals(command)) {
-                    String formattedData = formatData(data);
-                    params.put("data", formattedData);
-                } else {
-                    throw new IllegalStateException("Unexpected value: " + command);
-                }
-
-                String urlString = buildURL(table, command, context);
-
-
-                URL url = new URL(urlString);
-                int code = 0;
-                if (urlString.contains("https")) {
-                    code = sendWithHttps(url, params);
-                } else if (urlString.contains("http")) {
-                    code = sendWithHttp(url, params);
-                }
-
-
-                if (!data.getJSONObject(0).getString("name").isEmpty()) {
-                    if (code == 200) {
-                        ContentValues contentValues = new ContentValues();
-                        long millis = getMillisThirtyDaysAhead();
-                        contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
-                        //TODO Erased DONE by the moment
-                        contentValues.put(Provider.Cognimobile_Data.DONE, 0);
-                        updateValues(contentValues, context, data);
-                        contentValues.remove(Provider.Cognimobile_Data.DONE);
-                        //TODO Erased SYNCED by the moment
-                        contentValues.put(Provider.Cognimobile_Data.SYNCED, 0);
-                        deleteResult(context, data);
-                    } else {
-                        if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
-                            ContentValues[] contentValues = new ContentValues[1];
-                            ContentValues value = new ContentValues();
-                            value.put(Provider.Cognimobile_Data.NAME, data.getJSONObject(0).getString("name"));
-                            value.put(Provider.Cognimobile_Data.DATA, data.toString());
-                            value.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
-
-                            context.getContentResolver().bulkInsert(
-                                    Provider.Cognimobile_Data.CONTENT_URI_RESULTS,
-                                    contentValues
-                            );
-                        }
-
-                    }
-                }
-
-
-            } catch (IOException | JSONException e) {
-                ErrorHandler.displayError(e.getMessage());
-            }
-        });
-
-        thread.start();
+//          TODO REFORMULATE
+//        HashMap<String, Object> params = new HashMap<>();
+//        params.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
+//
+//
+//        Thread thread = new Thread(() -> {
+//            try {
+//                if (INSERT.equals(command)) {
+//                    String formattedData = formatData(data);
+//                    params.put("data", formattedData);
+//                } else {
+//                    throw new IllegalStateException("Unexpected value: " + command);
+//                }
+//
+//                String urlString = buildURL(table, command, context);
+//
+//
+//                URL url = new URL(urlString);
+//                int code = 0;
+//                if (urlString.contains("https")) {
+//                    code = sendWithHttps(url, params);
+//                } else if (urlString.contains("http")) {
+//                    code = sendWithHttp(url, params);
+//                }
+//
+//
+//                if (!data.getJSONObject(0).getString("name").isEmpty()) {
+//                    if (code == 200) {
+//                        ContentValues contentValues = new ContentValues();
+//                        long millis = getMillisThirtyDaysAhead();
+//                        contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
+//                        //TODO Erased DONE by the moment
+//                        contentValues.put(Provider.Cognimobile_Data.DONE, 0);
+//                        updateValues(contentValues, context, data);
+//                        contentValues.remove(Provider.Cognimobile_Data.DONE);
+//                        //TODO Erased SYNCED by the moment
+//                        contentValues.put(Provider.Cognimobile_Data.SYNCED, 0);
+//                        deleteResult(context, data);
+//                    } else {
+//                        if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
+//                            ContentValues[] contentValues = new ContentValues[1];
+//                            ContentValues value = new ContentValues();
+//                            value.put(Provider.Cognimobile_Data.NAME, data.getJSONObject(0).getString("name"));
+//                            value.put(Provider.Cognimobile_Data.DATA, data.toString());
+//                            value.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
+//
+//                            context.getContentResolver().bulkInsert(
+//                                    Provider.Cognimobile_Data.CONTENT_URI_RESULTS,
+//                                    contentValues
+//                            );
+//                        }
+//
+//                    }
+//                }
+//
+//
+//            } catch (IOException | JSONException e) {
+//                ErrorHandler.displayError(e.getMessage());
+//            }
+//        });
+//
+//        thread.start();
 
 
     }
@@ -314,25 +310,26 @@ public class DataSender implements Serializable {
      * @return the complete url with parameters
      */
     private String buildURL(String table, String command, Context context) {
-        Cursor studies = Aware.getStudy(context, "");
-        studies.moveToFirst();
-        String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
-        Uri studyUri = Uri.parse(urlDb);
-        Uri.Builder urlBuilder = new Uri.Builder();
-        List<String> paths = studyUri.getPathSegments();
-
-        urlBuilder.scheme(studyUri.getScheme())
-                .authority(studyUri.getAuthority());
-
-        for (String path: paths) {
-            urlBuilder.appendPath(path);
-        }
-
-        urlBuilder.appendPath(table)
-                .appendPath(command);
-
-
-        return urlBuilder.build().toString().replaceAll("%3A",":");
+//        Cursor studies = Aware.getStudy(context, "");
+//        studies.moveToFirst();
+//        String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
+//        Uri studyUri = Uri.parse(urlDb);
+//        Uri.Builder urlBuilder = new Uri.Builder();
+//        List<String> paths = studyUri.getPathSegments();
+//
+//        urlBuilder.scheme(studyUri.getScheme())
+//                .authority(studyUri.getAuthority());
+//
+//        for (String path: paths) {
+//            urlBuilder.appendPath(path);
+//        }
+//
+//        urlBuilder.appendPath(table)
+//                .appendPath(command);
+//
+//
+//        return urlBuilder.build().toString().replaceAll("%3A",":");
+        return "";
     }
 
 }

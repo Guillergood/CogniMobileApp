@@ -168,4 +168,29 @@ public class CognimobilePreferences {
         editor.apply();
     }
 
+    public static String getServerUrl(Context context) {
+        /* Key for accessing the preference for first time launch */
+        String config = context.getString(R.string.pref_server_url);
+
+        /* As usual, we use the default SharedPreferences to access the user's preferences */
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+
+        /* If a value is stored with the key, we extract it here. If not, use a default. */
+        return sp.getString(config, "");
+    }
+
+
+    public static void setServerUrl(Context context, String value){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+
+        /* Key for accessing the preference for showing notifications */
+        String config = context.getString(R.string.pref_server_url);
+
+
+        editor.putString(config, value);
+        editor.apply();
+    }
+
 }

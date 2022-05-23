@@ -132,7 +132,6 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
             dataReversed.remove(position);
             notifyItemRemoved(position);
         }
-        notifyDataSetChanged();
     }
 
     /**
@@ -198,16 +197,6 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.MyView
             word.setVisibility(View.VISIBLE);
             editableWord.setVisibility(View.GONE);
             isBeingEdited = false;
-        }
-
-        /**
-         * Changes the UI to display the text to be editable
-         */
-        void displayEditable() {
-            word.setVisibility(View.GONE);
-            editableWord.setVisibility(View.VISIBLE);
-            editableWord.setText(word.getText());
-            isBeingEdited = true;
         }
     }
 }

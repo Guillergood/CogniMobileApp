@@ -16,18 +16,11 @@ import android.provider.BaseColumns;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.aware.utils.DatabaseHelper;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Class to make CRUD operations on the local database
- * Template from AWARE
- *
- * @see <a href="https://awareframework.com/creating-a-context-provider/">https://awareframework.com/creating-a-context-provider/</a>
- */
+
 public class Provider extends ContentProvider {
 
 
@@ -35,7 +28,6 @@ public class Provider extends ContentProvider {
     private static final String DATABASE_NAME = "cognimobile.db";
 
     public static String AUTHORITY = "ugr.gbv.cognimobile.provider";
-    public static String AWARE_PLUGIN_NAME = "ugr.gbv.cognimobile";
 
 
     /**
@@ -45,28 +37,11 @@ public class Provider extends ContentProvider {
     public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/tests");
     public static final Uri CONTENT_URI_RESULTS = Uri.parse("content://" + AUTHORITY + "/results");
 
-    /**
-     * How your data collection is identified internally in Android (vnd.android.cursor.dir). <br/>
-     * It needs to be /vnd.aware.plugin.XXX where XXX is your plugin name (no spaces!).
-     */
-    public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.ugr.gbv.cognimobile.provider";
-
-    /**
-     * How each row is identified individually internally in Android (vnd.android.cursor.item). <br/>
-     * It needs to be /vnd.aware.plugin.XXX where XXX is your plugin name (no spaces!).
-     */
-    public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.ugr.gbv.cognimobile.provider";
-
 
     private static final int TABLE_TESTS_DIR = 1;
     private static final int TABLE_TESTS_ITEM = 2;
     private static final int TABLE_RESULTS_DIR = 3;
     private static final int TABLE_RESULTS_ITEM = 4;
-
-
-    public static final String _ID = "_id";
-    public static final String TIMESTAMP = "timestamp";
-    public static final String DEVICE_ID = "device_id";
 
     //These are columns that we need to sync data, don't change this!
     public interface AWAREColumns extends BaseColumns {
@@ -124,15 +99,15 @@ public class Provider extends ContentProvider {
 
     //Helper variables for ContentProvider - DO NOT CHANGE
     private UriMatcher sUriMatcher;
-    private DatabaseHelper dbHelper;
+//    private DatabaseHelper dbHelper;
     private static SQLiteDatabase database;
     private HashMap<String, String> tableMap;
 
     private void initialiseDatabase() {
-        if (dbHelper == null)
-            dbHelper = new DatabaseHelper(getContext(), DATABASE_NAME, null, DATABASE_VERSION, DATABASE_TABLES, TABLES_FIELDS);
-        if (database == null)
-            database = dbHelper.getWritableDatabase();
+//        if (dbHelper == null)
+//            dbHelper = new DatabaseHelper(getContext(), DATABASE_NAME, null, DATABASE_VERSION, DATABASE_TABLES, TABLES_FIELDS);
+//        if (database == null)
+//            database = database.getWritableDatabase();
     }
 
 

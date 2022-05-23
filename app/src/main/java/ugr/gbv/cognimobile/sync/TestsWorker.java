@@ -9,8 +9,6 @@ import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.aware.Aware;
-
 import org.json.JSONException;
 
 import java.io.BufferedReader;
@@ -62,38 +60,39 @@ public class TestsWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        String testURLString = Aware.getSetting(workerContext, Provider.DB_TBL_TESTS);
-        String[] arrayLinks = getTestsLinks(testURLString);
+        //TODO Reformular
+//        String testURLString = Aware.getSetting(workerContext, Provider.DB_TBL_TESTS);
+//        String[] arrayLinks = getTestsLinks(testURLString);
+//
+//
+//        int inserted = 0;
+//
+//        if (arrayLinks.length > 0) {
+//            for (String link : arrayLinks) {
+//                String testJson = getHtml(link);
+//                ContentValues[] data = retrieveDataFromHtml(testJson);
+//                if (data != null)
+//                    inserted += bulkInsert(data);
+//            }
+//        } else {
+//            String testJson = getHtml(testURLString);
+//            if (testJson != null) {
+//                retrieveDataFromHtml(testJson);
+//                ContentValues[] data = retrieveDataFromHtml(testJson);
+//                inserted += bulkInsert(data);
+//            }
+//
+//        }
+//
+//
+//        if (inserted > 0) {
+//            NotificationUtils.getInstance().notifyNewTestsAvailable(inserted, workerContext);
+//            return Result.success();
+//        } else {
+//            return Result.retry();
+//        }
 
-
-        int inserted = 0;
-
-        if (arrayLinks.length > 0) {
-            for (String link : arrayLinks) {
-                String testJson = getHtml(link);
-                ContentValues[] data = retrieveDataFromHtml(testJson);
-                if (data != null)
-                    inserted += bulkInsert(data);
-            }
-        } else {
-            String testJson = getHtml(testURLString);
-            if (testJson != null) {
-                retrieveDataFromHtml(testJson);
-                ContentValues[] data = retrieveDataFromHtml(testJson);
-                inserted += bulkInsert(data);
-            }
-
-        }
-
-
-        if (inserted > 0) {
-            NotificationUtils.getInstance().notifyNewTestsAvailable(inserted, workerContext);
-            return Result.success();
-        } else {
-            return Result.retry();
-        }
-
-
+        return Result.retry();
     }
 
     /**

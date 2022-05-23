@@ -65,7 +65,9 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TextView studyName = holder.itemView.findViewById(R.id.testNameViewholder);
         cursor.moveToPosition(position);
-        studyName.setText(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.NAME)));
+        //TODO change cursor db
+//        studyName.setText(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.NAME)));
+        studyName.setText("TODO");
     }
 
     /**
@@ -114,7 +116,7 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder> 
             cursor.moveToPosition(adapterPosition);
 
             if (adapterPosition >= 0 && adapterPosition < cursor.getCount()) {
-                onClickHandler.onClick(cursor.getInt(cursor.getColumnIndex(Provider.Cognimobile_Data._ID)));
+//                onClickHandler.onClick(cursor.getInt(cursor.getColumnIndex(Provider.Cognimobile_Data._ID)));
             }
 
         }

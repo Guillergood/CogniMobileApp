@@ -16,14 +16,11 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.aware.Aware;
-import com.aware.providers.Aware_Provider;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.database.Provider;
-import ugr.gbv.cognimobile.interfaces.QRCallback;
+import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
 /**
  * Fragment to display the Study section in {@link ugr.gbv.cognimobile.activities.MainActivity}
  */
@@ -31,7 +28,7 @@ public class StudyFragment extends Fragment {
 
     private ImageView noStudyTest;
     private Context context;
-    private final QRCallback callBack;
+    private final ServerLinkRetrieval callBack;
     private Cursor cursor;
     private FloatingActionButton joinStudyButton;
     private CardView studyCard;
@@ -42,7 +39,7 @@ public class StudyFragment extends Fragment {
      *
      * @param callBack to call {@link ugr.gbv.cognimobile.qr_reader.ReadQR} from {@link ugr.gbv.cognimobile.activities.MainActivity}
      */
-    public StudyFragment(QRCallback callBack) {
+    public StudyFragment(ServerLinkRetrieval callBack) {
         this.callBack = callBack;
     }
 
@@ -81,7 +78,7 @@ public class StudyFragment extends Fragment {
         quitStudyButton.setOnClickListener(quitStudyClickListener);
         quitStudyButtonLabel.setOnClickListener(quitStudyClickListener);
 
-        joinStudyButton.setOnClickListener(v -> callBack.goToQRActivity());
+        joinStudyButton.setOnClickListener(v -> callBack.goToChooseQrOrTextActivity());
 
         checkNewStudy();
 
@@ -115,17 +112,18 @@ public class StudyFragment extends Fragment {
      * Retrieves the Study information.
      */
     private void fetchStudy() {
-        cursor = Aware.getStudy(context, "");
-        cursor.moveToFirst();
-        int columnName = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_TITLE);
-        int columnDeviceId = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_DEVICE_ID);
-        if(columnName > 0 && columnDeviceId > 0){
-            TextView name = studyCard.findViewById(R.id.studyNameViewholder);
-            TextView description = studyCard.findViewById(R.id.studyDescriptionViewholder);
-            name.setText(cursor.getString(columnName));
-            String descriptionText = getString(R.string.device_id) + cursor.getString(columnDeviceId);
-            description.setText(descriptionText);
-        }
+        //TODO CHANGE DATABASE
+//        cursor = Aware.getStudy(context, "");
+//        cursor.moveToFirst();
+//        int columnName = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_TITLE);
+//        int columnDeviceId = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_DEVICE_ID);
+//        if(columnName > 0 && columnDeviceId > 0){
+//            TextView name = studyCard.findViewById(R.id.studyNameViewholder);
+//            TextView description = studyCard.findViewById(R.id.studyDescriptionViewholder);
+//            name.setText(cursor.getString(columnName));
+//            String descriptionText = getString(R.string.device_id) + cursor.getString(columnDeviceId);
+//            description.setText(descriptionText);
+//        }
     }
 
     /**
@@ -144,22 +142,23 @@ public class StudyFragment extends Fragment {
      * @return true if there is a study enrolled, false if not.
      */
     private boolean emptyStudy() {
-        cursor = Aware.getStudy(context, "");
-        cursor.moveToFirst();
-        return cursor.getCount() == 0;
+//        cursor = Aware.getStudy(context, "");
+//        cursor.moveToFirst();
+//        return cursor.getCount() == 0;
+        return true;
     }
 
     /**
      * Quits the enrolled study.
      */
     private void quitStudy() {
-        Aware.reset(context);
-        context.getContentResolver().delete(
-                Provider.Cognimobile_Data.CONTENT_URI_TESTS,
-                null,
-                null
-        );
-        CognimobilePreferences.setHasUserJoinedStudy(context, false);
-        showNoStudy();
+//        Aware.reset(context);
+//        context.getContentResolver().delete(
+//                Provider.Cognimobile_Data.CONTENT_URI_TESTS,
+//                null,
+//                null
+//        );
+//        CognimobilePreferences.setHasUserJoinedStudy(context, false);
+//        showNoStudy();
     }
 }

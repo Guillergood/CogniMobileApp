@@ -7,8 +7,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.aware.Aware;
-import com.aware.Aware_Preferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -88,7 +86,6 @@ public class JsonParserTests {
                 ContentValues articleValue = new ContentValues();
                 articleValue.put(Provider.Cognimobile_Data.NAME, retrievedTests.get(i).getString(Provider.Cognimobile_Data.NAME));
                 articleValue.put(Provider.Cognimobile_Data.DATA, retrievedTests.get(i).toString());
-                articleValue.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
                 contentValues[i] = articleValue;
             }
             return contentValues;
