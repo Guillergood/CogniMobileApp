@@ -30,7 +30,7 @@
         app:layout_constraintEnd_toStartOf="@+id/filledTextFieldRegistrationLastName"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.32">
+        app:layout_constraintVertical_bias="0.23000002">
 
         <!--this is the actual edit text which takes the input-->
         <com.google.android.material.textfield.TextInputEditText
@@ -48,11 +48,10 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="64dp"
         android:hint="Last Name"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/filledTextFieldRegistrationFirstName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/filledTextFieldRegistrationFirstName"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.32">
+        app:layout_constraintTop_toTopOf="@+id/filledTextFieldRegistrationFirstName">
 
         <!--this is the actual edit text which takes the input-->
         <com.google.android.material.textfield.TextInputEditText

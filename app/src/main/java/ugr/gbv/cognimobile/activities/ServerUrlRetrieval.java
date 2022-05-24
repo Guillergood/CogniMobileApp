@@ -46,7 +46,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
         FloatingActionButton sendUrlFabButton = findViewById(R.id.typeUrlButton);
         LinearLayout qrScannerButton = findViewById(R.id.qrScannerContainer);
         FloatingActionButton qrScannerFabButton = findViewById(R.id.qrScannerButton);
-        EditText inputUrlText = findViewById(R.id.urlText);
+        EditText inputUrlText = findViewById(R.id.editTextServerUrl);
 
         ErrorHandler.setCallback(this);
 

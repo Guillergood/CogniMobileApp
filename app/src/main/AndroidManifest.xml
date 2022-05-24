@@ -45,6 +45,8 @@
         <activity android:name=".qr_reader.ReadQR" />
         <activity android:name=".activities.ServerUrlRetrieval" />
         <activity android:name=".activities.LoginActivity" />
+        <activity android:name=".activities.RegistrationActivity" />
+        <activity android:name=".activities.ForgotPasswordActivity" />
         <activity android:name=".activities.TutorialTest" />
         <activity
             android:name=".activities.WriteTestLink"
