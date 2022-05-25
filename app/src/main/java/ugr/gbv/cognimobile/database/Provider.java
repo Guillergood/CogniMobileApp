@@ -60,15 +60,6 @@ public class Provider extends ContentProvider {
     };
 
 
-    //Cognimobile table fields
-    private static final String DB_TBL_TESTS_FIELDS =
-            Cognimobile_Data._ID + " integer primary key autoincrement," +
-                    Cognimobile_Data.TIMESTAMP + " real default 0," +
-                    Cognimobile_Data.DEVICE_ID + " text default ''," +
-                    Cognimobile_Data.DATA + " longtext default ''," +
-                    Cognimobile_Data.NAME + " longtext default ''," +
-                    Cognimobile_Data.DONE + " integer default 0," +
-                    Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
 
     public static final class Cognimobile_Data implements AWAREColumns {
         public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_TESTS);
@@ -83,31 +74,17 @@ public class Provider extends ContentProvider {
 
     }
 
-    private static final String DB_TBL_RESULTS_FIELDS =
-            Cognimobile_Data._ID + " integer primary key autoincrement," +
-                    Cognimobile_Data.TIMESTAMP + " real default 0," +
-                    Cognimobile_Data.DEVICE_ID + " text default ''," +
-                    Cognimobile_Data.DATA + " longtext default ''," +
-                    Cognimobile_Data.NAME + " longtext default ''," +
-                    Cognimobile_Data.SYNCED + " integer default 0," +
-                    Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
-
-    public static final String[] TABLES_FIELDS = {
-            DB_TBL_TESTS_FIELDS,
-            DB_TBL_RESULTS_FIELDS
-    };
-
     //Helper variables for ContentProvider - DO NOT CHANGE
     private UriMatcher sUriMatcher;
-//    private DatabaseHelper dbHelper;
+    private DatabaseHelper dbHelper;
     private static SQLiteDatabase database;
     private HashMap<String, String> tableMap;
 
     private void initialiseDatabase() {
-//        if (dbHelper == null)
-//            dbHelper = new DatabaseHelper(getContext(), DATABASE_NAME, null, DATABASE_VERSION, DATABASE_TABLES, TABLES_FIELDS);
-//        if (database == null)
-//            database = database.getWritableDatabase();
+        if (dbHelper == null)
+            dbHelper = new DatabaseHelper(getContext());
+        if (database == null)
+            database = dbHelper.getWritableDatabase();
     }
 
 

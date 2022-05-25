@@ -6,11 +6,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Pair;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -26,9 +28,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.database.DatabaseHelper;
+import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
@@ -68,6 +73,11 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.layout_actividad_principal);
         initBottomNavBar();
 
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        SQLiteDatabase mDb = databaseHelper.getReadableDatabase();
+
+        List<Pair<String, String>> list = mDb.getAttachedDbs();
+        System.out.println(list);
         ErrorHandler.setCallback(this);
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
