@@ -3,20 +3,21 @@ package ugr.gbv.cognimobile.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import org.json.JSONArray;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.LoginCallback;
+import ugr.gbv.cognimobile.database.ContentProvider;
+import ugr.gbv.cognimobile.payload.request.LoginRequest;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements LoginCallback {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,7 +36,10 @@ public class LoginActivity extends AppCompatActivity {
             else if(TextUtils.isEmpty(editTextPassword.getText().toString())){
                 Toast.makeText(this,"Password is empty", Toast.LENGTH_LONG).show();
             }
-            //TODO CALL TO THE SERVER
+
+            ContentProvider.getInstance().doLogin(this,
+                    new LoginRequest(editTextUsername.getText().toString(),
+                            editTextPassword.getText().toString()),this);
         });
 
         registerButton.setOnClickListener(view -> {
@@ -58,4 +62,16 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
 
     }
+
+    private void goToMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Override
+    public void loginStored() {
+        goToMainActivity();
+    }
+
 }

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,7 +78,7 @@ public class Introduction extends Activity {
 
         //It will only be displayed on the first launch.
         if (!CognimobilePreferences.getFirstTimeLaunch(getBaseContext())) {
-            goToMainMenu();
+            redirectToTheRightActivity();
         }
 
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
@@ -104,12 +105,12 @@ public class Introduction extends Activity {
             if(current< layouts.length){
                 viewPager.setCurrentItem(current);
             } else {
-                goToMainMenu();
+                redirectToTheRightActivity();
             }
 
         });
         viewPager.setPageTransformer(new ZoomOutPageTransformer());
-        skip.setOnClickListener(view -> goToMainMenu());
+        skip.setOnClickListener(view -> redirectToTheRightActivity());
     }
 
     /**
@@ -134,9 +135,19 @@ public class Introduction extends Activity {
     /**
      * This method allows to get to the main menu activity.
      */
-    private void goToMainMenu() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    private void redirectToTheRightActivity() {
+        if(TextUtils.isEmpty(CognimobilePreferences.getServerUrl(this))){
+            Intent intent = new Intent(this, ServerUrlRetrieval.class);
+            startActivity(intent);
+        }
+        else if(TextUtils.isEmpty(CognimobilePreferences.getLogin(this))){
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        }
+        else{
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
         finish();
     }
 

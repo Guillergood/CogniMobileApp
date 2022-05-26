@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.activities.Introduction;
 
 
 /**
@@ -193,4 +194,23 @@ public class CognimobilePreferences {
         editor.apply();
     }
 
+    public static String getLogin(Context context) {
+        String config = context.getString(R.string.pref_login);
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+
+        return sp.getString(config, "");
+    }
+
+    public static void setLogin(Context context, String value){
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+
+        /* Key for accessing the preference for showing notifications */
+        String config = context.getString(R.string.pref_login);
+
+
+        editor.putString(config, value);
+        editor.apply();
+    }
 }

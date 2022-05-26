@@ -24,6 +24,7 @@ import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
+import ugr.gbv.cognimobile.database.ContentProvider;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 import ugr.gbv.cognimobile.utilities.JsonParserTests;
@@ -61,38 +62,8 @@ public class TestsWorker extends Worker {
     @Override
     public Result doWork() {
         //TODO Reformular
-//        String testURLString = Aware.getSetting(workerContext, Provider.DB_TBL_TESTS);
-//        String[] arrayLinks = getTestsLinks(testURLString);
-//
-//
-//        int inserted = 0;
-//
-//        if (arrayLinks.length > 0) {
-//            for (String link : arrayLinks) {
-//                String testJson = getHtml(link);
-//                ContentValues[] data = retrieveDataFromHtml(testJson);
-//                if (data != null)
-//                    inserted += bulkInsert(data);
-//            }
-//        } else {
-//            String testJson = getHtml(testURLString);
-//            if (testJson != null) {
-//                retrieveDataFromHtml(testJson);
-//                ContentValues[] data = retrieveDataFromHtml(testJson);
-//                inserted += bulkInsert(data);
-//            }
-//
-//        }
-//
-//
-//        if (inserted > 0) {
-//            NotificationUtils.getInstance().notifyNewTestsAvailable(inserted, workerContext);
-//            return Result.success();
-//        } else {
-//            return Result.retry();
-//        }
-
-        return Result.retry();
+        ContentProvider.getInstance().getTests(workerContext);
+        return Result.success();
     }
 
     /**
