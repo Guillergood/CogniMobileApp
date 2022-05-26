@@ -69,13 +69,24 @@ public class TextToSpeechLocal {
                     if (callback != null)
                         callback.startTTS();
                 }
+                else if(result == TextToSpeech.LANG_MISSING_DATA){
+                    ErrorHandler.displayError("The TextToSpeech component could not load the test language: "
+                            + language.getLanguage() + " Please download it in the mobile settings.");
+                }
+                else if(result == TextToSpeech.LANG_NOT_SUPPORTED){
+                    ErrorHandler.displayError("The TextToSpeech component could not load the test language: "
+                            + language.getLanguage() + " It is not supported.");
+                }
+                else if(result == TextToSpeech.ERROR_NETWORK){
+                    ErrorHandler.displayError("The TextToSpeech component could not load the test language: due to a network issue.");
+                }
 
                 if (callback != null) {
                     callback.TTSisInitialized();
                 }
 
             } else {
-                initializeTts(context);
+                ErrorHandler.displayError("The TextToSpeech component could not be iniciated.");
             }
         });
     }

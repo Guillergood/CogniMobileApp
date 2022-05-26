@@ -71,7 +71,7 @@ public class WorkerManager {
                         .addTag(DOWNLOAD_TAG)
                         .build();
 
-        String UPLOAD_TAG = "uploadResults";
+        /*String UPLOAD_TAG = "uploadResults";
         PeriodicWorkRequest uploadRequest =
                 new PeriodicWorkRequest.Builder(ResultWorker.class,
                         context.getResources().getInteger(R.integer.fifteen),
@@ -87,14 +87,14 @@ public class WorkerManager {
                         TimeUnit.DAYS)
                         .setConstraints(constraints)
                         .addTag(DELETE_TAG)
-                        .build();
+                        .build();*/
 
         String DOWNLOAD_UID = "download";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DOWNLOAD_UID,
                         ExistingPeriodicWorkPolicy.KEEP, downloadRequest);
 
-        String UPLOAD_UID = "upload";
+        /*String UPLOAD_UID = "upload";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(UPLOAD_UID,
                         ExistingPeriodicWorkPolicy.KEEP, uploadRequest);
@@ -102,7 +102,7 @@ public class WorkerManager {
         String DELETE_UID = "delete";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DELETE_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);*/
 
     }
 

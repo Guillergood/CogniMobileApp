@@ -14,16 +14,19 @@ import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONArray;
 
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
 import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.payload.request.LoginRequest;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 public class ContentProvider implements Serializable {
@@ -106,20 +109,21 @@ public class ContentProvider implements Serializable {
 
     public void getTests(Context context) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                CognimobilePreferences.getServerUrl(context),
+                CognimobilePreferences.getServerUrl(context) + "/study/tests",
                 response -> {
                     try {
                         //getting the whole json object from the response
                         JSONArray obj = new JSONArray(response);
                         ObjectMapper mapper = new ObjectMapper();
+                        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                         ContentValues[] contentValues = new ContentValues[obj.length()];
                         for(int i = 0; i < obj.length(); ++i){
                             TestDTO test = mapper.readValue(obj.get(i).toString(),TestDTO.class);
-                            ContentValues ropaValue = new ContentValues();
-                            ropaValue.put(Provider.Cognimobile_Data._ID, test.getId());
-                            ropaValue.put(Provider.Cognimobile_Data.DATA, test.toString());
-                            ropaValue.put(Provider.Cognimobile_Data.NAME, test.getName());
-                            contentValues[i] = ropaValue;
+                            ContentValues contentValue = new ContentValues();
+                            contentValue.put(Provider.Cognimobile_Data._ID, test.getId());
+                            contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
+                            contentValue.put(Provider.Cognimobile_Data.NAME, test.getName());
+                            contentValues[i] = contentValue;
                         }
 
                         ContentResolver contentResolver = context.getContentResolver();
@@ -136,13 +140,28 @@ public class ContentProvider implements Serializable {
                         );
 
                     } catch (Exception e) {
-                        ErrorHandler.displayError("Something happened when loading the tests into the database");
+                        ErrorHandler.displayError("Something happened when loading the tests into the database:");
                     }
                 },
                 error -> {
                     //displaying the error in toast if occur
                     Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                    return headers;
+                } catch (JsonProcessingException e) {
+                    VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                    ErrorHandler.displayError("Something happened when loading the tests into the database");
+                }
+                return super.getHeaders();
+            }
+        };
 
         //creating a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(context);

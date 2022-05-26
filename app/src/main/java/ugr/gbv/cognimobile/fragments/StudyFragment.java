@@ -20,6 +20,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.database.ContentProvider;
+import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
 /**
  * Fragment to display the Study section in {@link ugr.gbv.cognimobile.activities.MainActivity}
@@ -78,7 +80,9 @@ public class StudyFragment extends Fragment {
         quitStudyButton.setOnClickListener(quitStudyClickListener);
         quitStudyButtonLabel.setOnClickListener(quitStudyClickListener);
 
-        joinStudyButton.setOnClickListener(v -> callBack.goToChooseQrOrTextActivity());
+        joinStudyButton.setOnClickListener(v -> {
+            ContentProvider.getInstance().getTests(getContext());
+        });
 
         checkNewStudy();
 

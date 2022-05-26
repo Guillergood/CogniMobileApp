@@ -130,7 +130,14 @@ public class ImageTask extends Task {
 
 
         for (int i = 0; i < imagesArray.length; ++i) {
-            Bitmap decodedByte = ImageConverse.getInstance().decodeFromBase64(imagesArray[i]);
+            String[] possibleSplit = imagesArray[i].split("base64,");
+            Bitmap decodedByte;
+            if (possibleSplit.length > 1){
+                decodedByte = ImageConverse.getInstance().decodeFromBase64(possibleSplit[1]);
+            }
+            else {
+                decodedByte = ImageConverse.getInstance().decodeFromBase64(imagesArray[i]);
+            }
             ImageView imageView = new ImageView(context);
             imageView.setId(View.generateViewId());
             imageView.setImageBitmap(decodedByte);

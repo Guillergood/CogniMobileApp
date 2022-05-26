@@ -1,39 +1,25 @@
 package ugr.gbv.cognimobile.activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Pair;
 import android.view.MenuItem;
-import android.widget.Toast;
-
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.database.DatabaseHelper;
-import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
@@ -43,7 +29,7 @@ import ugr.gbv.cognimobile.interfaces.TestClickHandler;
 import ugr.gbv.cognimobile.sync.WorkerManager;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
-import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
+import java.util.ArrayList;
 
 /**
  * MainActivity.class is the core activity that links every component, allowing the user to
@@ -55,10 +41,7 @@ public class MainActivity extends AppCompatActivity
         ServerLinkRetrieval,TestClickHandler, LoadDialog {
 
     private static final String TEST_NAME = "name";
-    private final int LINK_CODE = 1;
-    private final int TEST_CODE = 2;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 999;
-    private final ArrayList<String> REQUIRED_PERMISSIONS = new ArrayList<>();
+    private ActivityResultLauncher<Intent> testFinalization;
     private Fragment actualFragment;
     private Handler handler;
 
@@ -72,13 +55,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_actividad_principal);
         initBottomNavBar();
-
-        DatabaseHelper databaseHelper = new DatabaseHelper(this);
-        SQLiteDatabase mDb = databaseHelper.getReadableDatabase();
-
-        List<Pair<String, String>> list = mDb.getAttachedDbs();
-        System.out.println(list);
         ErrorHandler.setCallback(this);
+
+        //WorkerManager.getInstance().initiateWorkers(getApplicationContext());
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();
@@ -94,40 +73,21 @@ public class MainActivity extends AppCompatActivity
             actualFragment = new StudyFragment(this);
         }
 
-
         loadFragment();
 
-    }
+        testFinalization = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // There are no request codes
+                        if (result.getData() != null && result.getData().getExtras() != null) {
+                            String name = result.getData().getStringExtra(TEST_NAME);
+                            TestsFragment fragment = (TestsFragment) actualFragment;
+                            fragment.deleteTest(name);
+                        }
+                    }
+                });
 
-    /**
-     * onRequestPermissionsResult method allows to catch information from a requested permission.
-     * Using the {@link #requestPermissions(String[], int)} method:
-     *
-     * @param requestCode  Application specific request code to match with a result
-     *                     reported to {@link #onRequestPermissionsResult(int, String[], int[])}.
-     *                     Should be >= 0.
-     * @param permissions  The requested permissions. Must be non-null and not empty.
-     * @param grantResults The requested permissions granted. Must be non-null and not empty.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-
-        //        if (requestCode == CAMERA_PERMISSION_CODE) {
-        if (requestCode == 3) {
-
-            // Checking whether user granted the permission or not.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                // Showing the toast message
-                Toast.makeText(MainActivity.this, "Camera Permission Granted", Toast.LENGTH_SHORT).show();
-            }
-            else {
-                Toast.makeText(MainActivity.this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
     }
 
     /**
@@ -191,51 +151,6 @@ public class MainActivity extends AppCompatActivity
         return activeNetwork != null;
     }
 
-    /**
-     * onActivityResult method allows to catch information from a child activity.
-     * Using the {@link #setResult(int)} , {@link #setResult(int, Intent)} methods:
-     *
-     * @param requestCode The integer request code originally supplied to
-     *                    startActivityForResult(), allowing you to identify who this
-     *                    result came from.
-     * @param resultCode  The integer result code returned by the child activity
-     *                    through its setResult().
-     * @param data        An Intent, which can return result data to the caller
-     *                    (various data can be attached to Intent "extras").
-     *                    <p>
-     *                    It catches the link url to be consumed by AWARE.
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == LINK_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                String link = data.getStringExtra(INTENT_LINK_LABEL);
-                if (link != null) {
-                    //TODO JOIN STUDY TO THE NEW SERVER
-
-                    if (hasUserConnectivity()) {
-                        CognimobilePreferences.setHasUserJoinedStudy(this, true);
-                        reloadUiWhenJoined();
-                        Toast.makeText(this, R.string.toast_joining_study, Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();
-                    }
-                }
-
-            } else {
-                Toast.makeText(this, R.string.toast_could_not_join_study, Toast.LENGTH_LONG).show();
-            }
-        } else if (requestCode == TEST_CODE) {
-            if (resultCode == RESULT_OK && data != null) {
-                String name = data.getStringExtra(TEST_NAME);
-                TestsFragment fragment = (TestsFragment) actualFragment;
-                fragment.deleteTest(name);
-            }
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
 
     /**
      * This method allows to handle the click from the {@link #onClick(int)}}, and starts the activity
@@ -246,7 +161,7 @@ public class MainActivity extends AppCompatActivity
     private void goToTest(int id) {
         Intent intent = new Intent(this, Test.class);
         intent.putExtra("id", id);
-        startActivityForResult(intent, TEST_CODE);
+        testFinalization.launch(intent);
     }
 
     private void displayTutorialDialog() {

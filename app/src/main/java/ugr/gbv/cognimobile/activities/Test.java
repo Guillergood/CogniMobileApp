@@ -39,6 +39,9 @@ import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,6 +50,7 @@ import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
@@ -100,16 +104,19 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         String[] selectionArgs = {Integer.toString(getIntent().getIntExtra("id", 0))};
         String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
         Cursor cursor = getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
-        assert cursor != null;
-        cursor.moveToFirst();
-        String rawJson = cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA));
-
-        cursor.close();
-
+        TestDTO test = null;
         try {
-            fragments = JsonParserTests.getInstance().parseTestToTasks(rawJson,this);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            assert cursor != null;
+            cursor.moveToFirst();
+            String rawJson = cursor.getString(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DATA));
+            cursor.close();
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            test = objectMapper.readValue(rawJson, TestDTO.class);
+            fragments = JsonParserTests.getInstance().parseTestToTasks(test,this);
+        } catch (JSONException | JsonProcessingException e) {
+            ErrorHandler.displayError("There has been an error trying to load the test");
+            finish();
         }
 
 
@@ -123,22 +130,18 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
 
         try {
-            JSONObject reader = new JSONObject(rawJson);
-            name = reader.getString("name");
-            String language = reader.getString("language");
-            this.language = new Locale(language);
-            jsonAnswerWrapper = new JsonAnswerWrapper(name, language);
-            jsonContextEvents = new JsonAnswerWrapper(name, language);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            this.language = new Locale(test.getLanguage());
+            jsonAnswerWrapper = new JsonAnswerWrapper(test.getName(), test.getLanguage());
+            jsonContextEvents = new JsonAnswerWrapper(test.getName(), test.getLanguage());
+        } catch (JSONException | NullPointerException e) {
+            ErrorHandler.displayError("There has been an error trying to finalize the test");
+            finish();
         }
 
 
         Intent checkIntent = new Intent();
         checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
         startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
-
-
     }
 
     /**

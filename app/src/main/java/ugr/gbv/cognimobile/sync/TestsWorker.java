@@ -61,7 +61,6 @@ public class TestsWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        //TODO Reformular
         ContentProvider.getInstance().getTests(workerContext);
         return Result.success();
     }

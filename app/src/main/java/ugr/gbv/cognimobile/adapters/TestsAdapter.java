@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 /**
  * Adapter for the {@link ugr.gbv.cognimobile.fragments.TestsFragment}
@@ -63,11 +64,15 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder> 
      */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        TextView studyName = holder.itemView.findViewById(R.id.testNameViewholder);
+        TextView testName = holder.itemView.findViewById(R.id.testNameViewholder);
         cursor.moveToPosition(position);
-        //TODO change cursor db
-//        studyName.setText(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.NAME)));
-        studyName.setText("TODO");
+        int columnIndex = cursor.getColumnIndex(Provider.Cognimobile_Data.NAME);
+        if(columnIndex >= 0) {
+            testName.setText(cursor.getString(columnIndex));
+        }
+        else{
+            ErrorHandler.displayError("Some error happened displaying the tests");
+        }
     }
 
     /**
@@ -115,8 +120,10 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder> 
             int adapterPosition = getAdapterPosition();
             cursor.moveToPosition(adapterPosition);
 
-            if (adapterPosition >= 0 && adapterPosition < cursor.getCount()) {
-//                onClickHandler.onClick(cursor.getInt(cursor.getColumnIndex(Provider.Cognimobile_Data._ID)));
+            int testPosition = cursor.getColumnIndex(Provider.Cognimobile_Data._ID);
+
+            if (adapterPosition >= 0 && adapterPosition < cursor.getCount() && testPosition >= 0) {
+                onClickHandler.onClick(cursor.getInt(testPosition));
             }
 
         }

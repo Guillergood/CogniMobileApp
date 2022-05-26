@@ -1136,9 +1136,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         try {
             startActivityForResult(intent, TextToSpeechLocal.STT_CODE);
         } catch (ActivityNotFoundException a) {
-            Toast.makeText(context,
-                    "Sorry your device not supported",
-                    Toast.LENGTH_SHORT).show();
+            ErrorHandler.displayError("This device is not supported to have Speech To Text, sorry.");
         }
     }
 
