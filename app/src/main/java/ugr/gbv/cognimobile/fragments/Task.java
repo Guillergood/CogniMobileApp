@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.dto.ResultEvent;
+import ugr.gbv.cognimobile.dto.ResultTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
@@ -44,6 +46,8 @@ public abstract class Task extends Fragment {
     private Dialog builder;
     LoadContent callBack;
     FloatingActionButton centerButton;
+    ResultEvent event = new ResultEvent();
+    ResultTask resultTask = new ResultTask();
     TextView bannerText;
     RelativeLayout banner;
     FloatingActionButton submitAnswerButton;
@@ -113,12 +117,13 @@ public abstract class Task extends Fragment {
         try {
             checkIfUserHasSkippedTask();
             if (taskType < Task.MEMORY) {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
-            }
-            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeNextTask, ContextDataRetriever.addTimeStamp());
-            callBack.getJsonContextEvents().addTaskField();
-            callBack.getJsonAnswerWrapper().addTaskField();
 
+                event.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
+                callBack.getTestEventDTO().getEvents().add(event);
+            }
+            ResultEvent event = new ResultEvent();
+            event.setGenericTimeNextTask(ContextDataRetriever.addTimeStamp());
+            callBack.getTestEventDTO().getEvents().add(event);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -161,51 +166,47 @@ public abstract class Task extends Fragment {
         boolean skipped = false;
         switch (taskType) {
             case GRAPH:
-                skipped = callBack.getJsonContextEvents().getFieldArray(ContextDataRetriever.SpecificATMPoints).length() == 0;
+                skipped = event.getSpecificATMPoints().size() == 0;
                 break;
             case CUBE:
-                skipped = callBack.getJsonContextEvents().getFieldArray(ContextDataRetriever.SpecificVSCubePoints).length() == 0;
+                skipped = event.getSpecificVSCubePoints().size() == 0;
                 break;
             case WATCH:
-                skipped = callBack.getJsonContextEvents().getFieldArray(ContextDataRetriever.SpecificVSClockPoints).length() == 0;
+                skipped = event.getSpecificVSClockPoints().size() == 0;
                 break;
             case IMAGE:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificNamingCharacterChange).isEmpty();
+                skipped = event.getSpecificNamingCharacterChange().isEmpty();
                 break;
             case MEMORY:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificMemoryCharacterChange).isEmpty();
+                skipped = event.getSpecificMemoryCharacterChange().isEmpty();
                 break;
             case ATTENTION_NUMBERS:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificAttentionNumbersItemPosition).isEmpty();
+                skipped = event.getSpecificAttentionNumbersItemPosition().isEmpty();
                 break;
             case ATTENTION_LETTERS:
                 skipped = !taskEnded;
                 break;
             case ATTENTION_SUBTRACTION:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificSubtractionCharacterChange).isEmpty();
+                skipped = event.getSpecificSubtractionCharacterChange().isEmpty();
                 break;
             case LANGUAGE:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificSRCharacterChange).isEmpty();
+                skipped = event.getSpecificSRCharacterChange().isEmpty();
                 break;
             case FLUENCY:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificFluencyCharacterChange).isEmpty();
+                skipped = event.getSpecificFluencyCharacterChange().isEmpty();
                 break;
             case ABSTRACTION:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificAbstractionCharacterChange).isEmpty();
+                skipped = event.getSpecificAbstractionCharacterChange().isEmpty();
                 break;
             case RECALL:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificRecallCharacterChange).isEmpty();
+                skipped = event.getSpecificRecallCharacterChange().isEmpty();
                 break;
             case ORIENTATION:
-                skipped = callBack.getJsonContextEvents().getFieldString(ContextDataRetriever.SpecificOrientationCharacterChange).isEmpty();
+                skipped = event.getSpecificOrientationCharacterChange().isEmpty();
                 break;
         }
 
-        try {
-            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericSkippedTask, skipped);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        event.setGenericSkippedTask(skipped);
     }
 
     /**
@@ -283,11 +284,7 @@ public abstract class Task extends Fragment {
 
         centerButton.setOnClickListener(dialogInterface -> {
             showDialog();
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeHelp, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            event.setGenericTimeHelp(ContextDataRetriever.addTimeStamp());
         });
     }
 
@@ -333,11 +330,7 @@ public abstract class Task extends Fragment {
      */
     void taskIsEnded() {
         taskEnded = true;
-        try {
-            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        event.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
         showTaskIsEnded();
         setNextButtonStandardBehaviour();
         if (taskType == ATTENTION_LETTERS) {
@@ -475,24 +468,12 @@ public abstract class Task extends Fragment {
      */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-
         writing = false;
-
         if (taskType > Task.IMAGE) {
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeBeforeTask, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            event.setGenericTimeBeforeTask(ContextDataRetriever.addTimeStamp());
         } else {
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeStartTask, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            event.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
         }
-
-
         super.onCreate(savedInstanceState);
     }
 }

@@ -46,43 +46,43 @@ public class ResultWorker extends Worker {
     @Override
     public Result doWork() {
 
+//
+//        String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
+//
+//        String where = Provider.Cognimobile_Data.SYNCED + " LIKE ?";
+//        String[] selectionArgs = {"0"};
+//
+//        Cursor cursor = workerContext.getContentResolver().query(Provider.CONTENT_URI_RESULTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
+//
+//        int inserted = 0;
+//
+//        if (cursor != null && cursor.getCount() > 0) {
+//            cursor.moveToFirst();
+//            inserted = cursor.getCount();
+//            while (!cursor.isAfterLast()) {
+//                JSONArray jsonArray = null;
+//                try {
+//                    //jsonArray = new JSONArray(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA)));
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                if (jsonArray != null) {
+//                 //   DataSender.getInstance().postToServer("insert", "results", jsonArray, getApplicationContext());
+//                }
+//            }
+//
+//            cursor.close();
+//
+//        }
+//
+//
+//        if (inserted > 0) {
+//            return Result.success();
+//        } else {
+//            return Result.retry();
+//        }
 
-        String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
-
-        String where = Provider.Cognimobile_Data.SYNCED + " LIKE ?";
-        String[] selectionArgs = {"0"};
-
-        Cursor cursor = workerContext.getContentResolver().query(Provider.CONTENT_URI_RESULTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
-
-        int inserted = 0;
-
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.moveToFirst();
-            inserted = cursor.getCount();
-            while (!cursor.isAfterLast()) {
-                JSONArray jsonArray = null;
-                try {
-                    jsonArray = new JSONArray(cursor.getString(cursor.getColumnIndex(Provider.Cognimobile_Data.DATA)));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if (jsonArray != null) {
-                    DataSender.getInstance().postToServer("insert", "results", jsonArray, getApplicationContext());
-                }
-            }
-
-            cursor.close();
-
-        }
-
-
-        if (inserted > 0) {
-            return Result.success();
-        } else {
-            return Result.retry();
-        }
-
-
+        return Result.success();
     }
 
 }

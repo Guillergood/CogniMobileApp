@@ -4,10 +4,17 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.icu.util.Calendar;
-import android.net.Uri;
 
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 
+import com.android.volley.*;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,12 +25,16 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.database.ContentProvider;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
 
 /**
  * Class to send the data to the server
@@ -33,6 +44,7 @@ public class DataSender implements Serializable {
 
     private static volatile DataSender instantiated;
     public final static String INSERT = "insert";
+    private boolean retry = true;
 
     /**
      * Private constructor "singleton" pattern
@@ -62,12 +74,60 @@ public class DataSender implements Serializable {
     /**
      * Post a command in the server, using a RESTful API
      *
-     * @param command using any of the CRUD ones
-     * @param table   the name of the table to commit the command
      * @param data    the data to post
      * @param context parent activity context
      */
-    public void postToServer(String command, String table, @NonNull JSONArray data, Context context) {
+    public void postToServer(@NonNull Object data, Context context, String url) throws JsonProcessingException {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                CognimobilePreferences.getServerUrl(context) + url,
+                response -> {
+                    ErrorHandler.displayError("Datos enviados");
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if (error.networkResponse.statusCode == 401) {
+                        refreshAccessToken(context);
+                    } else {
+                        ErrorHandler.displayError("Error sending the data.");
+                    }
+                    Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    return objectMapper.writeValueAsBytes(data);
+                } catch (JsonProcessingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of the answers or events.");
+                    return null;
+                }
+
+            }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                    return headers;
+                } catch (JsonProcessingException e) {
+                    VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                    ErrorHandler.displayError("Something happened when loading the tests into the database");
+                }
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
 
 //          TODO REFORMULATE
 //        HashMap<String, Object> params = new HashMap<>();
@@ -133,6 +193,30 @@ public class DataSender implements Serializable {
 //        thread.start();
 
 
+    }
+
+    void refreshAccessToken(Context context) {
+
+        JsonObjectRequest refreshTokenRequest = new JsonObjectRequest(Request.Method.POST,
+                CognimobilePreferences.getServerUrl(context), null, response -> {
+            try {
+                String accessToken = response.getString("access_token");
+                ObjectMapper objectMapper = new ObjectMapper();
+                JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                jwt.setToken(accessToken);
+                CognimobilePreferences.setLogin(context,objectMapper.writeValueAsString(jwt));
+            } catch (JSONException | JsonProcessingException e) {
+                // this will never happen but if so, show error to user.
+                ErrorHandler.displayError("Error refreshing the authentication.");
+            }
+        }, error -> {
+            CognimobilePreferences.setLogin(context, "");
+        });
+        //creating a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+
+        //adding the string request to request queue
+        requestQueue.add(refreshTokenRequest);
     }
 
     /**

@@ -13,23 +13,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.json.JSONException;
-
-import java.util.ArrayList;
-
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.dto.TaskType;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.ImageConverse;
 import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -300,16 +297,16 @@ public class ImageTask extends Task {
      * Overrides {@link Task#saveResults()}
      */
     @Override
-    void saveResults() throws JSONException {
+    void saveResults() {
         setScoring();
         addSubmitTime();
-        callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answers);
-        callBack.getJsonAnswerWrapper().addStringArray("expected_answers", expectedAnswers);
-        callBack.getJsonAnswerWrapper().addField("task_type", taskType);
-        callBack.getJsonAnswerWrapper().addField("score", score);
-        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificNamingSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+        resultTask.setAnswerSequence(answers);
+        resultTask.setExpectedAnswer(Arrays.asList(expectedAnswers));
+        resultTask.setTaskType(TaskType.values()[taskType]);
+        resultTask.setScore(score);
+        event.setSpecificNamingCharacterChange(ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+        event.setSpecificNamingStartWriting(ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+        event.setSpecificNamingSubmitAnswer(ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
     }
 
     /**
@@ -327,7 +324,7 @@ public class ImageTask extends Task {
                 boolean goOn = true;
 
                 for (int i = 0; i < possibleAnswers.length && goOn; ++i) {
-                    if (possibleAnswers[i].toLowerCase().equals(firstInput.getText().toString().toLowerCase())) {
+                    if (possibleAnswers[i].equalsIgnoreCase(firstInput.getText().toString())) {
                         score++;
                         goOn = false;
                     }

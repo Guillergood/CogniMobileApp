@@ -18,15 +18,10 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
-import android.view.textservice.SentenceSuggestionsInfo;
-import android.view.textservice.SpellCheckerSession;
-import android.view.textservice.SuggestionsInfo;
-import android.view.textservice.TextInfo;
-import android.view.textservice.TextServicesManager;
+import android.view.textservice.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -36,28 +31,25 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
-
 import com.airbnb.lottie.LottieAnimationView;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Locale;
-
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.dto.TestAnswerDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.dto.TestEventDTO;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.utilities.DataSender;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
-import ugr.gbv.cognimobile.utilities.JsonAnswerWrapper;
 import ugr.gbv.cognimobile.utilities.JsonParserTests;
+
+import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Test allows the user to do a test from the local database.
@@ -67,10 +59,9 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     private static final int MY_DATA_CHECK_CODE = 1050;
     private ArrayList<Task> fragments;
     private int index;
-    private int totalScore;
     private View mContentView;
-    private JsonAnswerWrapper jsonAnswerWrapper;
-    private JsonAnswerWrapper jsonContextEvents;
+    private TestAnswerDTO testAnswerDTO;
+    private TestEventDTO testEventDTO;
     private String name;
     private Locale language;
 
@@ -119,10 +110,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             finish();
         }
 
-
         index = 0;
-        totalScore = 0;
-
 
         initKeyBoardListener();
 
@@ -131,9 +119,13 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
         try {
             this.language = new Locale(test.getLanguage());
-            jsonAnswerWrapper = new JsonAnswerWrapper(test.getName(), test.getLanguage());
-            jsonContextEvents = new JsonAnswerWrapper(test.getName(), test.getLanguage());
-        } catch (JSONException | NullPointerException e) {
+            testAnswerDTO = new TestAnswerDTO();
+            testAnswerDTO.setTestName(test.getName());
+            testAnswerDTO.setLanguage(test.getLanguage());
+            testEventDTO = new TestEventDTO();
+            testEventDTO.setTestName(test.getName());
+            testEventDTO.setLanguage(test.getLanguage());
+        } catch (NullPointerException e) {
             ErrorHandler.displayError("There has been an error trying to finalize the test");
             finish();
         }
@@ -198,22 +190,19 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
      */
     @Override
     public void loadContent() {
-        if (index > 1)
-            totalScore += fragments.get(index).getScore();
         ++index;
         hideKeyboard(this);
         if (index < fragments.size()) {
             loadFragment(fragments.get(index));
         } else{
+            Intent intent = new Intent();
+            intent.putExtra("name", name);
+            setResult(RESULT_OK, intent);
             try {
-                jsonAnswerWrapper.addTotalScore(totalScore);
-                Intent intent = new Intent();
-                intent.putExtra("name", name);
-                setResult(RESULT_OK, intent);
-                DataSender.getInstance().postToServer("insert", "contextEvents", jsonContextEvents.getJSONArray(), getApplicationContext());
-                DataSender.getInstance().postToServer("insert", "results", jsonAnswerWrapper.getJSONArray(), getApplicationContext());
-            } catch (JSONException e) {
-                e.printStackTrace();
+                DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/result/answer");
+                DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/result/event");
+            } catch (JsonProcessingException e) {
+                ErrorHandler.displayError("Error sending the data to the server. The data will be try to be sent some other time.");
             }
             showTestCompletedDialog();
         }
@@ -246,13 +235,13 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
 
     @Override
-    public JsonAnswerWrapper getJsonAnswerWrapper() {
-        return jsonAnswerWrapper;
+    public TestAnswerDTO getJsonAnswerWrapper() {
+        return testAnswerDTO;
     }
 
     @Override
-    public JsonAnswerWrapper getJsonContextEvents() {
-        return jsonContextEvents;
+    public TestEventDTO getTestEventDTO() {
+        return testEventDTO;
     }
 
 
