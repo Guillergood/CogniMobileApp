@@ -379,21 +379,12 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                     Objects.requireNonNull(bundle);
                     switch (taskType) {
                         case RECALL:
-                            resultTask.setExpectedAnswer(Arrays.asList(
-                                    Objects.requireNonNull(bundle.getStringArray("words"))));
                             recall(bundle.getStringArray("words"));
                             break;
                         case MEMORY:
-                            resultTask.setExpectedAnswer(Arrays.asList(
-                                    Objects.requireNonNull(bundle.getStringArray("words"))));
-                            resultTask.setTimes(bundle.getInt("times"));
                             memorization(bundle.getStringArray("words"), bundle.getInt("times"));
                             break;
                         case ATTENTION_NUMBERS:
-                            resultTask.setExpectedAnswer(Arrays.asList(
-                                    Objects.requireNonNull(bundle.getStringArray("numbers_forward"))));
-                            resultTask.setExpectedAnswerBackwards(Arrays.asList(
-                                    Objects.requireNonNull(bundle.getStringArray("numbers_backward"))));
                             if(firstDone){
                                 repeatBackwards(bundle.getStringArray("numbers_backward"));
                             }
@@ -403,19 +394,12 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                             onlyNumbersInputAccepted = true;
                             break;
                         case ATTENTION_LETTERS:
-                            resultTask.setTarget_letter(bundle.getString("target_letter"));
-                            resultTask.setLetters(Arrays.asList(
-                                    Objects.requireNonNull(bundle.getStringArray("letters"))));
                             tapLetter(bundle.getStringArray("letters"));
                             break;
                         case LANGUAGE:
-                            resultTask.setExpectedAnswer(Arrays.asList(
-                                    Objects.requireNonNull(bundle.getStringArray("phrases"))));
                             repeatPhrase(Objects.requireNonNull(bundle.getStringArray("phrases")));
                             break;
                         case FLUENCY:
-                            resultTask.setTarget_letter(bundle.getString("target_letter"));
-                            resultTask.setNumberWords(bundle.getInt("number_words"));
                             fluency();
                             break;
 
@@ -429,22 +413,13 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         else{
             switch (taskType){
                 case ORIENTATION:
-                    resultTask.setQuestions(Arrays.asList(
-                            Objects.requireNonNull(bundle.getStringArray("questions"))));
                     orientation(Objects.requireNonNull(bundle.getStringArray("questions")));
                     break;
                 case ATTENTION_SUBTRACTION:
-                    resultTask.setMinuend(bundle.getInt("minuend"));
-                    resultTask.setSubtracting(bundle.getInt("subtracting"));
-                    resultTask.setTimes(bundle.getInt("times"));
                     subtractions(bundle.getInt("minuend"), bundle.getInt("subtracting"), bundle.getInt("times"));
                     onlyNumbersInputAccepted = true;
                     break;
                 case ABSTRACTION:
-                    resultTask.setQuestions(Arrays.asList(Objects.requireNonNull(
-                            bundle.getStringArray("words"))));
-                    resultTask.setExpectedAnswer(Arrays.asList(Objects.requireNonNull(
-                            bundle.getStringArray("answer"))));
                     abstraction(bundle.getStringArray("words"), bundle.getStringArray("answer"));
                     break;
                 default:
@@ -1244,19 +1219,21 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         resultTask.setTaskType(TaskType.values()[taskType]);
         switch (taskType) {
             case ATTENTION_NUMBERS:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_forward"))));
+                resultTask.setExpectedAnswerBackwards(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_backward"))));
                 if (variousInputs != null && variousInputs.size() > 0) {
                     for (EditText editText : variousInputs) {
                         answers.add(editText.getText().toString());
                     }
                     if (firstDone) {
                         resultTask.setAnswerBackwards(answers);
-                        resultTask.setExpectedAnswerBackwards(Arrays.asList(array));
                         resultEvent.setSpecificAttentionNumbersItemPositionBackwards( ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
                         resultEvent.setSpecificAttentionNumbersStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
                         resultEvent.setSpecificAttentionNumbersSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                     } else {
                         resultTask.setAnswer(answers);
-                        resultTask.setExpectedAnswer(Arrays.asList(array));
                         resultEvent.setSpecificAttentionNumbersItemPosition( ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
                         positionFilling.clear();
                     }
@@ -1266,6 +1243,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
 
             case FLUENCY:
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultTask.setNumberWords(bundle.getInt("number_words"));
                 answers = adapter.getAllWords();
                 Collections.reverse(answers);
                 resultTask.setAnswer(answers);
@@ -1280,7 +1259,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 answers = adapter.getAllWords();
                 Collections.reverse(answers);
                 resultTask.setAnswer(answers);
-                resultTask.setExpectedAnswer(Arrays.asList(array));
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
                 resultEvent.setSpecificRecallScrollingList( ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
                 resultEvent.setSpecificRecallSettlingList( ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
                 resultEvent.setSpecificRecallCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
@@ -1296,7 +1276,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 if(startWritingTimes.size() > 0)
                     startWritingTimes.remove(startWritingTimes.size() - 1);
                 resultTask.setAnswer(answers);
-                resultTask.setExpectedAnswer(Arrays.asList(array));
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                resultTask.setTimes(bundle.getInt("times"));
                 resultEvent.setSpecificMemoryScrollingList( ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
                 resultEvent.setSpecificMemorySettlingList( ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
                 resultEvent.setSpecificMemoryCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
@@ -1305,9 +1287,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
             case ATTENTION_LETTERS:
                 resultTask.setAnswer(answers);
-                resultTask.setLetters(Arrays.asList(array));
                 resultTask.setOccurrences(getLetterOccurrences());
                 resultTask.setExpectedAnswer(Arrays.asList(array));
+                resultTask.setLetters(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("letters"))));
                 resultTask.setTarget_letter(bundle.getString("target_letter"));
                 resultEvent.setSpecificAttentionLettersSoundTimes( ContextDataRetriever.retrieveInformationFromLongArrayList(soundTimes));
                 resultEvent.setSpecificAttentionLettersTimeToAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(clickingTimes));
@@ -1315,6 +1298,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
             case ATTENTION_SUBTRACTION:
                 resultTask.setAnswer(answers);
+                resultTask.setMinuend(bundle.getInt("minuend"));
+                resultTask.setSubtracting(bundle.getInt("subtracting"));
+                resultTask.setTimes(bundle.getInt("times"));
                 resultEvent.setSpecificSubtractionCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
                 resultEvent.setSpecificSubtractionStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
                 resultEvent.setSpecificSubtractionSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
@@ -1322,7 +1308,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
             case LANGUAGE:
                 resultTask.setAnswer(answers);
-                resultTask.setExpectedAnswer(Arrays.asList(array));
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("phrases"))));
                 resultEvent.setSpecificSRCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
                 resultEvent.setSpecificSRStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
                 resultEvent.setSpecificSRSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
@@ -1331,7 +1318,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             case ABSTRACTION:
                 resultTask.setAnswer(answers);
                 resultTask.setWords(answers);
-                resultTask.setExpectedAnswer(expectedAnswers);
+                resultTask.setQuestions(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("words"))));
+                resultTask.setExpectedAnswer(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("answer"))));
                 resultEvent.setSpecificAbstractionCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
                 resultEvent.setSpecificAbstractionStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
                 resultEvent.setSpecificAbstractionSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
@@ -1339,7 +1329,8 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
             case ORIENTATION:
                 resultTask.setAnswer(answers);
-                resultTask.setQuestions(Arrays.asList(array));
+                resultTask.setQuestions(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("questions"))));
                 resultEvent.setSpecificOrientationCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
                 resultEvent.setSpecificOrientationStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
                 resultEvent.setSpecificOrientationSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
