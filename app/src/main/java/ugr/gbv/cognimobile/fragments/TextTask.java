@@ -223,8 +223,63 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         array = new String[0];
 
+        initializeResultTask();
+
 
         return mainView;
+    }
+
+    private void initializeResultTask() {
+        Objects.requireNonNull(bundle);
+        switch (taskType) {
+            case RECALL:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                break;
+            case MEMORY:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                resultTask.setTimes(bundle.getInt("times"));
+                break;
+            case ATTENTION_NUMBERS:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_forward"))));
+                resultTask.setExpectedAnswerBackwards(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_backward"))));
+                break;
+            case ATTENTION_LETTERS:
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultTask.setLetters(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("letters"))));
+                break;
+            case LANGUAGE:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("phrases"))));
+                break;
+            case FLUENCY:
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultTask.setNumberWords(bundle.getInt("number_words"));
+                break;
+
+            case ORIENTATION:
+                resultTask.setQuestions(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("questions"))));
+                break;
+            case ATTENTION_SUBTRACTION:
+                resultTask.setMinuend(bundle.getInt("minuend"));
+                resultTask.setSubtracting(bundle.getInt("subtracting"));
+                resultTask.setTimes(bundle.getInt("times"));
+                break;
+            case ABSTRACTION:
+                resultTask.setQuestions(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("words"))));
+                resultTask.setExpectedAnswer(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("answer"))));
+                break;
+            default:
+                throw new RuntimeException("INVALID TASKTYPE");
+        }
+
     }
 
 

@@ -203,7 +203,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
                 testAnswerDTO.setCreatedAt(currentDate);
                 DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/test/result/answer");
                 DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/test/result/event");
-            } catch (JsonProcessingException | JSONException e) {
+            } catch (JsonProcessingException e) {
                 ErrorHandler.displayError("Error sending the data to the server. The data will be try to be sent some other time.");
             }
             showTestCompletedDialog();

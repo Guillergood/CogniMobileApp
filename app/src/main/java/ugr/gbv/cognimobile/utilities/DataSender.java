@@ -75,16 +75,13 @@ public class DataSender implements Serializable {
      * @param data    the data to post
      * @param context parent activity context
      */
-    public void postToServer(@NonNull Object data, Context context, String subPath) throws JsonProcessingException, JSONException {
-
-        CustomObjectMapper objectMapper = new CustomObjectMapper();
-
-        JSONObject jsonObject = new JSONObject(objectMapper.writeValueAsString(data));
-
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
-                Request.Method.POST,CognimobilePreferences.getServerUrl(context) + subPath,jsonObject,
+    public void postToServer(@NonNull Object data, Context context, String subPath) throws JsonProcessingException {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                CognimobilePreferences.getServerUrl(context) + subPath,
                 response -> {
-                }, error -> {
+                },
+                error -> {
+                    //displaying the error in toast if occur
                     if (error.networkResponse.statusCode == 401) {
                         refreshAccessToken(context);
                     } else {
@@ -92,9 +89,22 @@ public class DataSender implements Serializable {
                     }
                 }) {
 
-            /**
-             * Passing some request headers
-             * */
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() {
+                try {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    return objectMapper.writeValueAsBytes(data);
+                } catch (JsonProcessingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of the answers or events.");
+                    return null;
+                }
+
+            }
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 CustomObjectMapper objectMapper = new CustomObjectMapper();
@@ -102,7 +112,6 @@ public class DataSender implements Serializable {
                     JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
                     Map<String, String> headers = new HashMap<>();
                     headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
-                    headers.put("Content-Type", "application/json; charset=utf-8");
                     return headers;
                 } catch (JsonProcessingException e) {
                     VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
@@ -112,10 +121,9 @@ public class DataSender implements Serializable {
             }
         };
 
-
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         //adding the string request to request queue
-        requestQueue.add(jsonObjReq);
+        requestQueue.add(stringRequest);
 
 //          TODO REFORMULATE
 //        HashMap<String, Object> params = new HashMap<>();

@@ -315,13 +315,18 @@ public class DrawTask extends Task implements LoadDraw {
         resultTask.setWidth(drawingView.getCanvasWidth());
         resultTask.setPointsSequence(convertFloatToDoubleList(drawingView.getDrawnPath()));
 
-
         switch (taskType) {
             case GRAPH:
                 setScoring();
                 resultTask.setAnswer(answer);
                 resultTask.setScore(score);
                 resultTask.setErasedPaths(convertFloatToDoubleList(drawingView.getErasedPath()));
+                List<Double> list = new ArrayList<>();
+                sequence.forEach( point -> {
+                    list.add((double) point.getX());
+                    list.add((double) point.getY());
+                });
+                resultTask.setPointsSequence(list);
 
                 resultEvent.setSpecificATMAlreadyClickedButton(ContextDataRetriever.retrieveInformationFromStringArrayList(alreadyPressedButtons));
                 resultEvent.setSpecificATMPoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
