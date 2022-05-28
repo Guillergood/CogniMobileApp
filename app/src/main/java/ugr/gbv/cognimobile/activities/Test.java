@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,12 +45,11 @@ import ugr.gbv.cognimobile.dto.TestEventDTO;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
-import ugr.gbv.cognimobile.utilities.DataSender;
-import ugr.gbv.cognimobile.utilities.ErrorHandler;
-import ugr.gbv.cognimobile.utilities.JsonParserTests;
+import ugr.gbv.cognimobile.utilities.*;
 
-import java.util.ArrayList;
-import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * Test allows the user to do a test from the local database.
@@ -101,8 +101,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             cursor.moveToFirst();
             String rawJson = cursor.getString(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DATA));
             cursor.close();
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            CustomObjectMapper objectMapper = new CustomObjectMapper();
             test = objectMapper.readValue(rawJson, TestDTO.class);
             fragments = JsonParserTests.getInstance().parseTestToTasks(test,this);
         } catch (JSONException | JsonProcessingException e) {
@@ -199,9 +198,12 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             intent.putExtra("name", name);
             setResult(RESULT_OK, intent);
             try {
-                DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/result/answer");
-                DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/result/event");
-            } catch (JsonProcessingException e) {
+                String currentDate = ContextDataRetriever.getCurrentDateString(language);
+                testEventDTO.setCreatedAt(currentDate);
+                testAnswerDTO.setCreatedAt(currentDate);
+                DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/test/result/answer");
+                DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/test/result/event");
+            } catch (JsonProcessingException | JSONException e) {
                 ErrorHandler.displayError("Error sending the data to the server. The data will be try to be sent some other time.");
             }
             showTestCompletedDialog();
@@ -235,7 +237,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
 
     @Override
-    public TestAnswerDTO getJsonAnswerWrapper() {
+    public TestAnswerDTO getTestAnswerDTO() {
         return testAnswerDTO;
     }
 
@@ -399,7 +401,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
      * @param input Array of the user words.
      */
     @Override
-    public int checkTypos(ArrayList<String> input) {
+    public int checkTypos(List<String> input) {
         typos = 0;
 
         TextServicesManager tsm =
@@ -483,7 +485,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         }
         this.doubleBackToExitPressedOnce = true;
 
-        new Handler().postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> doubleBackToExitPressedOnce = false, 2000);
     }
 
     /**

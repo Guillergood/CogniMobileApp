@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -9,14 +10,15 @@ public class TestAnswerDTO {
     private String testName;
     private String studyName;
     private String userName;
-
     private List<ResultTask> tasks;
-
     @JsonProperty("overall_score")
     private String overallScore;
     private String language;
 
+    private String createdAt;
+
     public TestAnswerDTO() {
+        tasks = new ArrayList<>();
     }
 
     public String getTestName() {
@@ -65,5 +67,13 @@ public class TestAnswerDTO {
 
     public String getLanguage() {
         return language;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

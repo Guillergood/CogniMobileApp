@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.speech.RecognizerIntent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import ugr.gbv.cognimobile.utilities.TextToSpeechLocal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -69,7 +71,7 @@ public class ImageTask extends Task {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
@@ -110,6 +112,8 @@ public class ImageTask extends Task {
         }
 
         expectedAnswers = bundle.getStringArray("answer");
+        assert expectedAnswers != null;
+        resultTask.setExpectedAnswers(Arrays.stream(expectedAnswers).collect(Collectors.toList()));
 
         imagesId = new int[imagesArray.length];
 
@@ -304,9 +308,9 @@ public class ImageTask extends Task {
         resultTask.setExpectedAnswer(Arrays.asList(expectedAnswers));
         resultTask.setTaskType(TaskType.values()[taskType]);
         resultTask.setScore(score);
-        event.setSpecificNamingCharacterChange(ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-        event.setSpecificNamingStartWriting(ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-        event.setSpecificNamingSubmitAnswer(ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+        resultEvent.setSpecificNamingCharacterChange(ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+        resultEvent.setSpecificNamingStartWriting(ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+        resultEvent.setSpecificNamingSubmitAnswer(ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
     }
 
     /**

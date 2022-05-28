@@ -15,6 +15,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.PermissionChecker;
@@ -29,6 +30,8 @@ import ugr.gbv.cognimobile.dto.QrDTO;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
+import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
+import ugr.gbv.cognimobile.utilities.CustomObjectMapper;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkRetrieval, LoadDialog {
@@ -74,11 +77,13 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // There are no request codes
                         if (result.getData() != null && result.getData().getExtras() != null) {
-                            ObjectMapper mapper = new ObjectMapper();
+                            CustomObjectMapper mapper = new CustomObjectMapper();
                             QrDTO data;
                             try {
-                                data = mapper.readValue(result.getData().getExtras().getString(INTENT_LINK_LABEL), QrDTO.class);
-                                CognimobilePreferences.setServerUrl(this, data.getUrl());
+                                data = mapper.readValue(result.getData().getExtras()
+                                        .getString(INTENT_LINK_LABEL), QrDTO.class);
+                                CognimobilePreferences.setServerUrl(this,
+                                        ContextDataRetriever.fixUrl(data.getUrl()));
                                 goToLoginActivity(data);
                             } catch (JsonProcessingException e) {
                                 ErrorHandler.displayError("Some error happened processing the QR Code");
@@ -181,6 +186,14 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
 
     @Override
     public void loadDialog(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        runOnUiThread(() -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(ServerUrlRetrieval.this);
+
+            builder.setTitle(ServerUrlRetrieval.this.getString(R.string.error_occurred));
+            builder.setMessage(message);
+            builder.setCancelable(false);
+            builder.setPositiveButton(ServerUrlRetrieval.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
+            builder.show();
+        });
     }
 }

@@ -8,6 +8,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
@@ -46,7 +47,7 @@ public abstract class Task extends Fragment {
     private Dialog builder;
     LoadContent callBack;
     FloatingActionButton centerButton;
-    ResultEvent event = new ResultEvent();
+    ResultEvent resultEvent = new ResultEvent();
     ResultTask resultTask = new ResultTask();
     TextView bannerText;
     RelativeLayout banner;
@@ -114,19 +115,18 @@ public abstract class Task extends Fragment {
      * Load the next task to be completed by the user.
      */
     private void loadNextTask() {
-        try {
-            checkIfUserHasSkippedTask();
-            if (taskType < Task.MEMORY) {
-
-                event.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
-                callBack.getTestEventDTO().getEvents().add(event);
-            }
-            ResultEvent event = new ResultEvent();
-            event.setGenericTimeNextTask(ContextDataRetriever.addTimeStamp());
-            callBack.getTestEventDTO().getEvents().add(event);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        checkIfUserHasSkippedTask();
+        if (taskType < Task.MEMORY) {
+            resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
         }
+        else {
+            resultEvent.setGenericTimeNextTask(ContextDataRetriever.addTimeStamp());
+        }
+        callBack.getTestEventDTO().getEvents().add(resultEvent);
+        callBack.getTestAnswerDTO().getTasks().add(resultTask);
+        resultEvent = new ResultEvent();
+        resultTask = new ResultTask();
+
         if (handler != null) {
             handler.removeCallbacksAndMessages(null);
         }
@@ -160,53 +160,52 @@ public abstract class Task extends Fragment {
     /**
      * Checks if the user has skipped a task
      *
-     * @throws JSONException if the contextual data was not able to put the information.
      */
-    private void checkIfUserHasSkippedTask() throws JSONException {
+    private void checkIfUserHasSkippedTask() {
         boolean skipped = false;
         switch (taskType) {
             case GRAPH:
-                skipped = event.getSpecificATMPoints().size() == 0;
+                skipped = resultEvent.getSpecificATMPoints().size() == 0;
                 break;
             case CUBE:
-                skipped = event.getSpecificVSCubePoints().size() == 0;
+                skipped = resultEvent.getSpecificVSCubePoints().size() == 0;
                 break;
             case WATCH:
-                skipped = event.getSpecificVSClockPoints().size() == 0;
+                skipped = resultEvent.getSpecificVSClockPoints().size() == 0;
                 break;
             case IMAGE:
-                skipped = event.getSpecificNamingCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificNamingCharacterChange());
                 break;
             case MEMORY:
-                skipped = event.getSpecificMemoryCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificMemoryCharacterChange());
                 break;
             case ATTENTION_NUMBERS:
-                skipped = event.getSpecificAttentionNumbersItemPosition().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificAttentionNumbersItemPosition());
                 break;
             case ATTENTION_LETTERS:
                 skipped = !taskEnded;
                 break;
             case ATTENTION_SUBTRACTION:
-                skipped = event.getSpecificSubtractionCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificSubtractionCharacterChange());
                 break;
             case LANGUAGE:
-                skipped = event.getSpecificSRCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificSRCharacterChange());
                 break;
             case FLUENCY:
-                skipped = event.getSpecificFluencyCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificFluencyCharacterChange());
                 break;
             case ABSTRACTION:
-                skipped = event.getSpecificAbstractionCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificAbstractionCharacterChange());
                 break;
             case RECALL:
-                skipped = event.getSpecificRecallCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificRecallCharacterChange());
                 break;
             case ORIENTATION:
-                skipped = event.getSpecificOrientationCharacterChange().isEmpty();
+                skipped = TextUtils.isEmpty(resultEvent.getSpecificOrientationCharacterChange());
                 break;
         }
 
-        event.setGenericSkippedTask(skipped);
+        resultEvent.setGenericSkippedTask(skipped);
     }
 
     /**
@@ -284,7 +283,7 @@ public abstract class Task extends Fragment {
 
         centerButton.setOnClickListener(dialogInterface -> {
             showDialog();
-            event.setGenericTimeHelp(ContextDataRetriever.addTimeStamp());
+            resultEvent.setGenericTimeHelp(ContextDataRetriever.addTimeStamp());
         });
     }
 
@@ -330,7 +329,7 @@ public abstract class Task extends Fragment {
      */
     void taskIsEnded() {
         taskEnded = true;
-        event.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
+        resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
         showTaskIsEnded();
         setNextButtonStandardBehaviour();
         if (taskType == ATTENTION_LETTERS) {
@@ -470,9 +469,9 @@ public abstract class Task extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         writing = false;
         if (taskType > Task.IMAGE) {
-            event.setGenericTimeBeforeTask(ContextDataRetriever.addTimeStamp());
+            resultEvent.setGenericTimeBeforeTask(ContextDataRetriever.addTimeStamp());
         } else {
-            event.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
+            resultEvent.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
         }
         super.onCreate(savedInstanceState);
     }

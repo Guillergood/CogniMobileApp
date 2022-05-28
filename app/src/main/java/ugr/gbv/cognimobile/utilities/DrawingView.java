@@ -238,7 +238,7 @@ public class DrawingView extends View {
      *
      * @return array of floats containing the coordinates of every point.
      */
-    public double[] getDrawnPath() {
+    public float[] getDrawnPath() {
         return retrievePointsFromArrayList(drawPoints);
     }
 
@@ -247,7 +247,7 @@ public class DrawingView extends View {
      *
      * @return array of floats containing the coordinates of every point.
      */
-    public double[] getErasedPath() {
+    public float[] getErasedPath() {
         return retrievePointsFromArrayList(erasedPoints);
     }
 
@@ -257,7 +257,7 @@ public class DrawingView extends View {
      *
      * @return array of floats containing the coordinates of every point.
      */
-    public double[] getDrawnTraces() {
+    public float[] getDrawnTraces() {
         return retrievePointsFromArrayList(drawnTraces);
     }
 
@@ -267,10 +267,10 @@ public class DrawingView extends View {
      * @param arrayList of Points
      * @return array of float coordinates
      */
-    private double[] retrievePointsFromArrayList(ArrayList<Point> arrayList) {
+    private float[] retrievePointsFromArrayList(ArrayList<Point> arrayList) {
         int size = arrayList.size() * 2;
 
-        double[] value = new double[size];
+        float[] value = new float[size];
 
         for (int i = 0, k = 0; i < size; i += 2, ++k) {
             value[i] = arrayList.get(k).getX();

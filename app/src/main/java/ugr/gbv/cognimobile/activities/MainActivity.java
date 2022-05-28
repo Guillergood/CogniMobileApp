@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -200,7 +201,7 @@ public class MainActivity extends AppCompatActivity
      * This method reload the UI when the user joins into a study.
      */
     private void reloadUiWhenJoined() {
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.post(() -> {
             initiateWorkerManager();
             runOnUiThread(this::reloadFragment);
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity
      * It gives time to AWARE sets the information, and then run all the workers.
      */
     private void initiateWorkerManager() {
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(
                 () ->
                         runOnUiThread(() ->
@@ -247,7 +248,6 @@ public class MainActivity extends AppCompatActivity
             builder.setPositiveButton(MainActivity.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
             builder.show();
         });
-
     }
 
     /**

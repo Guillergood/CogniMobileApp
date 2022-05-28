@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.textservice.SentenceSuggestionsInfo;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import ugr.gbv.cognimobile.dto.TestAnswerDTO;
@@ -39,7 +40,7 @@ public interface LoadContent {
      *
      * @return the json that contains all the answers
      */
-    TestAnswerDTO getJsonAnswerWrapper();
+    TestAnswerDTO getTestAnswerDTO();
 
     /**
      * Getter for the json that contains all the extra information about the user who has done the test
@@ -62,5 +63,5 @@ public interface LoadContent {
      *
      * @param input Array of the user words.
      */
-    int checkTypos(ArrayList<String> words);
+    int checkTypos(List<String> words);
 }

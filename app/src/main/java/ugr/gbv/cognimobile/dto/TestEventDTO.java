@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TestEventDTO {
@@ -9,7 +10,10 @@ public class TestEventDTO {
     private List<ResultEvent> events;
     private String language;
 
+    private String createdAt;
+
     public TestEventDTO() {
+        events = new ArrayList<>();
     }
 
     public String getTestName() {
@@ -50,5 +54,13 @@ public class TestEventDTO {
 
     public String getLanguage() {
         return language;
+    }
+
+    public String getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 }

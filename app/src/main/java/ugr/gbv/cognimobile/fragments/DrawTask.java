@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +84,7 @@ public class DrawTask extends Task implements LoadDraw {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
@@ -133,7 +132,6 @@ public class DrawTask extends Task implements LoadDraw {
         centerButton = view.findViewById(R.id.centerButton);
 
         buildDialog();
-
 
         rightButton = view.findViewById(R.id.rightButton);
 
@@ -312,12 +310,10 @@ public class DrawTask extends Task implements LoadDraw {
      */
     @Override
     void saveResults() {
-
         resultTask.setTaskType(TaskType.values()[taskType]);
         resultTask.setHeight(drawingView.getCanvasHeight());
         resultTask.setWidth(drawingView.getCanvasWidth());
-        resultTask.setPointsSequence(Arrays.stream(drawingView.getDrawnPath())
-                .boxed().collect(Collectors.toList()));
+        resultTask.setPointsSequence(convertFloatToDoubleList(drawingView.getDrawnPath()));
 
 
         switch (taskType) {
@@ -325,30 +321,27 @@ public class DrawTask extends Task implements LoadDraw {
                 setScoring();
                 resultTask.setAnswer(answer);
                 resultTask.setScore(score);
-                resultTask.setPointsSequence(Arrays.stream(drawingView.getErasedPath())
-                        .boxed().collect(Collectors.toList()));
-                event.setSpecificATMAlreadyClickedButton(ContextDataRetriever.retrieveInformationFromStringArrayList(alreadyPressedButtons));
-                event.setSpecificATMPoints(Arrays.stream(drawingView.getDrawnPath())
-                        .boxed().collect(Collectors.toList()));
-                event.setSpecificATMDistanceBetweenCircles(ContextDataRetriever.retrieveInformationFromButtonArrayList(pressedButtons));
-                event.setSpecificATMTimeBetweenClicks(ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenClicks));
+                resultTask.setErasedPaths(convertFloatToDoubleList(drawingView.getErasedPath()));
+
+                resultEvent.setSpecificATMAlreadyClickedButton(ContextDataRetriever.retrieveInformationFromStringArrayList(alreadyPressedButtons));
+                resultEvent.setSpecificATMPoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
+
+                resultEvent.setSpecificATMDistanceBetweenCircles(ContextDataRetriever.retrieveInformationFromButtonArrayList(pressedButtons));
+                resultEvent.setSpecificATMTimeBetweenClicks(ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenClicks));
                 break;
             case CUBE:
                 resultTask.setTimes_wipe_canvas(getResources().getInteger(R.integer.undo_times) - undoTimes);
                 Pair<String, String> cubeTraces = packTraces();
-                event.setSpecificVSCubeStartDraw(cubeTraces.first);
-                event.setSpecificVSCubeEndDraw(cubeTraces.second);
-                
-                event.setSpecificVSCubePoints(Arrays.stream(drawingView.getDrawnPath())
-                        .boxed().collect(Collectors.toList()));
+                resultEvent.setSpecificVSCubeStartDraw(cubeTraces.first);
+                resultEvent.setSpecificVSCubeEndDraw(cubeTraces.second);
+                resultEvent.setSpecificVSCubePoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
                 break;
             case WATCH:
                 resultTask.setTimes_wipe_canvas(getResources().getInteger(R.integer.undo_times) - undoTimes);
                 Pair<String, String> clockTraces = packTraces();
-                event.setSpecificVSClockStartDraw(clockTraces.first);
-                event.setSpecificVSClockEndDraw(clockTraces.second);
-                event.setSpecificVSClockPoints(Arrays.stream(drawingView.getDrawnPath())
-                        .boxed().collect(Collectors.toList()));
+                resultEvent.setSpecificVSClockStartDraw(clockTraces.first);
+                resultEvent.setSpecificVSClockEndDraw(clockTraces.second);
+                resultEvent.setSpecificVSClockPoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
                 break;
             default:
                 throw new RuntimeException("INVALID TASKTYPE");
@@ -356,6 +349,14 @@ public class DrawTask extends Task implements LoadDraw {
         }
 
 
+    }
+
+    private List<Double> convertFloatToDoubleList(float[] drawnPath) {
+        List<Double> doubles = new ArrayList<>();
+        for (float number:drawnPath){
+            doubles.add((double) number);
+        }
+        return doubles;
     }
 
 
@@ -367,7 +368,7 @@ public class DrawTask extends Task implements LoadDraw {
      * on the second element of the pair is the last positions the user has drawn (x:y)
      */
     private Pair<String, String> packTraces() {
-        double[] drawnTraces = drawingView.getDrawnTraces();
+        float[] drawnTraces = drawingView.getDrawnTraces();
         StringBuilder startStringBuilder = new StringBuilder();
         StringBuilder endStringBuilder = new StringBuilder();
         for (int i = 0, k = 0; k < drawnTraces.length; ++i, k += 2) {

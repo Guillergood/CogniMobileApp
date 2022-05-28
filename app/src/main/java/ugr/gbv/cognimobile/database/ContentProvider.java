@@ -27,6 +27,7 @@ import ugr.gbv.cognimobile.callbacks.LoginCallback;
 import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.payload.request.LoginRequest;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
+import ugr.gbv.cognimobile.utilities.CustomObjectMapper;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 public class ContentProvider implements Serializable {
@@ -76,8 +77,7 @@ public class ContentProvider implements Serializable {
                     }
                 },
                 error -> {
-                    //displaying the error in toast if occur
-                    Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    ErrorHandler.displayError("Some error happened when login, please try again later.");
                 }) {
 
             @Override
@@ -88,7 +88,7 @@ public class ContentProvider implements Serializable {
             @Override
             public byte[] getBody() {
                 try {
-                    ObjectMapper objectMapper = new ObjectMapper();
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
                     return credentials == null ? null : objectMapper.writeValueAsBytes(credentials);
 
                 } catch (JsonProcessingException uee) {
@@ -114,8 +114,7 @@ public class ContentProvider implements Serializable {
                     try {
                         //getting the whole json object from the response
                         JSONArray obj = new JSONArray(response);
-                        ObjectMapper mapper = new ObjectMapper();
-                        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                        CustomObjectMapper mapper = new CustomObjectMapper();
                         ContentValues[] contentValues = new ContentValues[obj.length()];
                         for(int i = 0; i < obj.length(); ++i){
                             TestDTO test = mapper.readValue(obj.get(i).toString(),TestDTO.class);
@@ -145,11 +144,11 @@ public class ContentProvider implements Serializable {
                 },
                 error -> {
                     //displaying the error in toast if occur
-                    Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
+                    ErrorHandler.displayError("Seems that the connection with the server is not possible.");
                 }){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                ObjectMapper objectMapper = new ObjectMapper();
+                CustomObjectMapper objectMapper = new CustomObjectMapper();
                 try {
                     JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
                     Map<String, String> headers = new HashMap<>();

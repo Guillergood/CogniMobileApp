@@ -43,8 +43,6 @@ public class DataSender implements Serializable {
 
 
     private static volatile DataSender instantiated;
-    public final static String INSERT = "insert";
-    private boolean retry = true;
 
     /**
      * Private constructor "singleton" pattern
@@ -77,45 +75,34 @@ public class DataSender implements Serializable {
      * @param data    the data to post
      * @param context parent activity context
      */
-    public void postToServer(@NonNull Object data, Context context, String url) throws JsonProcessingException {
-        StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                CognimobilePreferences.getServerUrl(context) + url,
+    public void postToServer(@NonNull Object data, Context context, String subPath) throws JsonProcessingException, JSONException {
+
+        CustomObjectMapper objectMapper = new CustomObjectMapper();
+
+        JSONObject jsonObject = new JSONObject(objectMapper.writeValueAsString(data));
+
+        JsonObjectRequest jsonObjReq = new JsonObjectRequest(
+                Request.Method.POST,CognimobilePreferences.getServerUrl(context) + subPath,jsonObject,
                 response -> {
-                    ErrorHandler.displayError("Datos enviados");
-                },
-                error -> {
-                    //displaying the error in toast if occur
+                }, error -> {
                     if (error.networkResponse.statusCode == 401) {
                         refreshAccessToken(context);
                     } else {
                         ErrorHandler.displayError("Error sending the data.");
                     }
-                    Toast.makeText(context, error.getMessage(), Toast.LENGTH_SHORT).show();
                 }) {
 
-            @Override
-            public String getBodyContentType() {
-                return "application/json; charset=utf-8";
-            }
-
-            @Override
-            public byte[] getBody() {
-                try {
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    return objectMapper.writeValueAsBytes(data);
-                } catch (JsonProcessingException uee) {
-                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of the answers or events.");
-                    return null;
-                }
-
-            }
+            /**
+             * Passing some request headers
+             * */
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                ObjectMapper objectMapper = new ObjectMapper();
+                CustomObjectMapper objectMapper = new CustomObjectMapper();
                 try {
                     JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
                     Map<String, String> headers = new HashMap<>();
                     headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                    headers.put("Content-Type", "application/json; charset=utf-8");
                     return headers;
                 } catch (JsonProcessingException e) {
                     VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
@@ -125,9 +112,10 @@ public class DataSender implements Serializable {
             }
         };
 
+
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         //adding the string request to request queue
-        requestQueue.add(stringRequest);
+        requestQueue.add(jsonObjReq);
 
 //          TODO REFORMULATE
 //        HashMap<String, Object> params = new HashMap<>();
@@ -201,7 +189,7 @@ public class DataSender implements Serializable {
                 CognimobilePreferences.getServerUrl(context), null, response -> {
             try {
                 String accessToken = response.getString("access_token");
-                ObjectMapper objectMapper = new ObjectMapper();
+                CustomObjectMapper objectMapper = new CustomObjectMapper();
                 JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
                 jwt.setToken(accessToken);
                 CognimobilePreferences.setLogin(context,objectMapper.writeValueAsString(jwt));

@@ -1,30 +1,46 @@
 package ugr.gbv.cognimobile.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 
 public class ResultTask {
     private Long id;
+    @JsonProperty("pattern_sequence")
     private List<Integer> patternSequence;
+    @JsonProperty("task_type")
     private TaskType taskType;
     private int height;
     private int width;
+    @JsonProperty("points_sequence")
     private List<Double> pointsSequence;
+    @JsonProperty("answer_sequence")
     private List<String> answerSequence;
     private int score;
+    @JsonProperty("erased_paths")
     private List<Double> erasedPaths;
     private int times_wipe_canvas;
+    @JsonProperty("expected_answers")
     private List<String> expectedAnswers;
     private List<String> answer;
+    @JsonProperty("answer_backwards")
     private List<String> answerBackwards;
+    @JsonProperty("expected_answer_backwards")
     private List<String> expectedAnswerBackwards;
     private List<String> letters;
     private int occurrences;
+    private int minuend;
+    private int subtracting;
     private String target_letter;
     private int errors;
     private List<String> words;
+    @JsonProperty("expected_answer")
     private List<String> expectedAnswer;
     private List<String> questions;
+    private int times;
+    @JsonProperty("number_words")
+    private int numberWords;
 
     public ResultTask() {
     }
@@ -195,6 +211,38 @@ public class ResultTask {
 
     public void setQuestions(List<String> questions) {
         this.questions = questions;
+    }
+
+    public int getMinuend() {
+        return minuend;
+    }
+
+    public void setMinuend(int minuend) {
+        this.minuend = minuend;
+    }
+
+    public int getSubtracting() {
+        return subtracting;
+    }
+
+    public void setSubtracting(int subtrahend) {
+        this.subtracting = subtrahend;
+    }
+
+    public void setTimes(int times) {
+        this.times = times;
+    }
+
+    public int getTimes() {
+        return times;
+    }
+
+    public void setNumberWords(int numberWords) {
+        this.numberWords = numberWords;
+    }
+
+    public int getNumberWords() {
+        return numberWords;
     }
 }
 

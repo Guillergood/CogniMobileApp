@@ -6,13 +6,10 @@ import java.io.Serializable;
 
 
 public class QrDTO implements Serializable {
-    private final String url;
-    private final String qr;
+    private String url;
+    private String qr;
 
-    @JsonCreator
-    public QrDTO(String url, String qr) {
-        this.url = url;
-        this.qr = qr;
+    public QrDTO() {
     }
 
     public String getUrl() {
