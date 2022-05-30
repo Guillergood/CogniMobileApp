@@ -307,6 +307,7 @@ public class ImageTask extends Task {
         resultTask.setAnswerSequence(answers);
         resultTask.setExpectedAnswer(Arrays.asList(expectedAnswers));
         resultTask.setTaskType(TaskType.values()[taskType]);
+        resultEvent.setTaskType(TaskType.values()[taskType]);
         resultTask.setScore(score);
         resultEvent.setSpecificNamingCharacterChange(ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
         resultEvent.setSpecificNamingStartWriting(ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));

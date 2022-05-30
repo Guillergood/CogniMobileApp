@@ -1,9 +1,13 @@
 package ugr.gbv.cognimobile.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class ResultEvent {
     private Long id;
+    @JsonProperty("task_type")
+    private TaskType taskType;
     private long genericTimeStartTask;
     private long genericTimeHelp;
     private String specificATMAlreadyClickedButton;
@@ -500,5 +504,13 @@ public class ResultEvent {
 
     public void setSpecificOrientationSubmitAnswer(String specificOrientationSubmitAnswer) {
         this.specificOrientationSubmitAnswer = specificOrientationSubmitAnswer;
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
     }
 }

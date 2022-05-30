@@ -311,6 +311,7 @@ public class DrawTask extends Task implements LoadDraw {
     @Override
     void saveResults() {
         resultTask.setTaskType(TaskType.values()[taskType]);
+        resultEvent.setTaskType(TaskType.values()[taskType]);
         resultTask.setHeight(drawingView.getCanvasHeight());
         resultTask.setWidth(drawingView.getCanvasWidth());
         resultTask.setPointsSequence(convertFloatToDoubleList(drawingView.getDrawnPath()));

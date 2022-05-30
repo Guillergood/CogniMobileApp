@@ -116,7 +116,7 @@ public abstract class Task extends Fragment {
      */
     private void loadNextTask() {
         checkIfUserHasSkippedTask();
-        if (taskType < Task.MEMORY) {
+        if (taskType <= Task.MEMORY) {
             resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
         }
         else {

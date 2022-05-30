@@ -1217,6 +1217,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     @Override
     void saveResults() throws JSONException {
         resultTask.setTaskType(TaskType.values()[taskType]);
+        resultEvent.setTaskType(TaskType.values()[taskType]);
         switch (taskType) {
             case ATTENTION_NUMBERS:
                 resultTask.setExpectedAnswer(Arrays.asList(
