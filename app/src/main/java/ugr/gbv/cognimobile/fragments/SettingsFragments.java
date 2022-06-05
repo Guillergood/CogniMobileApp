@@ -12,6 +12,8 @@ import androidx.preference.PreferenceScreen;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.About;
+import ugr.gbv.cognimobile.activities.LoginActivity;
+import ugr.gbv.cognimobile.activities.ServerUrlRetrieval;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 
 /**
@@ -50,6 +52,22 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
                     if (getString(R.string.pref_config).equals(key)) {
                         String[] entries = getResources().getStringArray(R.array.configEntries);
                         preference.setDefaultValue(entries[CognimobilePreferences.getConfig(context)]);
+                    }
+                    if (getString(R.string.pref_logout).equals(key)){
+                        preference.setOnPreferenceClickListener(preference1 -> {
+                            CognimobilePreferences.setLogin(context, "");
+                            Intent intent = new Intent(context, LoginActivity.class);
+                            startActivity(intent);
+                            return true;
+                        });
+                    }
+                    if (getString(R.string.pref_change_server).equals(key)){
+                        preference.setOnPreferenceClickListener(preference1 -> {
+                            CognimobilePreferences.setServerUrl(context, "");
+                            Intent intent = new Intent(context, ServerUrlRetrieval.class);
+                            startActivity(intent);
+                            return true;
+                        });
                     }
                     if (getString(R.string.pref_about).equals(key)) {
                         preference.setOnPreferenceClickListener(preference1 -> {

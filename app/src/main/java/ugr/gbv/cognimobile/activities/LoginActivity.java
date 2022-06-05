@@ -12,13 +12,17 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.ContentProvider;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.payload.request.LoginRequest;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 public class LoginActivity extends AppCompatActivity implements LoginCallback, LoadDialog {
@@ -77,7 +81,28 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
 
     @Override
     public void loginStored() {
-        goToMainActivity();
+        ObjectMapper objectMapper = new ObjectMapper();
+        JwtResponse jwt;
+        try {
+            jwt = objectMapper.readValue(CognimobilePreferences.getLogin(this), JwtResponse.class);
+            if(jwt.getRoles().contains("MODERATOR")) {
+                goToExpertActivity();
+            }
+            else if(jwt.getRoles().contains("USER")){
+                goToMainActivity();
+            }
+            else{
+                ErrorHandler.displayError("With this user you are not allowed to use the app. Sorry.");
+            }
+        } catch (JsonProcessingException e) {
+            ErrorHandler.displayError("Some error happened when trying to login, please try again.");
+        }
+    }
+
+    private void goToExpertActivity() {
+        Intent intent = new Intent(this, ExpertActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override
