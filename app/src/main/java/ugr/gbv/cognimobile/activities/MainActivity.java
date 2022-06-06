@@ -120,8 +120,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.nav_tests) {
-            actualFragment = new ExpertTestFragment();
+        if (id == R.id.nav_studies) {
+            actualFragment = new StudyFragment(this);
+            loadFragment();
+        } else if (id == R.id.nav_tests) {
+            actualFragment = new TestsFragment(this);
             loadFragment();
         } else if (id == R.id.nav_settings) {
             actualFragment = new SettingsFragments(this);

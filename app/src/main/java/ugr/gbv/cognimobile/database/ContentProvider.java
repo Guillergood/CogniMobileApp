@@ -77,7 +77,12 @@ public class ContentProvider implements Serializable {
                     }
                 },
                 error -> {
-                    ErrorHandler.displayError("Some error happened when login, please try again later.");
+                    if(error instanceof AuthFailureError){
+                        ErrorHandler.displayError("Invalid credentials or inactive account.");
+                    }
+                    else{
+                        ErrorHandler.displayError("Some error happened when login, please try again later.");
+                    }
                 }) {
 
             @Override

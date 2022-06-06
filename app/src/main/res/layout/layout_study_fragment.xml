@@ -13,7 +13,7 @@
         android:contentDescription="@string/no_studies_content_description"
         android:scaleType="centerInside"
         android:src="@drawable/ic_no_studies"
-        app:layout_constraintBottom_toTopOf="@+id/joinStudyButtonContainer"
+        app:layout_constraintBottom_toTopOf="@+id/doTestButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -30,7 +30,7 @@
         android:textSize="@dimen/banner_text"
         android:visibility="gone"
         android:textColor="@color/gray"
-        app:layout_constraintBottom_toTopOf="@+id/joinStudyButtonContainer"
+        app:layout_constraintBottom_toTopOf="@+id/doTestButtonContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/noStudyImage"
@@ -133,7 +133,7 @@
     </androidx.cardview.widget.CardView>
 
     <LinearLayout
-        android:id="@+id/joinStudyButtonContainer"
+        android:id="@+id/doTestButtonContainer"
         style="@style/QuickActionButtonContainer"
         android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -191,6 +191,44 @@ public class DataSender implements Serializable {
 
     }
 
+    public void register(@NonNull Object data, Context context, String subPath) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                CognimobilePreferences.getServerUrl(context) + subPath,
+                response -> {
+                    Toast.makeText(context,"Registered succesfully", Toast.LENGTH_LONG).show();
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if (error.networkResponse.statusCode == 401) {
+                        refreshAccessToken(context);
+                    } else {
+                        ErrorHandler.displayError("Error sending the data.");
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() {
+                try {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    return objectMapper.writeValueAsBytes(data);
+                } catch (JsonProcessingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of the answers or events.");
+                    return null;
+                }
+
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
     void refreshAccessToken(Context context) {
 
         JsonObjectRequest refreshTokenRequest = new JsonObjectRequest(Request.Method.POST,
