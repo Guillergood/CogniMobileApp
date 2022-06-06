@@ -18,28 +18,27 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.fragments.ExpertTestFragment;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
+import ugr.gbv.cognimobile.interfaces.SettingsCallback;
 import ugr.gbv.cognimobile.interfaces.TestClickHandler;
 import ugr.gbv.cognimobile.sync.WorkerManager;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
-
-import java.util.ArrayList;
 
 /**
  * MainActivity.class is the core activity that links every component, allowing the user to
  * navigate between activities
  */
 public class MainActivity extends AppCompatActivity
-        implements BottomNavigationView.OnNavigationItemSelectedListener,
-        NavigationView.OnNavigationItemSelectedListener,
-        ServerLinkRetrieval,TestClickHandler, LoadDialog {
+        implements NavigationBarView.OnItemSelectedListener,
+        ServerLinkRetrieval,TestClickHandler, LoadDialog, SettingsCallback {
 
     private static final String TEST_NAME = "name";
     private ActivityResultLauncher<Intent> testFinalization;
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         initBottomNavBar();
         ErrorHandler.setCallback(this);
 
-        //WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+        WorkerManager.getInstance().initiateWorkers(getApplicationContext());
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();
@@ -115,26 +114,21 @@ public class MainActivity extends AppCompatActivity
     /**
      * Called when an item in the navigation menu is selected.
      *
-     * @param menuItem The selected item
+     * @param item The selected item
      * @return true to display the item as the selected item
      */
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        int id = menuItem.getItemId();
-        if (id == R.id.nav_studies) {
-            actualFragment = new StudyFragment(this);
-            loadFragment();
-        } else if (id == R.id.nav_tests) {
-            actualFragment = new TestsFragment(this);
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_tests) {
+            actualFragment = new ExpertTestFragment();
             loadFragment();
         } else if (id == R.id.nav_settings) {
-            actualFragment = new SettingsFragments();
+            actualFragment = new SettingsFragments(this);
             loadFragment();
         }
-
         return true;
     }
-
 
     /**
      * hasUserConnectivity method checks the user connectivity
@@ -272,6 +266,11 @@ public class MainActivity extends AppCompatActivity
     public void goToChooseQrOrTextActivity() {
         Intent intent = new Intent(this, ServerUrlRetrieval.class);
         startActivity(intent);
+    }
+
+    @Override
+    public void finishActivity(){
+        finish();
     }
 }
 

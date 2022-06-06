@@ -54,6 +54,7 @@
         <activity android:name=".activities.RegistrationActivity" />
         <activity android:name=".activities.ForgotPasswordActivity" />
         <activity android:name=".activities.TutorialTest" />
+        <activity android:name=".activities.ExpertActivity"/>
         <activity
             android:name=".activities.WriteTestLink"
             android:theme="@style/AppTheme" >

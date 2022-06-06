@@ -6,6 +6,14 @@
         app:title="@string/pref_notifications_title" />
 
     <Preference
+            app:key="@string/pref_change_server"
+            app:title="@string/pref_change_server_title" />
+
+    <Preference
+            app:key="@string/pref_logout"
+            app:title="@string/pref_logout_title" />
+
+    <Preference
         app:key="@string/pref_about"
         app:title="@string/pref_about_title" />
 

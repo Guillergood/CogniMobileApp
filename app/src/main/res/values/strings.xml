@@ -98,4 +98,8 @@
     <string name="device_id" translatable="false">Device id: \n</string>
     <string name="pref_server_url">pref_server_url</string>
     <string name="pref_login">pref_login</string>
+    <string name="pref_logout">pref_logout</string>
+    <string name="pref_change_server">pref_change_server</string>
+    <string name="pref_change_server_title">Change server</string>
+    <string name="pref_logout_title">Logout</string>
 </resources>

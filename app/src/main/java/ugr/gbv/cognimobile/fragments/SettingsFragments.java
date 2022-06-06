@@ -15,13 +15,17 @@ import ugr.gbv.cognimobile.activities.About;
 import ugr.gbv.cognimobile.activities.LoginActivity;
 import ugr.gbv.cognimobile.activities.ServerUrlRetrieval;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.interfaces.SettingsCallback;
 
 /**
  * Fragment to display the Settings section in {@link ugr.gbv.cognimobile.activities.MainActivity}
  */
 public class SettingsFragments extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Context context;
-
+    private SettingsCallback callback;
+    public SettingsFragments(SettingsCallback callback) {
+        this.callback = callback;
+    }
 
     /**
      * Overrides {@link PreferenceFragmentCompat#onCreatePreferences(Bundle, String)}
@@ -58,6 +62,7 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
                             CognimobilePreferences.setLogin(context, "");
                             Intent intent = new Intent(context, LoginActivity.class);
                             startActivity(intent);
+                            callback.finishActivity();
                             return true;
                         });
                     }
@@ -66,6 +71,7 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
                             CognimobilePreferences.setServerUrl(context, "");
                             Intent intent = new Intent(context, ServerUrlRetrieval.class);
                             startActivity(intent);
+                            callback.finishActivity();
                             return true;
                         });
                     }

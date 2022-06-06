@@ -17,11 +17,15 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 /**
  * Introduction.class is the activity where animations about the app will be displayed
@@ -145,8 +149,20 @@ public class Introduction extends Activity {
             startActivity(intent);
         }
         else{
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(getBaseContext()), JwtResponse.class);
+                Intent intent;
+                if(jwt.getRoles().contains("MODERATOR")) {
+                    intent = new Intent(this, ExpertActivity.class);
+                }
+                else {
+                    intent = new Intent(this, MainActivity.class);
+                }
+                startActivity(intent);
+            } catch (JsonProcessingException e) {
+                ErrorHandler.displayError("Failed to retrieve the login information");
+            }
         }
         finish();
     }
