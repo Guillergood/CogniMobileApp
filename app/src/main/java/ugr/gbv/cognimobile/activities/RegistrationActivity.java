@@ -244,7 +244,11 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
                 request.setEmail(editTextRegistrationEmail.getText().toString());
                 request.getRoles().add(role.get());
                 request.setPassword(editTextPassword.getText().toString());
-                DataSender.getInstance().register(request, getApplicationContext(), "/api/auth/signup");
+                try {
+                    DataSender.getInstance().postToServer(request, getApplicationContext(), "/api/auth/signup");
+                } catch (JsonProcessingException e) {
+                    ErrorHandler.displayError("Something happened doing the login to the server");
+                }
             }
         });
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.icu.util.Calendar;
 
+import android.text.TextUtils;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 
@@ -79,13 +80,21 @@ public class DataSender implements Serializable {
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
                 CognimobilePreferences.getServerUrl(context) + subPath,
                 response -> {
+                    Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
                 },
                 error -> {
                     //displaying the error in toast if occur
-                    if (error.networkResponse.statusCode == 401) {
-                        refreshAccessToken(context);
-                    } else {
-                        ErrorHandler.displayError("Error sending the data.");
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error sending the data.");
+                        }
+                    }
+                    else{
+                        if (error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                        }
                     }
                 }) {
 
@@ -107,15 +116,17 @@ public class DataSender implements Serializable {
             }
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                CustomObjectMapper objectMapper = new CustomObjectMapper();
-                try {
-                    JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
-                    Map<String, String> headers = new HashMap<>();
-                    headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
-                    return headers;
-                } catch (JsonProcessingException e) {
-                    VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
-                    ErrorHandler.displayError("Something happened when loading the tests into the database");
+                if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    try {
+                        JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                        return headers;
+                    } catch (JsonProcessingException e) {
+                        VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                        ErrorHandler.displayError("Something happened when loading the tests into the database");
+                    }
                 }
                 return super.getHeaders();
             }
