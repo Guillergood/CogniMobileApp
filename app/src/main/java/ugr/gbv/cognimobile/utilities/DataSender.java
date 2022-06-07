@@ -14,7 +14,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,15 +26,20 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
+import ugr.gbv.cognimobile.callbacks.LoginCallback;
+import ugr.gbv.cognimobile.callbacks.StudyCallback;
+import ugr.gbv.cognimobile.callbacks.TestCallback;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.database.ContentProvider;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.dto.Study;
+import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 
 /**
@@ -76,7 +81,7 @@ public class DataSender implements Serializable {
      * @param data    the data to post
      * @param context parent activity context
      */
-    public void postToServer(@NonNull Object data, Context context, String subPath) throws JsonProcessingException {
+    public void postToServer(@NonNull Object data, Context context, String subPath, CredentialsCallback credentialCallback) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
                 CognimobilePreferences.getServerUrl(context) + subPath,
                 response -> {
@@ -94,6 +99,7 @@ public class DataSender implements Serializable {
                     else{
                         if (error.networkResponse.statusCode == 401) {
                             ErrorHandler.displayError("Invalid credentials or inactive account.");
+                            credentialCallback.doLogout();
                         }
                     }
                 }) {
@@ -201,6 +207,120 @@ public class DataSender implements Serializable {
 
 
     }
+
+
+    public void getAllStudies(Context context, StudyCallback callback, CredentialsCallback credentialCallback) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                CognimobilePreferences.getServerUrl(context) + "/study/all",
+                response -> {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        callback.getStudies(objectMapper.readValue(response.trim(), new TypeReference<List<Study>>() {}));
+                    } catch (JsonProcessingException e) {
+                        ErrorHandler.displayError("Error trying to get the studies data.");
+                    }
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error getting the data.");
+                        }
+                    }
+                    else{
+                        if (error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                            credentialCallback.doLogout();
+                        }
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    try {
+                        JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                        return headers;
+                    } catch (JsonProcessingException e) {
+                        VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                        ErrorHandler.displayError("Something happened when loading the tests into the database");
+                    }
+                }
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
+    public void getTestToBeDone(Context context, String testName, TestCallback callback, CredentialsCallback credentialCallback) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                CognimobilePreferences.getServerUrl(context) + "/test/getTest/" + testName,
+                response -> {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        callback.getTest(objectMapper.readValue(response.trim(), TestDTO.class));
+                    } catch (JsonProcessingException e) {
+                        ErrorHandler.displayError("Error trying to get the studies data.");
+                    }
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error getting the data.");
+                        }
+                    }
+                    else{
+                        if (error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                            credentialCallback.doLogout();
+                        }
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    try {
+                        JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                        return headers;
+                    } catch (JsonProcessingException e) {
+                        VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                        ErrorHandler.displayError("Something happened when loading the tests into the database");
+                    }
+                }
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
 
     void refreshAccessToken(Context context) {
 

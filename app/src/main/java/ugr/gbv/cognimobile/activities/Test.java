@@ -9,10 +9,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.*;
 import android.speech.tts.TextToSpeech;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,10 +31,12 @@ import androidx.core.app.NavUtils;
 import androidx.fragment.app.Fragment;
 import com.airbnb.lottie.LottieAnimationView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
+import ugr.gbv.cognimobile.callbacks.TestCallback;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.dto.TestAnswerDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
@@ -45,16 +44,17 @@ import ugr.gbv.cognimobile.dto.TestEventDTO;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
 import ugr.gbv.cognimobile.utilities.*;
 
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Test allows the user to do a test from the local database.
  */
-public class Test extends AppCompatActivity implements LoadContent, LoadDialog, SpellCheckerSession.SpellCheckerSessionListener {
+public class Test extends AppCompatActivity implements LoadContent, LoadDialog, SpellCheckerSession.SpellCheckerSessionListener, TestCallback, CredentialsCallback {
 
     private static final int MY_DATA_CHECK_CODE = 1050;
     private ArrayList<Task> fragments;
@@ -91,31 +91,60 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         mContentView = findViewById(R.id.fullscreen_content);
         hideNavBar();
 
+        index = 0;
+
+        doubleBackToExitPressedOnce = false;
+
+        JwtResponse jwt;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            jwt = objectMapper.readValue(CognimobilePreferences.getLogin(this), JwtResponse.class);
+            if(jwt.getRoles().contains("MODERATOR")) {
+                DataSender.getInstance()
+                        .getTestToBeDone(getBaseContext(),getIntent().getStringExtra("testName")
+                                ,this, this);
+            }
+            else if(jwt.getRoles().contains("USER")){
+                getFragmentsFromTestDTO();
+                initKeyBoardListener();
+                startTTSInitialization();
+            }
+            else{
+                ErrorHandler.displayError("With this user you are not allowed to use the app. Sorry.");
+            }
+        } catch (JsonProcessingException e) {
+            ErrorHandler.displayError("Some error happened when trying to login, please try again.");
+        }
+
+    }
+
+    private void startTTSInitialization() {
+        Intent checkIntent = new Intent();
+        checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
+        startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
+    }
+
+    private void getFragmentsFromTestDTO() {
         String where = Provider.Cognimobile_Data._ID + " = ?";
         String[] selectionArgs = {Integer.toString(getIntent().getIntExtra("id", 0))};
         String[] projection = new String[]{Provider.Cognimobile_Data.DATA};
         Cursor cursor = getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
-        TestDTO test = null;
         try {
             assert cursor != null;
             cursor.moveToFirst();
             String rawJson = cursor.getString(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DATA));
             cursor.close();
             CustomObjectMapper objectMapper = new CustomObjectMapper();
-            test = objectMapper.readValue(rawJson, TestDTO.class);
+            TestDTO test = objectMapper.readValue(rawJson, TestDTO.class);
             fragments = JsonParserTests.getInstance().parseTestToTasks(test,this);
+            initiateAllAnswersWrappers(test);
         } catch (JSONException | JsonProcessingException e) {
             ErrorHandler.displayError("There has been an error trying to load the test");
             finish();
         }
+    }
 
-        index = 0;
-
-        initKeyBoardListener();
-
-        doubleBackToExitPressedOnce = false;
-
-
+    private void initiateAllAnswersWrappers(TestDTO test) {
         try {
             this.language = new Locale(test.getLanguage());
             testAnswerDTO = new TestAnswerDTO();
@@ -128,23 +157,23 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             ErrorHandler.displayError("There has been an error trying to finalize the test");
             finish();
         }
-
-
-        Intent checkIntent = new Intent();
-        checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
-        startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
     }
 
     /**
      * Allows to hide the upper navigation bar, to make the activity fullscreen
      */
     private void hideNavBar() {
-        mContentView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LOW_PROFILE
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            getWindow().setDecorFitsSystemWindows(false);
+        } else {
+            mContentView.setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LOW_PROFILE
+                            | View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+        }
+
     }
 
     /**
@@ -197,15 +226,11 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             Intent intent = new Intent();
             intent.putExtra("name", name);
             setResult(RESULT_OK, intent);
-            try {
-                String currentDate = ContextDataRetriever.getCurrentDateString(language);
-                testEventDTO.setCreatedAt(currentDate);
-                testAnswerDTO.setCreatedAt(currentDate);
-                DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/test/result/answer");
-                DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/test/result/event");
-            } catch (JsonProcessingException e) {
-                ErrorHandler.displayError("Error sending the data to the server. The data will be try to be sent some other time.");
-            }
+            String currentDate = ContextDataRetriever.getCurrentDateString(language);
+            testEventDTO.setCreatedAt(currentDate);
+            testAnswerDTO.setCreatedAt(currentDate);
+            DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/test/result/answer", this);
+            DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/test/result/event", this);
             showTestCompletedDialog();
         }
     }
@@ -502,5 +527,24 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
             builder.show();
         });
+    }
+
+    @Override
+    public void getTest(TestDTO test) {
+        try {
+            fragments = JsonParserTests.getInstance().parseTestToTasks(test,this);
+            initKeyBoardListener();
+            initiateAllAnswersWrappers(test);
+            startTTSInitialization();
+        } catch (JSONException e) {
+            ErrorHandler.displayError("There has been an error trying to finalize the test");
+        }
+    }
+
+    @Override
+    public void doLogout() {
+        Intent intent = new Intent(this,LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.fragments.ExpertTestFragment;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
@@ -20,7 +21,7 @@ import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 public class ExpertActivity extends AppCompatActivity implements LoadDialog,
         NavigationBarView.OnItemSelectedListener,
-        SettingsCallback {
+        SettingsCallback, CredentialsCallback {
 
     private Fragment actualFragment;
 
@@ -37,7 +38,7 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
 
         initBottomNavBar();
 
-        actualFragment = new ExpertTestFragment();
+        actualFragment = new ExpertTestFragment(this);
 
         loadFragment();
     }
@@ -89,7 +90,7 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_tests) {
-            actualFragment = new ExpertTestFragment();
+            actualFragment = new ExpertTestFragment(this);
             loadFragment();
         } else if (id == R.id.nav_settings) {
             actualFragment = new SettingsFragments(this);
@@ -111,4 +112,10 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
         finish();
     }
 
+    @Override
+    public void doLogout() {
+        Intent intent = new Intent(this,LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
 }

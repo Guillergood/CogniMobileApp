@@ -13,9 +13,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.content.ContextCompat;
+import com.android.volley.Request;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.textfield.TextInputLayout;
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.payload.request.SignupRequest;
 import ugr.gbv.cognimobile.utilities.DataSender;
@@ -25,7 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RegistrationActivity extends AppCompatActivity implements LoadDialog {
+public class RegistrationActivity extends AppCompatActivity implements LoadDialog, CredentialsCallback {
 
     private boolean formHasError = false;
 
@@ -244,11 +246,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
                 request.setEmail(editTextRegistrationEmail.getText().toString());
                 request.getRoles().add(role.get());
                 request.setPassword(editTextPassword.getText().toString());
-                try {
-                    DataSender.getInstance().postToServer(request, getApplicationContext(), "/api/auth/signup");
-                } catch (JsonProcessingException e) {
-                    ErrorHandler.displayError("Something happened doing the login to the server");
-                }
+                DataSender.getInstance().postToServer(request, getApplicationContext(), "/api/auth/signup", this);
             }
         });
 
@@ -265,5 +263,10 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
                     (dialog, which) -> dialog.dismiss());
             builder.show();
         });
+    }
+
+    @Override
+    public void doLogout() {
+
     }
 }
