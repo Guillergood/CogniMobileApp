@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.database;
 
+import static ugr.gbv.cognimobile.database.Provider.CONTENT_URI_STUDIES;
 import static ugr.gbv.cognimobile.database.Provider.CONTENT_URI_TESTS;
 
 import android.content.ContentResolver;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
+import ugr.gbv.cognimobile.dto.StudyDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.payload.request.LoginRequest;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
@@ -113,7 +115,7 @@ public class ContentProvider implements Serializable {
     }
 
     public void getTests(Context context) {
-        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+        StringRequest testRequest = new StringRequest(Request.Method.GET,
                 CognimobilePreferences.getServerUrl(context) + "/study/tests",
                 response -> {
                     try {
@@ -167,11 +169,73 @@ public class ContentProvider implements Serializable {
             }
         };
 
+
         //creating a request queue
         RequestQueue requestQueue = Volley.newRequestQueue(context);
 
         //adding the string request to request queue
-        requestQueue.add(stringRequest);
+        requestQueue.add(testRequest);
+    }
+    public void getStudies(Context context) {
+        StringRequest studyRequest = new StringRequest(Request.Method.GET,
+                CognimobilePreferences.getServerUrl(context) + "/study/currentUser",
+                response -> {
+                    try {
+                        //getting the whole json object from the response
+                        JSONArray obj = new JSONArray(response);
+                        CustomObjectMapper mapper = new CustomObjectMapper();
+                        ContentValues[] contentValues = new ContentValues[obj.length()];
+                        for(int i = 0; i < obj.length(); ++i){
+                            StudyDTO study = mapper.readValue(obj.get(i).toString(),StudyDTO.class);
+                            ContentValues contentValue = new ContentValues();
+                            contentValue.put(Provider.Cognimobile_Data._ID, study.getId());
+                            contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
+                            contentValue.put(Provider.Cognimobile_Data.NAME, study.getName());
+                            contentValues[i] = contentValue;
+                        }
+
+                        ContentResolver contentResolver = context.getContentResolver();
+
+                        contentResolver.delete(
+                                CONTENT_URI_STUDIES,
+                                null,
+                                null
+                        );
+
+                        contentResolver.bulkInsert(
+                                CONTENT_URI_STUDIES,
+                                contentValues
+                        );
+
+                    } catch (Exception e) {
+                        ErrorHandler.displayError("Something happened when loading the studies into the database:");
+                    }
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    ErrorHandler.displayError("Seems that the connection with the server is not possible.");
+                }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                CustomObjectMapper objectMapper = new CustomObjectMapper();
+                try {
+                    JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                    return headers;
+                } catch (JsonProcessingException e) {
+                    VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                    ErrorHandler.displayError("Something happened when loading the tests into the database");
+                }
+                return super.getHeaders();
+            }
+        };
+
+        //creating a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+
+        //adding the string request to request queue
+        requestQueue.add(studyRequest);
     }
 
 }

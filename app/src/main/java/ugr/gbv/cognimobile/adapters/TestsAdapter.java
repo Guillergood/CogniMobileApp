@@ -122,7 +122,10 @@ public class TestsAdapter extends RecyclerView.Adapter<TestsAdapter.ViewHolder> 
 
             int testPosition = cursor.getColumnIndex(Provider.Cognimobile_Data._ID);
 
-            if (adapterPosition >= 0 && adapterPosition < cursor.getCount() && testPosition >= 0) {
+            if (onClickHandler != null
+                    && adapterPosition >= 0
+                    && adapterPosition < cursor.getCount()
+                    && testPosition >= 0) {
                 onClickHandler.onClick(cursor.getInt(testPosition));
             }
 

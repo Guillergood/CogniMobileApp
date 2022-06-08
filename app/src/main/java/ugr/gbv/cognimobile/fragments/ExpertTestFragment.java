@@ -55,6 +55,8 @@ public class ExpertTestFragment extends Fragment implements StudyCallback, Crede
         doTestButton.setOnClickListener(buttonView -> {
             Intent intent = new Intent(getContext(), Test.class);
             intent.putExtra("testName", test);
+            intent.putExtra("subjectName", subject);
+            intent.putExtra("studyName", study);
             startActivity(intent);
         });
         DataSender.getInstance().getAllStudies(getContext(),this, this);

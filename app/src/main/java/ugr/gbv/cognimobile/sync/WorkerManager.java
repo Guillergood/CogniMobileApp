@@ -62,13 +62,21 @@ public class WorkerManager {
         Constraints constraints = builder.build();
 
 
-        String DOWNLOAD_TAG = "downloadResults";
-        PeriodicWorkRequest downloadRequest =
+        String DOWNLOAD_TEST_TAG = "downloadTests";
+        PeriodicWorkRequest downloadTestRequest =
                 new PeriodicWorkRequest.Builder(TestsWorker.class,
                         context.getResources().getInteger(R.integer.fifteen),
                         TimeUnit.MINUTES)
                         .setConstraints(constraints)
-                        .addTag(DOWNLOAD_TAG)
+                        .addTag(DOWNLOAD_TEST_TAG)
+                        .build();
+        String DOWNLOAD_STUDIES_TAG = "downloadStudies";
+        PeriodicWorkRequest downloadStudiesRequest =
+                new PeriodicWorkRequest.Builder(StudiesWorker.class,
+                        context.getResources().getInteger(R.integer.fifteen),
+                        TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .addTag(DOWNLOAD_STUDIES_TAG)
                         .build();
 
         /*String UPLOAD_TAG = "uploadResults";
@@ -89,10 +97,14 @@ public class WorkerManager {
                         .addTag(DELETE_TAG)
                         .build();*/
 
-        String DOWNLOAD_UID = "download";
+        String DOWNLOAD_TEST_UID = "downloadTest";
+        String DOWNLOAD_STUDIES_UID = "downloadStudies";
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(DOWNLOAD_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, downloadRequest);
+                .enqueueUniquePeriodicWork(DOWNLOAD_TEST_UID,
+                        ExistingPeriodicWorkPolicy.KEEP, downloadTestRequest);
+        WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(DOWNLOAD_STUDIES_UID,
+                        ExistingPeriodicWorkPolicy.KEEP, downloadStudiesRequest);
 
         /*String UPLOAD_UID = "upload";
         WorkManager.getInstance(context)

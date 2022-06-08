@@ -35,6 +35,7 @@ public class Provider extends ContentProvider {
      * The last segment needs to match your database table name
      */
     public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/tests");
+    public static final Uri CONTENT_URI_STUDIES = Uri.parse("content://" + AUTHORITY + "/studies");
     public static final Uri CONTENT_URI_RESULTS = Uri.parse("content://" + AUTHORITY + "/results");
 
 
@@ -42,6 +43,9 @@ public class Provider extends ContentProvider {
     private static final int TABLE_TESTS_ITEM = 2;
     private static final int TABLE_RESULTS_DIR = 3;
     private static final int TABLE_RESULTS_ITEM = 4;
+    private static final int TABLE_STUDIES_DIR = 5;
+    private static final int TABLE_STUDIES_ITEM = 6;
+
 
     //These are columns that we need to sync data, don't change this!
     public interface AWAREColumns extends BaseColumns {
@@ -53,16 +57,19 @@ public class Provider extends ContentProvider {
 
     public static final String DB_TBL_TESTS = "tests";
     public static final String DB_TBL_RESULTS = "results";
+    public static final String DB_TBL_STUDIES = "studies";
 
     public static final String[] DATABASE_TABLES = {
             DB_TBL_TESTS,
-            DB_TBL_RESULTS
+            DB_TBL_RESULTS,
+            DB_TBL_STUDIES
     };
 
 
 
     public static final class Cognimobile_Data implements AWAREColumns {
         public static final Uri CONTENT_URI_TESTS = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_TESTS);
+        public static final Uri CONTENT_URI_STUDIES = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_STUDIES);
         public static final Uri CONTENT_URI_RESULTS = Uri.parse("content://" + AUTHORITY + "/" + DB_TBL_RESULTS);
         public static final String NAME = "name";
         static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
@@ -71,6 +78,8 @@ public class Provider extends ContentProvider {
         public static final String SYNCED = "synced";
         public static final String DONE = "done";
         public static final String ERASE_TIMESTAMP = "erase_timestamp";
+        public static final String REDO_TIMESTAMP = "redo_timestamp";
+        public static final String DAYS_TO_DO = "days_to_do";
 
     }
 
@@ -106,6 +115,8 @@ public class Provider extends ContentProvider {
         sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[0]+"/#", TABLE_TESTS_ITEM); //URI for a single record
         sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1], TABLE_RESULTS_DIR); //URI for all records
         sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[1]+"/#", TABLE_RESULTS_ITEM); //URI for a single record
+        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[2], TABLE_STUDIES_DIR); //URI for all records
+        sUriMatcher.addURI(AUTHORITY, DATABASE_TABLES[2]+"/#", TABLE_STUDIES_ITEM); //URI for a single record
 
 
         tableMap = new HashMap<>();
@@ -134,6 +145,9 @@ public class Provider extends ContentProvider {
             case TABLE_RESULTS_DIR:
                 queryConfiguration(DATABASE_TABLES[1],qb);
                 break;
+            case TABLE_STUDIES_DIR:
+                queryConfiguration(DATABASE_TABLES[2],qb);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -159,9 +173,11 @@ public class Provider extends ContentProvider {
         switch (sUriMatcher.match(uri)) {
             case TABLE_TESTS_DIR:
             case TABLE_RESULTS_DIR:
+            case TABLE_STUDIES_DIR:
                 return Cognimobile_Data.CONTENT_TYPE;
             case TABLE_TESTS_ITEM:
             case TABLE_RESULTS_ITEM:
+            case TABLE_STUDIES_ITEM:
                 return Cognimobile_Data.CONTENT_ITEM_TYPE;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -185,6 +201,9 @@ public class Provider extends ContentProvider {
             case TABLE_RESULTS_DIR:
                 returnValue = insertTransaction(uri, DATABASE_TABLES[1], values);
                 break;
+            case TABLE_STUDIES_DIR:
+                returnValue = insertTransaction(uri, DATABASE_TABLES[2], values);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
@@ -203,8 +222,10 @@ public class Provider extends ContentProvider {
                 dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_TESTS, id);
             } else if (segments.get(segments.size() - 1).equals(DB_TBL_RESULTS)) {
                 dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_RESULTS, id);
+            } else if (segments.get(segments.size() - 1).equals(DB_TBL_STUDIES)) {
+                dataUri = ContentUris.withAppendedId(Cognimobile_Data.CONTENT_URI_STUDIES, id);
             } else {
-                throw new RuntimeException("PETO EN PROVIDER.java:244");
+                throw new SQLException("Failed to insert row into " + uri);
             }
 
             Objects.requireNonNull(getContext()).getContentResolver().notifyChange(dataUri, null, false);
@@ -228,6 +249,9 @@ public class Provider extends ContentProvider {
                 break;
             case TABLE_RESULTS_DIR:
                 count = database.delete(DATABASE_TABLES[1], selection, selectionArgs);
+                break;
+            case TABLE_STUDIES_DIR:
+                count = database.delete(DATABASE_TABLES[2], selection, selectionArgs);
                 break;
             default:
                 database.endTransaction();
@@ -255,6 +279,9 @@ public class Provider extends ContentProvider {
                 break;
             case TABLE_RESULTS_DIR:
                 count = database.update(DATABASE_TABLES[1], values, selection, selectionArgs);
+                break;
+            case TABLE_STUDIES_DIR:
+                count = database.update(DATABASE_TABLES[2], values, selection, selectionArgs);
                 break;
             default:
                 database.endTransaction();

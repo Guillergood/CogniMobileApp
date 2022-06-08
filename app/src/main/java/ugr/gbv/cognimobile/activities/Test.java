@@ -148,10 +148,27 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         try {
             this.language = new Locale(test.getLanguage());
             testAnswerDTO = new TestAnswerDTO();
-            testAnswerDTO.setTestName(test.getName());
-            testAnswerDTO.setLanguage(test.getLanguage());
             testEventDTO = new TestEventDTO();
-            testEventDTO.setTestName(test.getName());
+            getIntent().getStringExtra("subjectName");
+            getIntent().getStringExtra("testName");
+            getIntent().getStringExtra("studyName");
+            if(getIntent().hasExtra("studyName")){
+                testAnswerDTO.setStudyName(getIntent().getStringExtra("studyName"));
+                testEventDTO.setStudyName(getIntent().getStringExtra("studyName"));
+            }
+            if(getIntent().hasExtra("testName")){
+                testAnswerDTO.setTestName(getIntent().getStringExtra("testName"));
+                testEventDTO.setTestName(getIntent().getStringExtra("testName"));
+            }
+            else{
+                testAnswerDTO.setTestName(test.getName());
+                testEventDTO.setTestName(test.getName());
+            }
+            if(getIntent().hasExtra("subjectName")){
+                testAnswerDTO.setUserName(getIntent().getStringExtra("subjectName"));
+                testEventDTO.setUserName(getIntent().getStringExtra("subjectName"));
+            }
+            testAnswerDTO.setLanguage(test.getLanguage());
             testEventDTO.setLanguage(test.getLanguage());
         } catch (NullPointerException e) {
             ErrorHandler.displayError("There has been an error trying to finalize the test");
