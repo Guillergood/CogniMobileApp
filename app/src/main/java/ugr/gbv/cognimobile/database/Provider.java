@@ -76,7 +76,6 @@ public class Provider extends ContentProvider {
         static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
         public static final String DATA = "data";
         public static final String SYNCED = "synced";
-        public static final String DONE = "done";
         public static final String ERASE_TIMESTAMP = "erase_timestamp";
         public static final String REDO_TIMESTAMP = "redo_timestamp";
         public static final String DAYS_TO_DO = "days_to_do";

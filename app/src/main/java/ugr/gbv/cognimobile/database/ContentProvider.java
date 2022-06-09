@@ -117,6 +117,8 @@ public class ContentProvider implements Serializable {
                             contentValue.put(Provider.Cognimobile_Data._ID, test.getId());
                             contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
                             contentValue.put(Provider.Cognimobile_Data.NAME, test.getName());
+                            contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, 0);
+                            contentValue.put(Provider.Cognimobile_Data.DAYS_TO_DO, test.getPeriodicity());
                             contentValues[i] = contentValue;
                         }
 

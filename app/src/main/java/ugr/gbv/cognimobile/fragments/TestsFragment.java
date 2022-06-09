@@ -113,7 +113,7 @@ public class TestsFragment extends Fragment {
     private Cursor getValidTests() {
         String where = Provider.Cognimobile_Data.REDO_TIMESTAMP + " < ?";
         String[] selectionArgs = {Long.toString(System.currentTimeMillis(), 10)};
-        String[] projection = new String[]{Provider.Cognimobile_Data._ID};
+        String[] projection = new String[]{Provider.Cognimobile_Data._ID, Provider.Cognimobile_Data.NAME};
         return context.getContentResolver()
                 .query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
     }

@@ -30,7 +30,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     Provider.Cognimobile_Data.TIMESTAMP + " real default 0," +
                     Provider.Cognimobile_Data.DATA + " blob default ''," +
                     Provider.Cognimobile_Data.NAME + " longtext default ''," +
-                    Provider.Cognimobile_Data.DONE + " integer default 0," +
                     Provider.Cognimobile_Data.REDO_TIMESTAMP + " real default 0," +
                     Provider.Cognimobile_Data.DAYS_TO_DO + " real default 0";
 
@@ -43,7 +42,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     Provider.Cognimobile_Data.TIMESTAMP + " real default 0," +
                     Provider.Cognimobile_Data.DATA + " blob default ''," +
                     Provider.Cognimobile_Data.NAME + " longtext default ''," +
-                    Provider.Cognimobile_Data.DONE + " integer default 0," +
                     Provider.Cognimobile_Data.ERASE_TIMESTAMP + " real default 0";
 
     public DatabaseHelper(Context context) {

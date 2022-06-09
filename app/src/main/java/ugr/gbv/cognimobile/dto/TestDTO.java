@@ -10,6 +10,8 @@ public class TestDTO {
     private String name;
     private List<Task> tasks;
     private String language;
+
+    private int periodicity;
     @JsonProperty("display_help")
     private boolean shouldDisplayHelp;
 
@@ -63,5 +65,13 @@ public class TestDTO {
 
     public void setShouldDisplayHelp(boolean shouldDisplayHelp) {
         this.shouldDisplayHelp = shouldDisplayHelp;
+    }
+
+    public int getPeriodicity() {
+        return periodicity;
+    }
+
+    public void setPeriodicity(final int periodicity) {
+        this.periodicity = periodicity;
     }
 }

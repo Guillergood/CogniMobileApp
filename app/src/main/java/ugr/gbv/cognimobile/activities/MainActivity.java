@@ -50,7 +50,11 @@ public class MainActivity extends AppCompatActivity
         initBottomNavBar();
         ErrorHandler.setCallback(this);
 
-        WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            runOnUiThread(() -> {
+                WorkerManager.getInstance().initiateWorkers(getApplicationContext());
+            });
+        }, 3000);
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();

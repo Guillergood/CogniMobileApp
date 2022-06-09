@@ -107,7 +107,6 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
             jwt = objectMapper.readValue(CognimobilePreferences.getLogin(this), JwtResponse.class);
             if(jwt.getRoles().contains("MODERATOR")) {
                 goToExpertActivity();
-                finish();
             }
             else if(jwt.getRoles().contains("USER")){
                 if(!TextUtils.isEmpty(studyName)){
@@ -116,7 +115,6 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
                     DataSender.getInstance().enrollInStudy(studyEnrollRequest,getBaseContext());
                 }
                 goToMainActivity();
-                finish();
             }
             else{
                 ErrorHandler.displayError("With this user you are not allowed to use the app. Sorry.");
