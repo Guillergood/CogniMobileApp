@@ -8,21 +8,19 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
+import com.android.volley.*;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.json.JSONArray;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
 import ugr.gbv.cognimobile.dto.StudyDTO;
@@ -63,7 +61,7 @@ public class ContentProvider implements Serializable {
                          CognimobilePreferences.setLogin(context,response);
                          loginCallback.loginStored();
                     } catch (Exception e) {
-                        ErrorHandler.displayError("Something happened when loading the tests into the database");
+                        ErrorHandler.displayError("Something happened when loading during the authentication");
                     }
                 },
                 error -> {
@@ -114,7 +112,6 @@ public class ContentProvider implements Serializable {
                         for(int i = 0; i < obj.length(); ++i){
                             TestDTO test = mapper.readValue(obj.get(i).toString(),TestDTO.class);
                             ContentValues contentValue = new ContentValues();
-                            contentValue.put(Provider.Cognimobile_Data._ID, test.getId());
                             contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
                             contentValue.put(Provider.Cognimobile_Data.NAME, test.getName());
                             contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, 0);
@@ -178,7 +175,6 @@ public class ContentProvider implements Serializable {
                         for(int i = 0; i < obj.length(); ++i){
                             StudyDTO study = mapper.readValue(obj.get(i).toString(),StudyDTO.class);
                             ContentValues contentValue = new ContentValues();
-                            contentValue.put(Provider.Cognimobile_Data._ID, study.getId());
                             contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
                             contentValue.put(Provider.Cognimobile_Data.NAME, study.getName());
                             contentValues[i] = contentValue;
@@ -215,7 +211,7 @@ public class ContentProvider implements Serializable {
                     return headers;
                 } catch (JsonProcessingException e) {
                     VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
-                    ErrorHandler.displayError("Something happened when loading the tests into the database");
+                    ErrorHandler.displayError("Something happened when loading the studies into the database");
                 }
                 return super.getHeaders();
             }

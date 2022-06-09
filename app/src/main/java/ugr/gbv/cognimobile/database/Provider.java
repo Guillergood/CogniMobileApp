@@ -75,7 +75,6 @@ public class Provider extends ContentProvider {
         static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
         static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd.cognimobile.provider.cognimobile";
         public static final String DATA = "data";
-        public static final String SYNCED = "synced";
         public static final String ERASE_TIMESTAMP = "erase_timestamp";
         public static final String REDO_TIMESTAMP = "redo_timestamp";
         public static final String DAYS_TO_DO = "days_to_do";
@@ -120,12 +119,10 @@ public class Provider extends ContentProvider {
 
         tableMap = new HashMap<>();
         tableMap.put(Cognimobile_Data._ID, Cognimobile_Data._ID);
-        tableMap.put(Cognimobile_Data.TIMESTAMP, Cognimobile_Data.TIMESTAMP);
-        tableMap.put(Cognimobile_Data.DEVICE_ID, Cognimobile_Data.DEVICE_ID);
         tableMap.put(Cognimobile_Data.NAME, Cognimobile_Data.NAME);
         tableMap.put(Cognimobile_Data.DATA, Cognimobile_Data.DATA);
-        tableMap.put(Cognimobile_Data.SYNCED, Cognimobile_Data.SYNCED);
-        tableMap.put(Cognimobile_Data.ERASE_TIMESTAMP, Cognimobile_Data.ERASE_TIMESTAMP);
+        tableMap.put(Cognimobile_Data.DAYS_TO_DO, Cognimobile_Data.DAYS_TO_DO);
+        tableMap.put(Cognimobile_Data.REDO_TIMESTAMP, Cognimobile_Data.REDO_TIMESTAMP);
 
         return true; //let Android know that the database is ready to be used.
     }

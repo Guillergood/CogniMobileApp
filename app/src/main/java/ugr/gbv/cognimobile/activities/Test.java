@@ -62,7 +62,6 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     private View mContentView;
     private TestAnswerDTO testAnswerDTO;
     private TestEventDTO testEventDTO;
-    private String name;
     private Locale language;
 
     private int typos;
@@ -241,7 +240,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             loadFragment(fragments.get(index));
         } else{
             Intent intent = new Intent();
-            intent.putExtra("name", name);
+            intent.putExtra("name", testAnswerDTO.getTestName());
             setResult(RESULT_OK, intent);
             String currentDate = ContextDataRetriever.getCurrentDateString(language);
             testEventDTO.setCreatedAt(currentDate);
@@ -347,15 +346,6 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             }
 
         });
-    }
-
-    /**
-     * Getter for the name of the test.
-     *
-     * @return the name of the test
-     */
-    public String getName() {
-        return name;
     }
 
 

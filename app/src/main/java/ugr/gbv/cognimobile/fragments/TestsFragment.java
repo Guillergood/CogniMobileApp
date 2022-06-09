@@ -137,33 +137,24 @@ public class TestsFragment extends Fragment {
     public void updateTestDone(String name) {
         String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
         String[] selectionArgs = {name};
-        String[] projection = new String[]{
-                Provider.Cognimobile_Data._ID,
-                Provider.Cognimobile_Data.NAME,
-                Provider.Cognimobile_Data.REDO_TIMESTAMP,
-                Provider.Cognimobile_Data.DAYS_TO_DO,
-                Provider.Cognimobile_Data.DATA
-        };
         Cursor testCursor = context.getContentResolver()
-                .query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
+                .query(Provider.CONTENT_URI_TESTS, null, where, selectionArgs, Provider.Cognimobile_Data._ID);
         if (testCursor != null) {
             testCursor.moveToFirst();
             int days = testCursor.getInt(
                     testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DAYS_TO_DO));
-            long timestampToReDo = 86400000L * days;
+            long timestampToReDo = System.currentTimeMillis() + (86400000L * days);
             ContentValues values = new ContentValues();
             values.put(Provider.Cognimobile_Data._ID, testCursor.getInt(
                     testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
             values.put(Provider.Cognimobile_Data.NAME, testCursor.getString(
                     testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.NAME)));
             values.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, timestampToReDo);
-            values.put(Provider.Cognimobile_Data._ID, testCursor.getInt(
-                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
             values.put(Provider.Cognimobile_Data.DAYS_TO_DO, testCursor.getInt(
                     testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DAYS_TO_DO)));
             values.put(Provider.Cognimobile_Data.DATA, testCursor.getInt(
                     testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DATA)));
-            context.getContentResolver().update(Provider.CONTENT_URI_TESTS,values, where, selectionArgs);
+            int updated = context.getContentResolver().update(Provider.CONTENT_URI_TESTS,values, where, selectionArgs);
             testCursor.close();
         }
 
