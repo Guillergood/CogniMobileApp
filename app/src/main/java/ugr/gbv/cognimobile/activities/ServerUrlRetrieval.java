@@ -95,7 +95,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
 
     private void goToLoginActivity(QrDTO extraData) {
         Intent intent = new Intent(this, LoginActivity.class);
-        if(extraData != null) {
+        if(extraData != null && extraData.getStudy() != null) {
             intent.putExtra("studyName", extraData.getStudy().getName());
         }
         startActivity(intent);
