@@ -77,7 +77,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         // There are no request codes
                         if (result.getData() != null && result.getData().getExtras() != null) {
-                            CustomObjectMapper mapper = new CustomObjectMapper();
+                            ObjectMapper mapper = new ObjectMapper();
                             QrDTO data;
                             try {
                                 data = mapper.readValue(result.getData().getExtras()
@@ -96,7 +96,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
     private void goToLoginActivity(QrDTO extraData) {
         Intent intent = new Intent(this, LoginActivity.class);
         if(extraData != null) {
-            intent.putExtra("extraData", extraData);
+            intent.putExtra("studyName", extraData.getStudy().getName());
         }
         startActivity(intent);
     }

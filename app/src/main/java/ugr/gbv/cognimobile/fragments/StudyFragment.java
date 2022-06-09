@@ -3,24 +3,21 @@ package ugr.gbv.cognimobile.fragments;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.adapters.TestsAdapter;
 import ugr.gbv.cognimobile.database.Provider;
-import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
 /**
  * Fragment to display the Study section in {@link ugr.gbv.cognimobile.activities.MainActivity}
  */
@@ -28,18 +25,9 @@ public class StudyFragment extends Fragment {
 
     private ImageView noStudyTest;
     private Context context;
-    private final ServerLinkRetrieval callBack;
     private RecyclerView recyclerView;
     private TextView noStudyText;
 
-    /**
-     * Constructor
-     *
-     * @param callBack to call {@link ugr.gbv.cognimobile.qr_reader.ReadQR} from {@link ugr.gbv.cognimobile.activities.MainActivity}
-     */
-    public StudyFragment(ServerLinkRetrieval callBack) {
-        this.callBack = callBack;
-    }
 
     /**
      * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
@@ -64,14 +52,30 @@ public class StudyFragment extends Fragment {
 
         context = getContext();
 
+        prepareView();
+
+        loopToRefreshView();
+
+        return view;
+    }
+
+    private void loopToRefreshView() {
+        if(isRecyclerViewNotVisible()){
+            final Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(this::prepareView, 3000);
+        }
+    }
+
+    private void prepareView() {
         if (emptyStudies()) {
             showNoStudies();
         } else {
             fetchStudies();
         }
+    }
 
-
-        return view;
+    private boolean isRecyclerViewNotVisible() {
+        return recyclerView.getVisibility() != View.VISIBLE;
     }
 
     /**
@@ -92,17 +96,14 @@ public class StudyFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         String[] projection = new String[]{Provider.Cognimobile_Data._ID, Provider.Cognimobile_Data.NAME};
-        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_STUDIES, projection, null, null, Provider.Cognimobile_Data._ID);
+        Cursor cursor =
+                context.getContentResolver()
+                        .query(Provider.CONTENT_URI_STUDIES, projection, null, null, Provider.Cognimobile_Data._ID);
         if (cursor != null) {
             cursor.moveToFirst();
         }
         TestsAdapter studiesAdapter = new TestsAdapter(cursor, null);
         recyclerView.setAdapter(studiesAdapter);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                recyclerView.getContext(), LinearLayoutManager.VERTICAL);
-
-        recyclerView.addItemDecoration(dividerItemDecoration);
 
         showStudies();
     }
@@ -111,7 +112,7 @@ public class StudyFragment extends Fragment {
      * Makes the UI components invisible.
      */
     private void showNoStudies() {
-        recyclerView.setVisibility(View.INVISIBLE);
+        recyclerView.setVisibility(View.GONE);
         noStudyText.setVisibility(View.VISIBLE);
         noStudyTest.setVisibility(View.VISIBLE);
     }
@@ -123,7 +124,8 @@ public class StudyFragment extends Fragment {
      */
     private boolean emptyStudies() {
         String[] projection = new String[]{Provider.Cognimobile_Data._ID};
-        Cursor tempCursor = context.getContentResolver().query(Provider.CONTENT_URI_STUDIES, projection, null, null,
+        Cursor tempCursor = context.getContentResolver()
+                .query(Provider.CONTENT_URI_STUDIES, projection, null, null,
                 Provider.Cognimobile_Data._ID);
         int count = 0;
         if (tempCursor != null) {

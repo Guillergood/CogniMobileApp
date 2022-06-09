@@ -1,11 +1,8 @@
 package ugr.gbv.cognimobile.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -21,14 +18,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.fragments.ExpertTestFragment;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
-import ugr.gbv.cognimobile.interfaces.LoadDialog;
-import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
-import ugr.gbv.cognimobile.interfaces.SettingsCallback;
-import ugr.gbv.cognimobile.interfaces.TestClickHandler;
+import ugr.gbv.cognimobile.interfaces.*;
 import ugr.gbv.cognimobile.sync.WorkerManager;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
@@ -70,7 +63,7 @@ public class MainActivity extends AppCompatActivity
                 actualFragment = new TestsFragment(this);
             }
         } else {
-            actualFragment = new StudyFragment(this);
+            actualFragment = new StudyFragment();
         }
 
         loadFragment();
@@ -83,7 +76,7 @@ public class MainActivity extends AppCompatActivity
                         if (result.getData() != null && result.getData().getExtras() != null) {
                             String name = result.getData().getStringExtra(TEST_NAME);
                             TestsFragment fragment = (TestsFragment) actualFragment;
-                            fragment.deleteTest(name);
+                            fragment.updateTestDone(name);
                         }
                     }
                 });
@@ -121,7 +114,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_studies) {
-            actualFragment = new StudyFragment(this);
+            actualFragment = new StudyFragment();
             loadFragment();
         } else if (id == R.id.nav_tests) {
             actualFragment = new TestsFragment(this);
@@ -133,21 +126,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * hasUserConnectivity method checks the user connectivity
-     *
-     * @return true when the user has connection, false if not.
-     */
-    @SuppressLint("MissingPermission")
-    private boolean hasUserConnectivity() {
-        // Checking internet connectivity
-        ConnectivityManager connectivityMgr = (ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = null;
-        if (connectivityMgr != null) {
-            activeNetwork = connectivityMgr.getActiveNetworkInfo();
-        }
-        return activeNetwork != null;
-    }
 
 
     /**

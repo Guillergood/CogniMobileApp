@@ -54,18 +54,6 @@ public class ContentProvider implements Serializable {
         return instance;
     }
 
-//    public Cursor getRopa(ClothsFragment clothsFragment) {
-//        ContentResolver contentResolver = clothsFragment.getContext().getContentResolver();
-//        Uri articleQueryUri = RopaContract.RopaEntry.CONTENT_URI;
-//        Cursor cursor = contentResolver.query(
-//                articleQueryUri,
-//                null,
-//                null,
-//                null,
-//                null);
-//        cursor.setNotificationUri(contentResolver, articleQueryUri);
-//        return cursor;
-//    }
 
     public void doLogin(Context context, LoginRequest credentials, LoginCallback loginCallback){
         StringRequest stringRequest = new StringRequest(Request.Method.POST,

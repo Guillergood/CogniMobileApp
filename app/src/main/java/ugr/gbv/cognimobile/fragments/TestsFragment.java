@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -12,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -100,32 +100,29 @@ public class TestsFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        String where = Provider.Cognimobile_Data.DONE + " LIKE ?";
-        String[] selectionArgs = {"0"};
-        String[] projection = new String[]{Provider.Cognimobile_Data._ID, Provider.Cognimobile_Data.NAME, Provider.Cognimobile_Data.DATA};
-        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
+        Cursor cursor = getValidTests();
         if (cursor != null) {
             cursor.moveToFirst();
         }
         TestsAdapter testsAdapter = new TestsAdapter(cursor, callBack);
         recyclerView.setAdapter(testsAdapter);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
-                recyclerView.getContext(), LinearLayoutManager.VERTICAL);
-
-        recyclerView.addItemDecoration(dividerItemDecoration);
-
         showTests();
+    }
+
+    private Cursor getValidTests() {
+        String where = Provider.Cognimobile_Data.REDO_TIMESTAMP + " < ?";
+        String[] selectionArgs = {Long.toString(System.currentTimeMillis(), 10)};
+        String[] projection = new String[]{Provider.Cognimobile_Data._ID};
+        return context.getContentResolver()
+                .query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
     }
 
     /**
      * Checks if there are tests to be displayed or not.
      */
     private boolean emptyTests() {
-        String where = Provider.Cognimobile_Data.DONE + " LIKE ?";
-        String[] selectionArgs = {"0"};
-        String[] projection = new String[]{Provider.Cognimobile_Data._ID};
-        Cursor tempCursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
+        Cursor tempCursor = getValidTests();
         int count = 0;
         if (tempCursor != null) {
             count = tempCursor.getCount();
@@ -137,10 +134,38 @@ public class TestsFragment extends Fragment {
     /**
      * Deletes the test with the name given.
      */
-    public void deleteTest(String name) {
+    public void updateTestDone(String name) {
         String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
         String[] selectionArgs = {name};
-        context.getContentResolver().delete(Provider.CONTENT_URI_TESTS, where, selectionArgs);
+        String[] projection = new String[]{
+                Provider.Cognimobile_Data._ID,
+                Provider.Cognimobile_Data.NAME,
+                Provider.Cognimobile_Data.REDO_TIMESTAMP,
+                Provider.Cognimobile_Data.DAYS_TO_DO,
+                Provider.Cognimobile_Data.DATA
+        };
+        Cursor testCursor = context.getContentResolver()
+                .query(Provider.CONTENT_URI_TESTS, projection, where, selectionArgs, Provider.Cognimobile_Data._ID);
+        if (testCursor != null) {
+            testCursor.moveToFirst();
+            int days = testCursor.getInt(
+                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DAYS_TO_DO));
+            long timestampToReDo = 86400000L * days;
+            ContentValues values = new ContentValues();
+            values.put(Provider.Cognimobile_Data._ID, testCursor.getInt(
+                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
+            values.put(Provider.Cognimobile_Data.NAME, testCursor.getString(
+                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.NAME)));
+            values.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, timestampToReDo);
+            values.put(Provider.Cognimobile_Data._ID, testCursor.getInt(
+                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
+            values.put(Provider.Cognimobile_Data.DAYS_TO_DO, testCursor.getInt(
+                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DAYS_TO_DO)));
+            values.put(Provider.Cognimobile_Data.DATA, testCursor.getInt(
+                    testCursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.DATA)));
+            context.getContentResolver().update(Provider.CONTENT_URI_TESTS,values, where, selectionArgs);
+            testCursor.close();
+        }
 
         if (emptyTests()) {
             showNoTests();
