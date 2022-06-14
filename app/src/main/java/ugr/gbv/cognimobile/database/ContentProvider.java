@@ -121,16 +121,17 @@ public class ContentProvider implements Serializable {
                             ContentValues contentValue = new ContentValues();
                             contentValue.put(Provider.Cognimobile_Data.NAME, test.getName());
                             if (cursor != null) {
-                                cursor.moveToFirst();
-                                do {
-                                    String name = cursor.getString(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.NAME));
-                                    if(name.equals(test.getName())){
-                                        contentValue.put(Provider.Cognimobile_Data._ID,
-                                                cursor.getInt(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
-                                        contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP,
-                                                cursor.getInt(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.REDO_TIMESTAMP)));
-                                    }
-                                } while (cursor.moveToNext());
+                                if(cursor.moveToFirst()) {
+                                    do {
+                                        String name = cursor.getString(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.NAME));
+                                        if (name.equals(test.getName())) {
+                                            contentValue.put(Provider.Cognimobile_Data._ID,
+                                                    cursor.getInt(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
+                                            contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP,
+                                                    cursor.getInt(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.REDO_TIMESTAMP)));
+                                        }
+                                    } while (cursor.moveToNext());
+                                }
                             }
                             else{
                                 contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, 0);

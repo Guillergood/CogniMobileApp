@@ -48,13 +48,14 @@ public class TestsChecker extends Worker {
                                 projection, null, null, Provider.Cognimobile_Data._ID);
         int count = 0;
         if (cursor != null) {
-            cursor.moveToFirst();
-            do {
-                long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.REDO_TIMESTAMP));
-                if(System.currentTimeMillis() >= timestamp){
-                    count++;
-                }
-            } while (cursor.moveToNext());
+            if(cursor.moveToFirst()) {
+                do {
+                    long timestamp = cursor.getLong(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.REDO_TIMESTAMP));
+                    if (System.currentTimeMillis() >= timestamp) {
+                        count++;
+                    }
+                } while (cursor.moveToNext());
+            }
             cursor.close();
         }
 
