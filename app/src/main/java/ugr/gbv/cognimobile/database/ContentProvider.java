@@ -1,27 +1,17 @@
 package ugr.gbv.cognimobile.database;
 
-import static ugr.gbv.cognimobile.database.Provider.CONTENT_URI_STUDIES;
-import static ugr.gbv.cognimobile.database.Provider.CONTENT_URI_TESTS;
-
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.widget.Toast;
-
-import com.android.volley.*;
+import android.database.Cursor;
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.json.JSONArray;
-
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
 import ugr.gbv.cognimobile.dto.StudyDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
@@ -29,6 +19,14 @@ import ugr.gbv.cognimobile.payload.request.LoginRequest;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 import ugr.gbv.cognimobile.utilities.CustomObjectMapper;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
+import ugr.gbv.cognimobile.utilities.NotificationUtils;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import static ugr.gbv.cognimobile.database.Provider.CONTENT_URI_STUDIES;
+import static ugr.gbv.cognimobile.database.Provider.CONTENT_URI_TESTS;
 
 public class ContentProvider implements Serializable {
 
@@ -109,17 +107,49 @@ public class ContentProvider implements Serializable {
                         JSONArray obj = new JSONArray(response);
                         CustomObjectMapper mapper = new CustomObjectMapper();
                         ContentValues[] contentValues = new ContentValues[obj.length()];
+
+                        String[] projection = new String[]{Provider.Cognimobile_Data._ID,
+                                Provider.Cognimobile_Data.NAME,
+                                Provider.Cognimobile_Data.REDO_TIMESTAMP};
+                        Cursor cursor =
+                                context.getContentResolver()
+                                        .query(Provider.CONTENT_URI_TESTS,
+                                                projection, null, null, Provider.Cognimobile_Data._ID);
+
                         for(int i = 0; i < obj.length(); ++i){
                             TestDTO test = mapper.readValue(obj.get(i).toString(),TestDTO.class);
                             ContentValues contentValue = new ContentValues();
-                            contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
                             contentValue.put(Provider.Cognimobile_Data.NAME, test.getName());
-                            contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, 0);
+                            if (cursor != null) {
+                                cursor.moveToFirst();
+                                do {
+                                    String name = cursor.getString(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.NAME));
+                                    if(name.equals(test.getName())){
+                                        contentValue.put(Provider.Cognimobile_Data._ID,
+                                                cursor.getInt(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data._ID)));
+                                        contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP,
+                                                cursor.getInt(cursor.getColumnIndexOrThrow(Provider.Cognimobile_Data.REDO_TIMESTAMP)));
+                                    }
+                                } while (cursor.moveToNext());
+                            }
+                            else{
+                                contentValue.put(Provider.Cognimobile_Data.REDO_TIMESTAMP, 0);
+                            }
+                            contentValue.put(Provider.Cognimobile_Data.DATA, obj.get(i).toString());
                             contentValue.put(Provider.Cognimobile_Data.DAYS_TO_DO, test.getPeriodicity());
                             contentValues[i] = contentValue;
                         }
 
                         ContentResolver contentResolver = context.getContentResolver();
+
+                        boolean triggerNotification = true;
+                        int numberOfTests = contentValues.length;
+                        if (cursor != null) {
+                            cursor.moveToFirst();
+                            triggerNotification = cursor.getCount() < contentValues.length;
+                            numberOfTests = contentValues.length - cursor.getCount();
+                            cursor.close();
+                        }
 
                         contentResolver.delete(
                                 CONTENT_URI_TESTS,
@@ -131,6 +161,10 @@ public class ContentProvider implements Serializable {
                                 CONTENT_URI_TESTS,
                                 contentValues
                         );
+
+                        if(triggerNotification){
+                            NotificationUtils.getInstance().notifyNewTestsAvailable(numberOfTests,context);
+                        }
 
                     } catch (Exception e) {
                         ErrorHandler.displayError("Something happened when loading the tests into the database:");

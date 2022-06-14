@@ -64,7 +64,7 @@ public class WorkerManager {
 
         String DOWNLOAD_TEST_TAG = "downloadTests";
         PeriodicWorkRequest downloadTestRequest =
-                new PeriodicWorkRequest.Builder(TestsWorker.class,
+                new PeriodicWorkRequest.Builder(TestDownloader.class,
                         context.getResources().getInteger(R.integer.fifteen),
                         TimeUnit.MINUTES)
                         .setConstraints(constraints)
