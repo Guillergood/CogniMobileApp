@@ -98,7 +98,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             jwt = objectMapper.readValue(CognimobilePreferences.getLogin(this), JwtResponse.class);
-            if(jwt.getRoles().contains("MODERATOR")) {
+            if(jwt.getRoles().contains("EXPERT")) {
                 DataSender.getInstance()
                         .getTestToBeDone(getBaseContext(),getIntent().getStringExtra("testName")
                                 ,this, this);

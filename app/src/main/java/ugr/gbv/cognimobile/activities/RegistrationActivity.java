@@ -72,7 +72,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
             userButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(), R.color.white));
             userButton.setTextColor(ContextCompat.getColor(getBaseContext(), R.color.colorPrimary));
             reminder.setVisibility(View.VISIBLE);
-            role.set("MODERATOR");
+            role.set("EXPERT");
         });
 
         userButton.performClick();

@@ -105,7 +105,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
         JwtResponse jwt;
         try {
             jwt = objectMapper.readValue(CognimobilePreferences.getLogin(this), JwtResponse.class);
-            if(jwt.getRoles().contains("MODERATOR")) {
+            if(jwt.getRoles().contains("EXPERT")) {
                 goToExpertActivity();
             }
             else if(jwt.getRoles().contains("USER")){

@@ -153,7 +153,7 @@ public class Introduction extends Activity {
             try {
                 JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(getBaseContext()), JwtResponse.class);
                 Intent intent;
-                if(jwt.getRoles().contains("MODERATOR")) {
+                if(jwt.getRoles().contains("EXPERT")) {
                     intent = new Intent(this, ExpertActivity.class);
                 }
                 else {
