@@ -116,12 +116,8 @@ public abstract class Task extends Fragment {
      */
     private void loadNextTask() {
         checkIfUserHasSkippedTask();
-        if (taskType <= Task.MEMORY) {
-            resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
-        }
-        else {
-            resultEvent.setGenericTimeNextTask(ContextDataRetriever.addTimeStamp());
-        }
+        resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
+        resultEvent.setGenericTimeNextTask(ContextDataRetriever.addTimeStamp());
         callBack.getTestEventDTO().getEvents().add(resultEvent);
         callBack.getTestAnswerDTO().getTasks().add(resultTask);
         resultEvent = new ResultEvent();
@@ -468,11 +464,8 @@ public abstract class Task extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         writing = false;
-        if (taskType > Task.IMAGE) {
-            resultEvent.setGenericTimeBeforeTask(ContextDataRetriever.addTimeStamp());
-        } else {
-            resultEvent.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
-        }
+        resultEvent.setGenericTimeBeforeTask(ContextDataRetriever.addTimeStamp());
+        resultEvent.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
         super.onCreate(savedInstanceState);
     }
 }
