@@ -131,26 +131,26 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <TextView
-                        android:id="@+id/agreeWithText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:text="Agree with"
-                        app:layout_constraintBottom_toBottomOf="@+id/registerCheckBox"
-                        app:layout_constraintStart_toEndOf="@+id/registerCheckBox"
-                        app:layout_constraintTop_toTopOf="@+id/registerCheckBox"/>
+            <TextView
+                    android:id="@+id/agreeWithText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Agree with"
+                    app:layout_constraintBottom_toBottomOf="@+id/registerCheckBox"
+                    app:layout_constraintStart_toEndOf="@+id/registerCheckBox"
+                    app:layout_constraintTop_toTopOf="@+id/registerCheckBox" android:textColor="@color/black"/>
 
-                <TextView
-                        android:id="@+id/termsAndConditionText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:textStyle="bold"
-                        android:text="Terms &amp; Conditions"
-                        app:layout_constraintBottom_toBottomOf="@+id/agreeWithText"
-                        app:layout_constraintStart_toEndOf="@+id/agreeWithText"
-                        app:layout_constraintTop_toTopOf="@+id/agreeWithText"/>
+            <TextView
+                    android:id="@+id/termsAndConditionText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:textStyle="bold"
+                    android:text="Terms &amp; Conditions"
+                    app:layout_constraintBottom_toBottomOf="@+id/agreeWithText"
+                    app:layout_constraintStart_toEndOf="@+id/agreeWithText"
+                    app:layout_constraintTop_toTopOf="@+id/agreeWithText" android:textColor="@color/black"/>
 
                 <CheckBox
                         android:id="@+id/registerCheckBox"

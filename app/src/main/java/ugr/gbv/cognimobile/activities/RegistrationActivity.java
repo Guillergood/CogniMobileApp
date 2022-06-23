@@ -1,6 +1,8 @@
 package ugr.gbv.cognimobile.activities;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.text.Editable;
@@ -18,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.android.material.textfield.TextInputLayout;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.payload.request.SignupRequest;
 import ugr.gbv.cognimobile.utilities.DataSender;
@@ -174,7 +177,8 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
         });
 
         textViewTermsAndConditions.setOnClickListener(v -> {
-            Toast.makeText(this, "DISPLAY SERVER TERMS AND CONDITIONS", Toast.LENGTH_LONG).show();
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse(CognimobilePreferences.getServerUrl(this) + "/terms")));
         });
 
         registerButton.setOnClickListener(v -> {
