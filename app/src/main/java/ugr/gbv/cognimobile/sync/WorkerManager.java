@@ -78,6 +78,14 @@ public class WorkerManager {
                         .setConstraints(constraints)
                         .addTag(DOWNLOAD_STUDIES_TAG)
                         .build();
+        String TEST_CHECKER_TAG = "testChecker";
+        PeriodicWorkRequest testCheckerRequest =
+                new PeriodicWorkRequest.Builder(TestDownloader.class,
+                        context.getResources().getInteger(R.integer.fifteen),
+                        TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .addTag(TEST_CHECKER_TAG)
+                        .build();
 
         /*String UPLOAD_TAG = "uploadResults";
         PeriodicWorkRequest uploadRequest =
@@ -99,11 +107,15 @@ public class WorkerManager {
 
         String DOWNLOAD_TEST_UID = "downloadTest";
         String DOWNLOAD_STUDIES_UID = "downloadStudies";
+        String TEST_CHECKER_UID = "testChecker";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DOWNLOAD_TEST_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, downloadTestRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, testCheckerRequest);
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DOWNLOAD_STUDIES_UID,
+                        ExistingPeriodicWorkPolicy.KEEP, downloadStudiesRequest);
+        WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(TEST_CHECKER_UID,
                         ExistingPeriodicWorkPolicy.KEEP, downloadStudiesRequest);
 
         /*String UPLOAD_UID = "upload";
