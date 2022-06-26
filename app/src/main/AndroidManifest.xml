@@ -55,10 +55,6 @@
         <activity android:name=".activities.ForgotPasswordActivity" />
         <activity android:name=".activities.TutorialTest" />
         <activity android:name=".activities.ExpertActivity"/>
-        <activity
-            android:name=".activities.WriteTestLink"
-            android:theme="@style/AppTheme" >
-        </activity>
         <activity android:name=".activities.About" />
         <provider
                 android:name=".database.Provider"

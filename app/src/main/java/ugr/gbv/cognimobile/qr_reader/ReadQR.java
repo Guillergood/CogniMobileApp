@@ -4,17 +4,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-
-import com.google.android.material.button.MaterialButton;
 
 import me.dm7.barcodescanner.zbar.Result;
 import me.dm7.barcodescanner.zbar.ZBarScannerView;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.ServerUrlRetrieval;
-import ugr.gbv.cognimobile.activities.WriteTestLink;
 
 /**
  * Class to read a QR

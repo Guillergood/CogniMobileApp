@@ -40,7 +40,9 @@
     <string name="tutorial_bottom_message">" La parte inferior contiene botones para deshacer ciertas acciones, proporcionar más información sobre la tarea y continuar con la siguiente tarea. Si no sabe cómo completar la tarea, puede omitirla con el siguiente botón, ubicado a la derecha. Para finalizar el tutorial, haga clic en el siguiente botón."</string>
     <string name="introduction_1_message">" Cognimobile le permite obtener todos los datos necesarios para sus estudios, además de datos de contexto de sus pacientes para que pueda diagnosticar mejor."</string>
     <string name="introduction_2_message">" Los pacientes de su estudio tienen la posibilidad de hacer varias pruebas por su cuenta."</string>
-    <string name="introduction_3_message">" Todos los datos recopilados de los estudios estarán seguros en su servidor, gracias al marco de trabajo AWARE."</string>
+    <string name="introduction_3_message">" Todos los datos recopilados de los estudios estarán seguros en su servidor,
+        gracias al Cognimobile Dashboard."
+    </string>
     <string name="times_left">Tiene %1$d oportunidades para deshacer.</string>
     <string name="no_times_left">Ya no tiene más oportunidades para deshacer</string>
     <string name="speech_bubble_tail">Cola de burbuja de discurso</string>
@@ -82,4 +84,6 @@
     <string name="language_instructions_2">Ahora le voy a leer otra frase. Repitela, tal como lo dije.</string>
     <string name="memory_instructions_2">Voy a leer la misma lista por segunda vez. Trate de recordar y decirme tantas palabras como pueda, incluidas las que mencionó la primera vez.</string>
     <string name="memory_instructions_last">Te volveré a preguntar al final de esta prueba cuantas palabras recuerdas.</string>
+    <string name="pref_logout_title">Cerrar sesión</string>
+    <string name="pref_change_server_title">Cambiar servidor</string>
 </resources>
