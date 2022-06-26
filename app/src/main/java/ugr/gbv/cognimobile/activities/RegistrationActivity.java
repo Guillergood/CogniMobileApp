@@ -178,7 +178,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 
         textViewTermsAndConditions.setOnClickListener(v -> {
             startActivity(new Intent(Intent.ACTION_VIEW,
-                    Uri.parse(CognimobilePreferences.getServerUrl(this) + "/terms")));
+                    Uri.parse(CognimobilePreferences.getServerUrl(this).replace("/backend", "/terms"))));
         });
 
         registerButton.setOnClickListener(v -> {
