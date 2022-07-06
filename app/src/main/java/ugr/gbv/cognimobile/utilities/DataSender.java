@@ -93,14 +93,14 @@ public class DataSender implements Serializable {
                 error -> {
                     //displaying the error in toast if occur
                     if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
-                        if (error.networkResponse.statusCode == 401) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             refreshAccessToken(context);
                         } else {
                             ErrorHandler.displayError("Error sending the data.");
                         }
                     }
                     else{
-                        if (error.networkResponse.statusCode == 401) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             ErrorHandler.displayError("Invalid credentials or inactive account.");
                             credentialCallback.doLogout();
                         }
@@ -146,14 +146,14 @@ public class DataSender implements Serializable {
                 error -> {
                     //displaying the error in toast if occur
                     if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
-                        if (error.networkResponse.statusCode == 401) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             refreshAccessToken(context);
                         } else {
                             ErrorHandler.displayError("Error sending the data.");
                         }
                     }
                     else{
-                        if (error.networkResponse.statusCode == 401) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             ErrorHandler.displayError("Invalid credentials or inactive account.");
                         }
                     }
@@ -220,14 +220,14 @@ public class DataSender implements Serializable {
                 error -> {
                     //displaying the error in toast if occur
                     if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
-                        if (error.networkResponse.statusCode == 401) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             refreshAccessToken(context);
                         } else {
-                            ErrorHandler.displayError("Error getting the data.");
+                            ErrorHandler.displayError("Error getting the studies.");
                         }
                     }
                     else{
-                        if (error.networkResponse.statusCode == 401) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             ErrorHandler.displayError("Invalid credentials or inactive account.");
                             credentialCallback.doLogout();
                         }
