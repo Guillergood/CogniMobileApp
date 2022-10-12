@@ -12,14 +12,20 @@ import androidx.preference.PreferenceScreen;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.About;
+import ugr.gbv.cognimobile.activities.LoginActivity;
+import ugr.gbv.cognimobile.activities.ServerUrlRetrieval;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.interfaces.SettingsCallback;
 
 /**
  * Fragment to display the Settings section in {@link ugr.gbv.cognimobile.activities.MainActivity}
  */
 public class SettingsFragments extends PreferenceFragmentCompat implements SharedPreferences.OnSharedPreferenceChangeListener {
     private Context context;
-
+    private SettingsCallback callback;
+    public SettingsFragments(SettingsCallback callback) {
+        this.callback = callback;
+    }
 
     /**
      * Overrides {@link PreferenceFragmentCompat#onCreatePreferences(Bundle, String)}
@@ -50,6 +56,24 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
                     if (getString(R.string.pref_config).equals(key)) {
                         String[] entries = getResources().getStringArray(R.array.configEntries);
                         preference.setDefaultValue(entries[CognimobilePreferences.getConfig(context)]);
+                    }
+                    if (getString(R.string.pref_logout).equals(key)){
+                        preference.setOnPreferenceClickListener(preference1 -> {
+                            CognimobilePreferences.setLogin(context, "");
+                            Intent intent = new Intent(context, LoginActivity.class);
+                            startActivity(intent);
+                            callback.finishActivity();
+                            return true;
+                        });
+                    }
+                    if (getString(R.string.pref_change_server).equals(key)){
+                        preference.setOnPreferenceClickListener(preference1 -> {
+                            CognimobilePreferences.setServerUrl(context, "");
+                            Intent intent = new Intent(context, ServerUrlRetrieval.class);
+                            startActivity(intent);
+                            callback.finishActivity();
+                            return true;
+                        });
                     }
                     if (getString(R.string.pref_about).equals(key)) {
                         preference.setOnPreferenceClickListener(preference1 -> {

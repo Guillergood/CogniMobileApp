@@ -40,17 +40,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.adapters.WordListAdapter;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.dto.TaskType;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.TTSHandler;
 import ugr.gbv.cognimobile.interfaces.TextTaskCallback;
@@ -139,7 +137,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
@@ -225,8 +223,63 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         array = new String[0];
 
+        initializeResultTask();
+
 
         return mainView;
+    }
+
+    private void initializeResultTask() {
+        Objects.requireNonNull(bundle);
+        switch (taskType) {
+            case RECALL:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                break;
+            case MEMORY:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                resultTask.setTimes(bundle.getInt("times"));
+                break;
+            case ATTENTION_NUMBERS:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_forward"))));
+                resultTask.setExpectedAnswerBackwards(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_backward"))));
+                break;
+            case ATTENTION_LETTERS:
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultTask.setLetters(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("letters"))));
+                break;
+            case LANGUAGE:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("phrases"))));
+                break;
+            case FLUENCY:
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultTask.setNumberWords(bundle.getInt("number_words"));
+                break;
+
+            case ORIENTATION:
+                resultTask.setQuestions(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("questions"))));
+                break;
+            case ATTENTION_SUBTRACTION:
+                resultTask.setMinuend(bundle.getInt("minuend"));
+                resultTask.setSubtracting(bundle.getInt("subtracting"));
+                resultTask.setTimes(bundle.getInt("times"));
+                break;
+            case ABSTRACTION:
+                resultTask.setQuestions(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("words"))));
+                resultTask.setExpectedAnswer(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("answer"))));
+                break;
+            default:
+                throw new RuntimeException("INVALID TASKTYPE");
+        }
+
     }
 
 
@@ -312,11 +365,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      */
     private void startTask() {
 
-        try {
-            callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeStartTask, ContextDataRetriever.addTimeStamp());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        resultEvent.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
 
         if (taskType != ATTENTION_SUBTRACTION && taskType != ABSTRACTION && taskType != ORIENTATION) {
             new CountDownTimer(context.getResources().getInteger(R.integer.default_time), context.getResources().getInteger(R.integer.one_seg_millis)) {
@@ -387,6 +436,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     //-------------------TASKS-------------------//
 
     private void memorization(String[] words, int times) {
+        resultTask.setExpectedAnswer(Arrays.asList(words));
         array = words;
         index = 0;
         length = times;
@@ -408,6 +458,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void repeat(String[] numbers) {
+        resultTask.setExpectedAnswer(Arrays.asList(numbers));
         array = numbers;
         index = 0;
         placeFirstInput();
@@ -620,14 +671,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      * @param millis the time milliseconds where the countdown will start with.
      */
     private void countDownTask(int millis) {
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(() -> {
             taskEnded = true;
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
             hideInputs();
             hideBanner();
         }, millis);
@@ -996,11 +1043,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             changeBannerText();
         } else {
             taskEnded = true;
-            try {
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.GenericTimeEndTask, ContextDataRetriever.addTimeStamp());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
             handler.postDelayed(this::taskIsEnded, context.getResources().getInteger(R.integer.one_seg_millis));
         }
 
@@ -1136,9 +1179,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         try {
             startActivityForResult(intent, TextToSpeechLocal.STT_CODE);
         } catch (ActivityNotFoundException a) {
-            Toast.makeText(context,
-                    "Sorry your device not supported",
-                    Toast.LENGTH_SHORT).show();
+            ErrorHandler.displayError("This device is not supported to have Speech To Text, sorry.");
         }
     }
 
@@ -1175,23 +1216,26 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      */
     @Override
     void saveResults() throws JSONException {
-        callBack.getJsonAnswerWrapper().addField("task_type", taskType);
+        resultTask.setTaskType(TaskType.values()[taskType]);
+        resultEvent.setTaskType(TaskType.values()[taskType]);
         switch (taskType) {
             case ATTENTION_NUMBERS:
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_forward"))));
+                resultTask.setExpectedAnswerBackwards(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("numbers_backward"))));
                 if (variousInputs != null && variousInputs.size() > 0) {
                     for (EditText editText : variousInputs) {
                         answers.add(editText.getText().toString());
                     }
                     if (firstDone) {
-                        callBack.getJsonAnswerWrapper().addArrayList("answer_backwards", answers);
-                        callBack.getJsonAnswerWrapper().addStringArray("expected_answer_backwards", array);
-                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersItemPositionBackwards, ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
-                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                        resultTask.setAnswerBackwards(answers);
+                        resultEvent.setSpecificAttentionNumbersItemPositionBackwards( ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
+                        resultEvent.setSpecificAttentionNumbersStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                        resultEvent.setSpecificAttentionNumbersSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                     } else {
-                        callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                        callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
-                        callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionNumbersItemPosition, ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
+                        resultTask.setAnswer(answers);
+                        resultEvent.setSpecificAttentionNumbersItemPosition( ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
                         positionFilling.clear();
                     }
 
@@ -1200,82 +1244,97 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
 
             case FLUENCY:
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultTask.setNumberWords(bundle.getInt("number_words"));
                 answers = adapter.getAllWords();
                 Collections.reverse(answers);
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencySettlingList, ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencyStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificFluencySubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultTask.setAnswer(answers);
+                resultEvent.setSpecificFluencyScrollingList( ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
+                resultEvent.setSpecificFluencySettlingList( ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
+                resultEvent.setSpecificFluencyCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificFluencyStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificFluencySubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case RECALL:
                 answers = adapter.getAllWords();
                 Collections.reverse(answers);
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallSettlingList, ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallNumbersOfWords, array.length);
+                resultTask.setAnswer(answers);
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                resultEvent.setSpecificRecallScrollingList( ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
+                resultEvent.setSpecificRecallSettlingList( ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
+                resultEvent.setSpecificRecallCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificRecallStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificRecallSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultEvent.setSpecificRecallNumbersOfWords( array.length);
                 setScoring();
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificRecallNumbersOfCorrectWords, score);
+                resultEvent.setSpecificRecallNumbersOfCorrectWords( score);
                 break;
 
             case MEMORY:
                 answers = adapter.getAllWords();
                 if(startWritingTimes.size() > 0)
                     startWritingTimes.remove(startWritingTimes.size() - 1);
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryScrollingList, ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemorySettlingList, ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemoryStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificMemorySubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultTask.setAnswer(answers);
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("words"))));
+                resultTask.setTimes(bundle.getInt("times"));
+                resultEvent.setSpecificMemoryScrollingList( ContextDataRetriever.retrieveInformationFromLongArrayList(scrollingTimes));
+                resultEvent.setSpecificMemorySettlingList( ContextDataRetriever.retrieveInformationFromLongArrayList(settlingTimes));
+                resultEvent.setSpecificMemoryCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificMemoryStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificMemorySubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 break;
             case ATTENTION_LETTERS:
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonAnswerWrapper().addStringArray("letters", array);
-                callBack.getJsonAnswerWrapper().addField("occurrences", getLetterOccurrences());
-                callBack.getJsonAnswerWrapper().addField("target_letter", bundle.getString("target_letter"));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionLettersSoundTimes, ContextDataRetriever.retrieveInformationFromLongArrayList(soundTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAttentionLettersTimeToAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(clickingTimes));
+                resultTask.setAnswer(answers);
+                resultTask.setOccurrences(getLetterOccurrences());
+                resultTask.setExpectedAnswer(Arrays.asList(array));
+                resultTask.setLetters(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("letters"))));
+                resultTask.setTarget_letter(bundle.getString("target_letter"));
+                resultEvent.setSpecificAttentionLettersSoundTimes( ContextDataRetriever.retrieveInformationFromLongArrayList(soundTimes));
+                resultEvent.setSpecificAttentionLettersTimeToAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(clickingTimes));
                 setScoring();
                 break;
             case ATTENTION_SUBTRACTION:
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSubtractionSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultTask.setAnswer(answers);
+                resultTask.setMinuend(bundle.getInt("minuend"));
+                resultTask.setSubtracting(bundle.getInt("subtracting"));
+                resultTask.setTimes(bundle.getInt("times"));
+                resultEvent.setSpecificSubtractionCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificSubtractionStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificSubtractionSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case LANGUAGE:
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonAnswerWrapper().addStringArray("expected_answer", array);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificSRSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultTask.setAnswer(answers);
+                resultTask.setExpectedAnswer(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("phrases"))));
+                resultEvent.setSpecificSRCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificSRStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificSRSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case ABSTRACTION:
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonAnswerWrapper().addStringArray("words", array);
-                callBack.getJsonAnswerWrapper().addArrayList("expected_answer", expectedAnswers);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificAbstractionSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultTask.setAnswer(answers);
+                resultTask.setWords(answers);
+                resultTask.setQuestions(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("words"))));
+                resultTask.setExpectedAnswer(Arrays.asList(Objects.requireNonNull(
+                        bundle.getStringArray("answer"))));
+                resultEvent.setSpecificAbstractionCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificAbstractionStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificAbstractionSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
             case ORIENTATION:
-                callBack.getJsonAnswerWrapper().addArrayList("answer", answers);
-                callBack.getJsonAnswerWrapper().addStringArray("questions", array);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationCharacterChange, ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationStartWriting, ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificOrientationSubmitAnswer, ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                resultTask.setAnswer(answers);
+                resultTask.setQuestions(Arrays.asList(
+                        Objects.requireNonNull(bundle.getStringArray("questions"))));
+                resultEvent.setSpecificOrientationCharacterChange( ContextDataRetriever.retrieveInformationFromStringArrayList(characterChange));
+                resultEvent.setSpecificOrientationStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
+                resultEvent.setSpecificOrientationSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
                 setScoring();
                 break;
 
@@ -1451,14 +1510,18 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void checkFluency() {
+        String targetLetter = bundle.getString("target_letter");
+        assert targetLetter != null;
         int minimumWords = bundle.getInt("number_words");
         answers = adapter.getAllWords();
 
         score = 0;
 
         if (answers.size() >= minimumWords) {
-            int errors = callBack.checkTypos(answers);
-            if (answers.size() - errors > minimumWords) {
+            List<String> validAnswers = answers.stream().filter(word -> word.startsWith(targetLetter))
+                    .collect(Collectors.toList());
+            int errors = callBack.checkTypos(validAnswers);
+            if (validAnswers.size() - errors > minimumWords) {
                 score = 1;
             }
         }
@@ -1483,11 +1546,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     private void addScoreToJson() {
-        try {
-            callBack.getJsonAnswerWrapper().addField("score",score);
-        } catch (JSONException e) {
-            ErrorHandler.displayError(e.getMessage());
-        }
+        resultTask.setScore(score);
     }
 
     private void checkAnswerArray() {
@@ -1543,9 +1602,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         int expectedResult = firstMinuend - subtrahend;
 
 
-        for(int i = 0; i < answers.size(); ++i) {
-            int result = Integer.parseInt(answers.get(i));
-            if(expectedResult != result){
+        for (String answer : answers) {
+            int result = Integer.parseInt(answer);
+            if (expectedResult != result) {
                 ++errors;
             }
             expectedResult = result - subtrahend;
@@ -1575,12 +1634,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 break;
         }
 
-        try {
-            callBack.getJsonAnswerWrapper().addField("errors", errors);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        resultTask.setErrors(errors);
     }
 
     //-------------------END CHECKERS-------------------------//

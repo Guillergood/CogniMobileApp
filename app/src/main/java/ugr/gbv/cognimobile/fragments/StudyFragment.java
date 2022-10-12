@@ -3,27 +3,21 @@ package ugr.gbv.cognimobile.fragments;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
-
-import com.aware.Aware;
-import com.aware.providers.Aware_Provider;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.adapters.TestsAdapter;
 import ugr.gbv.cognimobile.database.Provider;
-import ugr.gbv.cognimobile.interfaces.QRCallback;
 /**
  * Fragment to display the Study section in {@link ugr.gbv.cognimobile.activities.MainActivity}
  */
@@ -31,20 +25,9 @@ public class StudyFragment extends Fragment {
 
     private ImageView noStudyTest;
     private Context context;
-    private final QRCallback callBack;
-    private Cursor cursor;
-    private FloatingActionButton joinStudyButton;
-    private CardView studyCard;
-    private TextView animationLabel;
+    private RecyclerView recyclerView;
+    private TextView noStudyText;
 
-    /**
-     * Constructor
-     *
-     * @param callBack to call {@link ugr.gbv.cognimobile.qr_reader.ReadQR} from {@link ugr.gbv.cognimobile.activities.MainActivity}
-     */
-    public StudyFragment(QRCallback callBack) {
-        this.callBack = callBack;
-    }
 
     /**
      * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
@@ -63,78 +46,74 @@ public class StudyFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.layout_study_fragment, container, false);
+        recyclerView = view.findViewById(R.id.studies_recyclerview);
         noStudyTest = view.findViewById(R.id.noStudyImage);
-        animationLabel = view.findViewById(R.id.noStudyLabel);
+        noStudyText = view.findViewById(R.id.noStudyLabel);
 
         context = getContext();
 
-        joinStudyButton = view.findViewById(R.id.joinStudyButton);
-        studyCard = view.findViewById(R.id.studyCard);
+        prepareView();
 
-        LinearLayout quitStudyButtonContainer = view.findViewById(R.id.quitStudyButtonContainer);
-        ImageButton quitStudyButton = view.findViewById(R.id.quitStudyButton);
-        TextView quitStudyButtonLabel = view.findViewById(R.id.quitStudyButtonLabel);
-
-        View.OnClickListener quitStudyClickListener = v -> quitStudy();
-
-        quitStudyButtonContainer.setOnClickListener(quitStudyClickListener);
-        quitStudyButton.setOnClickListener(quitStudyClickListener);
-        quitStudyButtonLabel.setOnClickListener(quitStudyClickListener);
-
-        joinStudyButton.setOnClickListener(v -> callBack.goToQRActivity());
-
-        checkNewStudy();
+        loopToRefreshView();
 
         return view;
     }
 
-
-    /**
-     * Checks if there is a new study to be displayed or not.
-     */
-    private void checkNewStudy() {
-        if (emptyStudy() || !CognimobilePreferences.getHasUserJoinedStudy(context)) {
-            showNoStudy();
-        } else {
-            fetchStudy();
-            showStudy();
+    private void loopToRefreshView() {
+        if(isRecyclerViewNotVisible()){
+            final Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(this::prepareView, 3000);
         }
+    }
+
+    private void prepareView() {
+        if (emptyStudies()) {
+            showNoStudies();
+        } else {
+            fetchStudies();
+        }
+    }
+
+    private boolean isRecyclerViewNotVisible() {
+        return recyclerView.getVisibility() != View.VISIBLE;
     }
 
     /**
      * Makes the Study components visible.
      */
-    private void showStudy() {
-        studyCard.setVisibility(View.VISIBLE);
-        animationLabel.setVisibility(View.INVISIBLE);
+    private void showStudies() {
+        recyclerView.setVisibility(View.VISIBLE);
+        noStudyText.setVisibility(View.INVISIBLE);
         noStudyTest.setVisibility(View.INVISIBLE);
-        joinStudyButton.setVisibility(View.INVISIBLE);
     }
 
     /**
-     * Retrieves the Study information.
+     * Retrieves the Studies information.
      */
-    private void fetchStudy() {
-        cursor = Aware.getStudy(context, "");
-        cursor.moveToFirst();
-        int columnName = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_TITLE);
-        int columnDeviceId = cursor.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_DEVICE_ID);
-        if(columnName > 0 && columnDeviceId > 0){
-            TextView name = studyCard.findViewById(R.id.studyNameViewholder);
-            TextView description = studyCard.findViewById(R.id.studyDescriptionViewholder);
-            name.setText(cursor.getString(columnName));
-            String descriptionText = getString(R.string.device_id) + cursor.getString(columnDeviceId);
-            description.setText(descriptionText);
+
+    private void fetchStudies() {
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        String[] projection = new String[]{Provider.Cognimobile_Data._ID, Provider.Cognimobile_Data.NAME};
+        Cursor cursor =
+                context.getContentResolver()
+                        .query(Provider.CONTENT_URI_STUDIES, projection, null, null, Provider.Cognimobile_Data._ID);
+        if (cursor != null) {
+            cursor.moveToFirst();
         }
+        TestsAdapter studiesAdapter = new TestsAdapter(cursor, null);
+        recyclerView.setAdapter(studiesAdapter);
+
+        showStudies();
     }
 
     /**
      * Makes the UI components invisible.
      */
-    private void showNoStudy() {
-        studyCard.setVisibility(View.INVISIBLE);
-        animationLabel.setVisibility(View.VISIBLE);
-        joinStudyButton.setVisibility(View.VISIBLE);
+    private void showNoStudies() {
+        recyclerView.setVisibility(View.GONE);
+        noStudyText.setVisibility(View.VISIBLE);
         noStudyTest.setVisibility(View.VISIBLE);
     }
 
@@ -143,23 +122,17 @@ public class StudyFragment extends Fragment {
      *
      * @return true if there is a study enrolled, false if not.
      */
-    private boolean emptyStudy() {
-        cursor = Aware.getStudy(context, "");
-        cursor.moveToFirst();
-        return cursor.getCount() == 0;
+    private boolean emptyStudies() {
+        String[] projection = new String[]{Provider.Cognimobile_Data._ID};
+        Cursor tempCursor = context.getContentResolver()
+                .query(Provider.CONTENT_URI_STUDIES, projection, null, null,
+                Provider.Cognimobile_Data._ID);
+        int count = 0;
+        if (tempCursor != null) {
+            count = tempCursor.getCount();
+            tempCursor.close();
+        }
+        return count == 0;
     }
 
-    /**
-     * Quits the enrolled study.
-     */
-    private void quitStudy() {
-        Aware.reset(context);
-        context.getContentResolver().delete(
-                Provider.Cognimobile_Data.CONTENT_URI_TESTS,
-                null,
-                null
-        );
-        CognimobilePreferences.setHasUserJoinedStudy(context, false);
-        showNoStudy();
-    }
 }

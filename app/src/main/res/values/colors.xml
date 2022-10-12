@@ -28,5 +28,6 @@
     <color name="tutorial_green">#ccff90</color>
     <color name="tutorial_stroke_green">#99cc60</color>
     <color name="vivid_red">#D32114</color>
+    <color name="highlight">#C5281C</color>
 
 </resources>

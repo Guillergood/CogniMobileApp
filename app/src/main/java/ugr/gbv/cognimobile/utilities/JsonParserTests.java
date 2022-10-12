@@ -7,21 +7,30 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
-import com.aware.Aware;
-import com.aware.Aware_Preferences;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.dto.TaskType;
+import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.fragments.DrawTask;
 import ugr.gbv.cognimobile.fragments.ImageTask;
 import ugr.gbv.cognimobile.fragments.Task;
 import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
+
+import static ugr.gbv.cognimobile.dto.TaskType.*;
+import static ugr.gbv.cognimobile.dto.TaskType.CUBE;
+import static ugr.gbv.cognimobile.dto.TaskType.GRAPH;
+
 /**
  * Class to manage the test json
  */
@@ -88,7 +97,6 @@ public class JsonParserTests {
                 ContentValues articleValue = new ContentValues();
                 articleValue.put(Provider.Cognimobile_Data.NAME, retrievedTests.get(i).getString(Provider.Cognimobile_Data.NAME));
                 articleValue.put(Provider.Cognimobile_Data.DATA, retrievedTests.get(i).toString());
-                articleValue.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
                 contentValues[i] = articleValue;
             }
             return contentValues;
@@ -102,110 +110,91 @@ public class JsonParserTests {
     /**
      * Gets the values from the json to be displayed.
      *
-     * @param testsJson string containing the json
+     * @param test test to be parsed
      * @param callBack  to interact with the parent activity
      * @return an arraylist of task to be completed by the user.
      * @throws JSONException in case that something was not being handled.
      */
-    public ArrayList<Task> parseTestToTasks(@NonNull String testsJson, LoadContent callBack) throws JSONException {
-        ArrayList<Task> tasks = new ArrayList<>();
-        JSONObject reader = new JSONObject(testsJson);
-        int number = 0;
-        int entriesNoTasks = 3;
-        String task = "task_";
+    public ArrayList<Task> parseTestToTasks(@NonNull TestDTO test, LoadContent callBack) throws JSONException {
+        ArrayList<Task> tasksFragments = new ArrayList<>();
         Bundle bundle;
-        String language = reader.getString("language");
-        boolean displayHelp = reader.getBoolean("display_help");
+        List<ugr.gbv.cognimobile.dto.Task> tasks = test.getTasks();
 
-        for (; number < reader.length() - entriesNoTasks; ++number) {
-            JSONObject object = reader.getJSONObject(task+number);
-            int taskType = object.getInt("taskType");
+        for (ugr.gbv.cognimobile.dto.Task task:tasks) {
             bundle = new Bundle();
-            bundle.putBoolean("display_help", displayHelp);
-            switch (taskType) {
-                case Task.GRAPH:
-                case Task.CUBE:
-                    tasks.add(new DrawTask(taskType,callBack,bundle));
+            bundle.putBoolean("display_help", test.isShouldDisplayHelp());
+            switch (task.getTaskType()) {
+                case GRAPH:
+                case CUBE:
+                    tasksFragments.add(new DrawTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.WATCH:
-
-                    bundle.putString("hour", object.getString("hour"));
-                    tasks.add(new DrawTask(taskType,callBack,bundle));
+                case WATCH:
+                    bundle.putString("hour", task.getHour());
+                    tasksFragments.add(new DrawTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.IMAGE:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("images", extractJSONArrayAsStringArray(object.getJSONArray("images")));
-                    bundle.putStringArray("answer", extractJSONArrayAsStringArray(object.getJSONArray("answer")));
-                    tasks.add(new ImageTask(callBack,bundle));
+                case IMAGE:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("images", task.getImages().toArray(new String[0]));
+                    bundle.putStringArray("answer", task.getAnswer().toArray(new String[0]));
+                    tasksFragments.add(new ImageTask(callBack,bundle));
                     break;
-                case Task.MEMORY:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("words", extractJSONArrayAsStringArray(object.getJSONArray("words")));
-                    int repetitions = object.getInt("times");
-                    bundle.putInt("times", repetitions);
-                    tasks.add(new TextTask(taskType, callBack, bundle));
+                case MEMORY:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("words", task.getWords().toArray(new String[0]));
+                    bundle.putInt("times", Integer.parseInt(task.getTimes()));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(), callBack, bundle));
                     break;
-                case Task.RECALL:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("words", extractJSONArrayAsStringArray(object.getJSONArray("words")));
-                    tasks.add(new TextTask(taskType, callBack, bundle));
+                case RECALL:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("words", task.getWords().toArray(new String[0]));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(), callBack, bundle));
                     break;
-                case Task.ABSTRACTION:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("words", extractJSONArrayAsStringArray(object.getJSONArray("words")));
-                    bundle.putStringArray("answer", extractJSONArrayAsStringArray(object.getJSONArray("answer")));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                case ABSTRACTION:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("words", task.getWords().toArray(new String[0]));
+                    bundle.putStringArray("answer", task.getAnswer().toArray(new String[0]));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.ATTENTION_NUMBERS:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("numbers_forward", extractJSONArrayAsStringArray(object.getJSONArray("numbers_forward")));
-                    bundle.putStringArray("numbers_backward", extractJSONArrayAsStringArray(object.getJSONArray("numbers_backward")));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                case ATTENTION_NUMBERS:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("numbers_forward", task.getNumbers_forward().stream().map(String::valueOf).toArray(String[]::new));
+                    bundle.putStringArray("numbers_backward", task.getNumbers_backward().stream().map(String::valueOf).toArray(String[]::new));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.ATTENTION_LETTERS:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("letters", extractJSONArrayAsStringArray(object.getJSONArray("letters")));
-                    bundle.putString("target_letter",(object.getString("target_letter")));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                case ATTENTION_LETTERS:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("letters", task.getLetters().toArray(new String[0]));
+                    bundle.putString("target_letter", task.getTarget_letter());
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.ATTENTION_SUBTRACTION:
-
-                    bundle.putString("language", language);
-                    bundle.putInt("minuend", (object.getInt("minuend")));
-                    bundle.putInt("subtracting", (object.getInt("subtracting")));
-                    bundle.putInt("times", object.getInt("times"));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                case ATTENTION_SUBTRACTION:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putInt("minuend", task.getMinuend());
+                    bundle.putInt("subtracting", task.getSubtracting());
+                    bundle.putInt("times", Integer.parseInt(task.getTimes()));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.LANGUAGE:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("phrases", extractJSONArrayAsStringArray(object.getJSONArray("phrases")));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                case LANGUAGE:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("phrases", task.getPhrases().toArray(new String[0]));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.FLUENCY:
-
-                    bundle.putString("language", language);
-                    bundle.putString("target_letter",(object.getString("target_letter")));
-                    bundle.putInt("number_words", object.getInt("number_words"));
-                    tasks.add(new TextTask(taskType,callBack,bundle));
+                case FLUENCY:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putString("target_letter", task.getTarget_letter());
+                    bundle.putInt("number_words", task.getNumber_words());
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(),callBack,bundle));
                     break;
-                case Task.ORIENTATION:
-
-                    bundle.putString("language", language);
-                    bundle.putStringArray("questions", extractJSONArrayAsStringArray(object.getJSONArray("questions")));
-                    tasks.add(new TextTask(taskType, callBack, bundle));
+                case ORIENTATION:
+                    bundle.putString("language", test.getLanguage());
+                    bundle.putStringArray("questions", task.getQuestions().toArray(new String[0]));
+                    tasksFragments.add(new TextTask(task.getTaskType().ordinal(), callBack, bundle));
                     break;
             }
 
         }
 
-        return tasks;
+        return tasksFragments;
     }
 
     /**

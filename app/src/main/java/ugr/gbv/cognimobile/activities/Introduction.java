@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +17,15 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
+import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 /**
  * Introduction.class is the activity where animations about the app will be displayed
@@ -77,7 +82,7 @@ public class Introduction extends Activity {
 
         //It will only be displayed on the first launch.
         if (!CognimobilePreferences.getFirstTimeLaunch(getBaseContext())) {
-            goToMainMenu();
+            redirectToTheRightActivity();
         }
 
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
@@ -104,12 +109,12 @@ public class Introduction extends Activity {
             if(current< layouts.length){
                 viewPager.setCurrentItem(current);
             } else {
-                goToMainMenu();
+                redirectToTheRightActivity();
             }
 
         });
         viewPager.setPageTransformer(new ZoomOutPageTransformer());
-        skip.setOnClickListener(view -> goToMainMenu());
+        skip.setOnClickListener(view -> redirectToTheRightActivity());
     }
 
     /**
@@ -134,9 +139,31 @@ public class Introduction extends Activity {
     /**
      * This method allows to get to the main menu activity.
      */
-    private void goToMainMenu() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    private void redirectToTheRightActivity() {
+        if(TextUtils.isEmpty(CognimobilePreferences.getServerUrl(this))){
+            Intent intent = new Intent(this, ServerUrlRetrieval.class);
+            startActivity(intent);
+        }
+        else if(TextUtils.isEmpty(CognimobilePreferences.getLogin(this))){
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        }
+        else{
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(getBaseContext()), JwtResponse.class);
+                Intent intent;
+                if(jwt.getRoles().contains("EXPERT")) {
+                    intent = new Intent(this, ExpertActivity.class);
+                }
+                else {
+                    intent = new Intent(this, MainActivity.class);
+                }
+                startActivity(intent);
+            } catch (JsonProcessingException e) {
+                ErrorHandler.displayError("Failed to retrieve the login information");
+            }
+        }
         finish();
     }
 

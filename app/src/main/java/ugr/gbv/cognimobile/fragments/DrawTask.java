@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.fragments;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.res.ResourcesCompat;
 
-import org.json.JSONException;
-
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.dto.TaskType;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 import ugr.gbv.cognimobile.interfaces.LoadDraw;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
@@ -81,7 +84,7 @@ public class DrawTask extends Task implements LoadDraw {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        Handler handler = new Handler();
+        Handler handler = new Handler(Looper.getMainLooper());
         handler.post(this::shouldDisplayHelpAtBeginning);
     }
 
@@ -129,7 +132,6 @@ public class DrawTask extends Task implements LoadDraw {
         centerButton = view.findViewById(R.id.centerButton);
 
         buildDialog();
-
 
         rightButton = view.findViewById(R.id.rightButton);
 
@@ -268,11 +270,8 @@ public class DrawTask extends Task implements LoadDraw {
                     PathGenerator pathGenerator = new PathGenerator();
                     sequence = pathGenerator.makePath(height, width);
                     drawButtons(sequence);
-                    try {
-                        callBack.getJsonAnswerWrapper().addIntArray("pattern_sequence", pathGenerator.getNumbers());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    resultTask.setPatternSequence(Arrays.stream(pathGenerator.getNumbers())
+                            .boxed().collect(Collectors.toList()));
                     bannerText.setText(R.string.graph_instructions);
                     break;
                 case CUBE:
@@ -310,40 +309,45 @@ public class DrawTask extends Task implements LoadDraw {
      * Overrides {@link Task#saveResults()}
      */
     @Override
-    void saveResults() throws JSONException {
-
-        callBack.getJsonAnswerWrapper().addField("task_type", taskType);
-        callBack.getJsonAnswerWrapper().addField("height", drawingView.getCanvasHeight());
-        callBack.getJsonAnswerWrapper().addField("width", drawingView.getCanvasWidth());
-        callBack.getJsonAnswerWrapper().addFloatArray("points_sequence", drawingView.getDrawnPath());
-
+    void saveResults() {
+        resultTask.setTaskType(TaskType.values()[taskType]);
+        resultEvent.setTaskType(TaskType.values()[taskType]);
+        resultTask.setHeight(drawingView.getCanvasHeight());
+        resultTask.setWidth(drawingView.getCanvasWidth());
+        resultTask.setPointsSequence(convertFloatToDoubleList(drawingView.getDrawnPath()));
 
         switch (taskType) {
             case GRAPH:
                 setScoring();
-                callBack.getJsonAnswerWrapper().addArrayList("answer_sequence", answer);
-                callBack.getJsonAnswerWrapper().addField("score",score);
-                callBack.getJsonAnswerWrapper().addFloatArray("erased_paths", drawingView.getErasedPath());
+                resultTask.setAnswer(answer);
+                resultTask.setScore(score);
+                resultTask.setErasedPaths(convertFloatToDoubleList(drawingView.getErasedPath()));
+                List<Double> list = new ArrayList<>();
+                sequence.forEach( point -> {
+                    list.add((double) point.getX());
+                    list.add((double) point.getY());
+                });
+                resultTask.setPointsSequence(list);
 
+                resultEvent.setSpecificATMAlreadyClickedButton(ContextDataRetriever.retrieveInformationFromStringArrayList(alreadyPressedButtons));
+                resultEvent.setSpecificATMPoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
 
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificATMAlreadyClickedButton, ContextDataRetriever.retrieveInformationFromStringArrayList(alreadyPressedButtons));
-                callBack.getJsonContextEvents().addFloatArray(ContextDataRetriever.SpecificATMPoints, drawingView.getDrawnPath());
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificATMDistanceBetweenCircles, ContextDataRetriever.retrieveInformationFromButtonArrayList(pressedButtons));
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificATMTimeBetweenClicks, ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenClicks));
+                resultEvent.setSpecificATMDistanceBetweenCircles(ContextDataRetriever.retrieveInformationFromButtonArrayList(pressedButtons));
+                resultEvent.setSpecificATMTimeBetweenClicks(ContextDataRetriever.retrieveInformationFromLongArrayList(timeBetweenClicks));
                 break;
             case CUBE:
-                callBack.getJsonAnswerWrapper().addField("times_wipe_canvas", getResources().getInteger(R.integer.undo_times) - undoTimes);
+                resultTask.setTimes_wipe_canvas(getResources().getInteger(R.integer.undo_times) - undoTimes);
                 Pair<String, String> cubeTraces = packTraces();
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSCubeStartDraw, cubeTraces.first);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSCubeEndDraw, cubeTraces.second);
-                callBack.getJsonContextEvents().addFloatArray(ContextDataRetriever.SpecificVSCubePoints, drawingView.getDrawnPath());
+                resultEvent.setSpecificVSCubeStartDraw(cubeTraces.first);
+                resultEvent.setSpecificVSCubeEndDraw(cubeTraces.second);
+                resultEvent.setSpecificVSCubePoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
                 break;
             case WATCH:
-                callBack.getJsonAnswerWrapper().addField("times_wipe_canvas", getResources().getInteger(R.integer.undo_times) - undoTimes);
+                resultTask.setTimes_wipe_canvas(getResources().getInteger(R.integer.undo_times) - undoTimes);
                 Pair<String, String> clockTraces = packTraces();
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSClockStartDraw, clockTraces.first);
-                callBack.getJsonContextEvents().addField(ContextDataRetriever.SpecificVSClockEndDraw, clockTraces.second);
-                callBack.getJsonContextEvents().addFloatArray(ContextDataRetriever.SpecificVSClockPoints, drawingView.getDrawnPath());
+                resultEvent.setSpecificVSClockStartDraw(clockTraces.first);
+                resultEvent.setSpecificVSClockEndDraw(clockTraces.second);
+                resultEvent.setSpecificVSClockPoints(convertFloatToDoubleList(drawingView.getDrawnPath()));
                 break;
             default:
                 throw new RuntimeException("INVALID TASKTYPE");
@@ -351,6 +355,14 @@ public class DrawTask extends Task implements LoadDraw {
         }
 
 
+    }
+
+    private List<Double> convertFloatToDoubleList(float[] drawnPath) {
+        List<Double> doubles = new ArrayList<>();
+        for (float number:drawnPath){
+            doubles.add((double) number);
+        }
+        return doubles;
     }
 
 

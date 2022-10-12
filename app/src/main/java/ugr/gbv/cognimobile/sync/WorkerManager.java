@@ -62,16 +62,32 @@ public class WorkerManager {
         Constraints constraints = builder.build();
 
 
-        String DOWNLOAD_TAG = "downloadResults";
-        PeriodicWorkRequest downloadRequest =
-                new PeriodicWorkRequest.Builder(TestsWorker.class,
+        String DOWNLOAD_TEST_TAG = "downloadTests";
+        PeriodicWorkRequest downloadTestRequest =
+                new PeriodicWorkRequest.Builder(TestDownloader.class,
                         context.getResources().getInteger(R.integer.fifteen),
                         TimeUnit.MINUTES)
                         .setConstraints(constraints)
-                        .addTag(DOWNLOAD_TAG)
+                        .addTag(DOWNLOAD_TEST_TAG)
+                        .build();
+        String DOWNLOAD_STUDIES_TAG = "downloadStudies";
+        PeriodicWorkRequest downloadStudiesRequest =
+                new PeriodicWorkRequest.Builder(StudiesWorker.class,
+                        context.getResources().getInteger(R.integer.fifteen),
+                        TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .addTag(DOWNLOAD_STUDIES_TAG)
+                        .build();
+        String TEST_CHECKER_TAG = "testChecker";
+        PeriodicWorkRequest testCheckerRequest =
+                new PeriodicWorkRequest.Builder(TestDownloader.class,
+                        context.getResources().getInteger(R.integer.fifteen),
+                        TimeUnit.MINUTES)
+                        .setConstraints(constraints)
+                        .addTag(TEST_CHECKER_TAG)
                         .build();
 
-        String UPLOAD_TAG = "uploadResults";
+        /*String UPLOAD_TAG = "uploadResults";
         PeriodicWorkRequest uploadRequest =
                 new PeriodicWorkRequest.Builder(ResultWorker.class,
                         context.getResources().getInteger(R.integer.fifteen),
@@ -87,14 +103,22 @@ public class WorkerManager {
                         TimeUnit.DAYS)
                         .setConstraints(constraints)
                         .addTag(DELETE_TAG)
-                        .build();
+                        .build();*/
 
-        String DOWNLOAD_UID = "download";
+        String DOWNLOAD_TEST_UID = "downloadTest";
+        String DOWNLOAD_STUDIES_UID = "downloadStudies";
+        String TEST_CHECKER_UID = "testChecker";
         WorkManager.getInstance(context)
-                .enqueueUniquePeriodicWork(DOWNLOAD_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, downloadRequest);
+                .enqueueUniquePeriodicWork(DOWNLOAD_TEST_UID,
+                        ExistingPeriodicWorkPolicy.KEEP, testCheckerRequest);
+        WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(DOWNLOAD_STUDIES_UID,
+                        ExistingPeriodicWorkPolicy.KEEP, downloadStudiesRequest);
+        WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork(TEST_CHECKER_UID,
+                        ExistingPeriodicWorkPolicy.KEEP, downloadStudiesRequest);
 
-        String UPLOAD_UID = "upload";
+        /*String UPLOAD_UID = "upload";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(UPLOAD_UID,
                         ExistingPeriodicWorkPolicy.KEEP, uploadRequest);
@@ -102,7 +126,7 @@ public class WorkerManager {
         String DELETE_UID = "delete";
         WorkManager.getInstance(context)
                 .enqueueUniquePeriodicWork(DELETE_UID,
-                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);
+                        ExistingPeriodicWorkPolicy.KEEP, deleteRequest);*/
 
     }
 

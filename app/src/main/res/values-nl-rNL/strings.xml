@@ -40,7 +40,9 @@
     <string name="introduction_3_title">Veiligheid</string>
     <string name="introduction_1_message">Met Cognimobile kunt u alle gegevens die nodig zijn voor uw studies en contextgegevens van uw patiënten verkrijgen, zodat u een betere diagnose kunt stellen.</string>
     <string name="introduction_2_message">Uw studiepatiënten hebben de mogelijkheid om zelf meerdere tests uit te voeren.</string>
-    <string name="introduction_3_message">" Alle gegevens die uit de onderzoeken zijn verzameld, staan ​​veilig op uw server dankzij het AWARE-framework."</string>
+    <string name="introduction_3_message">" Alle gegevens die uit de onderzoeken zijn verzameld, staan ​​veilig op uw
+        server dankzij het Cognimobile Dashboard."
+    </string>
     <string name="times_left">" U moet %1$d keer ongedaan maken."</string>
     <string name="no_times_left">" Je hebt geen ongedaan gemaakte tijden meer."</string>
     <string name="speech_bubble_tail">Toespraak bubble staart</string>
@@ -82,4 +84,6 @@
     <string name="language_instructions_2">Nu ga ik u een andere zin voorlezen. Zeg deze na, precieszoals ik hem heb gezegd.</string>
     <string name="memory_instructions_2">Ik ga dezelfde lijst een tweede keer voorlezen. Probeer zo veel mogelijk woorden te onthouden envertel ze me, ook de woorden die u de eerste keer hebt opgenoemd.</string>
     <string name="memory_instructions_last">Ik zal u aan het eind vandeze test opnieuw vragen welke woorden u zich nog weet te herinneren.</string>
+    <string name="pref_logout_title">Uitloggen</string>
+    <string name="pref_change_server_title">Wijzig server</string>
 </resources>

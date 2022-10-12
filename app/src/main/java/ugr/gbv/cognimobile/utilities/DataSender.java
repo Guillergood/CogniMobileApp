@@ -4,14 +4,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.icu.util.Calendar;
-import android.net.Uri;
 
+import android.text.TextUtils;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 
-import com.aware.Aware;
-import com.aware.Aware_Preferences;
-import com.aware.providers.Aware_Provider;
-
+import com.android.volley.*;
+import com.android.volley.Request.Method;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,11 +29,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
+import ugr.gbv.cognimobile.callbacks.LoginCallback;
+import ugr.gbv.cognimobile.callbacks.StudyCallback;
+import ugr.gbv.cognimobile.callbacks.TestCallback;
+import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.dto.Study;
+import ugr.gbv.cognimobile.dto.StudyEnrollRequest;
+import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.payload.response.JwtResponse;
 
 /**
  * Class to send the data to the server
@@ -36,7 +52,6 @@ public class DataSender implements Serializable {
 
 
     private static volatile DataSender instantiated;
-    public final static String INSERT = "insert";
 
     /**
      * Private constructor "singleton" pattern
@@ -66,77 +81,261 @@ public class DataSender implements Serializable {
     /**
      * Post a command in the server, using a RESTful API
      *
-     * @param command using any of the CRUD ones
-     * @param table   the name of the table to commit the command
      * @param data    the data to post
      * @param context parent activity context
      */
-    public void postToServer(String command, String table, @NonNull JSONArray data, Context context) {
-
-
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("device_id", Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
-
-
-        Thread thread = new Thread(() -> {
-            try {
-                if (INSERT.equals(command)) {
-                    String formattedData = formatData(data);
-                    params.put("data", formattedData);
-                } else {
-                    throw new IllegalStateException("Unexpected value: " + command);
-                }
-
-                String urlString = buildURL(table, command, context);
-
-
-                URL url = new URL(urlString);
-                int code = 0;
-                if (urlString.contains("https")) {
-                    code = sendWithHttps(url, params);
-                } else if (urlString.contains("http")) {
-                    code = sendWithHttp(url, params);
-                }
-
-
-                if (!data.getJSONObject(0).getString("name").isEmpty()) {
-                    if (code == 200) {
-                        ContentValues contentValues = new ContentValues();
-                        long millis = getMillisThirtyDaysAhead();
-                        contentValues.put(Provider.Cognimobile_Data.ERASE_TIMESTAMP, millis);
-                        //TODO Erased DONE by the moment
-                        contentValues.put(Provider.Cognimobile_Data.DONE, 0);
-                        updateValues(contentValues, context, data);
-                        contentValues.remove(Provider.Cognimobile_Data.DONE);
-                        //TODO Erased SYNCED by the moment
-                        contentValues.put(Provider.Cognimobile_Data.SYNCED, 0);
-                        deleteResult(context, data);
-                    } else {
-                        if (!isItAlreadyOnTheDatabase(context, data.getJSONObject(0).getString("name"))) {
-                            ContentValues[] contentValues = new ContentValues[1];
-                            ContentValues value = new ContentValues();
-                            value.put(Provider.Cognimobile_Data.NAME, data.getJSONObject(0).getString("name"));
-                            value.put(Provider.Cognimobile_Data.DATA, data.toString());
-                            value.put(Provider.Cognimobile_Data.DEVICE_ID, Aware.getSetting(context, Aware_Preferences.DEVICE_ID));
-
-                            context.getContentResolver().bulkInsert(
-                                    Provider.Cognimobile_Data.CONTENT_URI_RESULTS,
-                                    contentValues
-                            );
+    public void postToServer(@NonNull Object data, Context context, String subPath, CredentialsCallback credentialCallback) {
+        StringRequest stringRequest = new StringRequest(Request.Method.POST,
+                CognimobilePreferences.getServerUrl(context) + subPath,
+                response -> {
+                    Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error sending the data.");
                         }
-
                     }
+                    else{
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                            credentialCallback.doLogout();
+                        }
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() {
+                try {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    return objectMapper.writeValueAsBytes(data);
+                } catch (JsonProcessingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of the answers or events.");
+                    return null;
                 }
 
-
-            } catch (IOException | JSONException e) {
-                ErrorHandler.displayError(e.getMessage());
             }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = getAuthHeaders(context);
+                if (headers != null)
+                    return headers;
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
+    public void enrollInStudy(@NonNull StudyEnrollRequest data, Context context) {
+        StringRequest stringRequest = new StringRequest(Request.Method.PATCH,
+                CognimobilePreferences.getServerUrl(context) + "/study/enroll",
+                response -> {
+                    Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error sending the data.");
+                        }
+                    }
+                    else{
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                        }
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public byte[] getBody() {
+                try {
+                    CustomObjectMapper objectMapper = new CustomObjectMapper();
+                    return objectMapper.writeValueAsBytes(data);
+                } catch (JsonProcessingException uee) {
+                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of the answers or events.");
+                    return null;
+                }
+
+            }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = getAuthHeaders(context);
+                if (headers != null)
+                    return headers;
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
+    @Nullable
+    private Map<String, String> getAuthHeaders(final Context context) {
+        if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+            CustomObjectMapper objectMapper = new CustomObjectMapper();
+            try {
+                JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", jwt.getType() + " " + jwt.getToken());
+                return headers;
+            } catch (JsonProcessingException e) {
+                VolleyLog.wtf("Could not parse the credentials to be used in the getTests call");
+                ErrorHandler.displayError("Something happened when loading the tests into the database");
+            }
+        }
+        return null;
+    }
+
+    public void getAllStudies(Context context, StudyCallback callback, CredentialsCallback credentialCallback) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                CognimobilePreferences.getServerUrl(context) + "/study/all",
+                response -> {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        callback.getStudies(objectMapper.readValue(response.trim(), new TypeReference<List<Study>>() {}));
+                    } catch (JsonProcessingException e) {
+                        ErrorHandler.displayError("Error trying to get the studies data.");
+                    }
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error getting the studies.");
+                        }
+                    }
+                    else{
+                        if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                            credentialCallback.doLogout();
+                        }
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = getAuthHeaders(context);
+                if (headers != null)
+                    return headers;
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
+    public void getTestToBeDone(Context context, String testName, TestCallback callback, CredentialsCallback credentialCallback) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                CognimobilePreferences.getServerUrl(context) + "/test/getTest/" + testName,
+                response -> {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        callback.getTest(objectMapper.readValue(response.trim(), TestDTO.class));
+                    } catch (JsonProcessingException e) {
+                        ErrorHandler.displayError("Error trying to get the studies data.");
+                    }
+                },
+                error -> {
+                    //displaying the error in toast if occur
+                    if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
+                        if (error.networkResponse.statusCode == 401) {
+                            refreshAccessToken(context);
+                        } else {
+                            ErrorHandler.displayError("Error getting the data.");
+                        }
+                    }
+                    else{
+                        if (error.networkResponse.statusCode == 401) {
+                            ErrorHandler.displayError("Invalid credentials or inactive account.");
+                            credentialCallback.doLogout();
+                        }
+                    }
+                }) {
+
+            @Override
+            public String getBodyContentType() {
+                return "application/json; charset=utf-8";
+            }
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = getAuthHeaders(context);
+                if (headers != null)
+                    return headers;
+                return super.getHeaders();
+            }
+        };
+
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        //adding the string request to request queue
+        requestQueue.add(stringRequest);
+    }
+
+
+    void refreshAccessToken(Context context) {
+        if(CognimobilePreferences.getLogin(context).isEmpty()){
+            return;
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JwtResponse jwt;
+            jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+            jsonObject.put("refreshToken",jwt.getRefreshToken());
+        } catch (JsonProcessingException | JSONException e) {
+            ErrorHandler.displayError("Some error happened when trying to login, please try again.");
+        }
+
+        JsonObjectRequest refreshTokenRequest = new JsonObjectRequest(Request.Method.POST,
+                CognimobilePreferences.getServerUrl(context), jsonObject, response -> {
+            try {
+                String accessToken = response.getString("access_token");
+                CustomObjectMapper objectMapper = new CustomObjectMapper();
+                JwtResponse jwt = objectMapper.readValue(CognimobilePreferences.getLogin(context), JwtResponse.class);
+                jwt.setToken(accessToken);
+                CognimobilePreferences.setLogin(context,objectMapper.writeValueAsString(jwt));
+            } catch (JSONException | JsonProcessingException e) {
+                // this will never happen but if so, show error to user.
+                ErrorHandler.displayError("Error refreshing the authentication.");
+            }
+        }, error -> {
+            CognimobilePreferences.setLogin(context, "");
         });
+        //creating a request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
 
-        thread.start();
-
-
+        //adding the string request to request queue
+        requestQueue.add(refreshTokenRequest);
     }
 
     /**
@@ -314,25 +513,26 @@ public class DataSender implements Serializable {
      * @return the complete url with parameters
      */
     private String buildURL(String table, String command, Context context) {
-        Cursor studies = Aware.getStudy(context, "");
-        studies.moveToFirst();
-        String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
-        Uri studyUri = Uri.parse(urlDb);
-        Uri.Builder urlBuilder = new Uri.Builder();
-        List<String> paths = studyUri.getPathSegments();
-
-        urlBuilder.scheme(studyUri.getScheme())
-                .authority(studyUri.getAuthority());
-
-        for (String path: paths) {
-            urlBuilder.appendPath(path);
-        }
-
-        urlBuilder.appendPath(table)
-                .appendPath(command);
-
-
-        return urlBuilder.build().toString().replaceAll("%3A",":");
+//        Cursor studies = Aware.getStudy(context, "");
+//        studies.moveToFirst();
+//        String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
+//        Uri studyUri = Uri.parse(urlDb);
+//        Uri.Builder urlBuilder = new Uri.Builder();
+//        List<String> paths = studyUri.getPathSegments();
+//
+//        urlBuilder.scheme(studyUri.getScheme())
+//                .authority(studyUri.getAuthority());
+//
+//        for (String path: paths) {
+//            urlBuilder.appendPath(path);
+//        }
+//
+//        urlBuilder.appendPath(table)
+//                .appendPath(command);
+//
+//
+//        return urlBuilder.build().toString().replaceAll("%3A",":");
+        return "";
     }
 
 }
