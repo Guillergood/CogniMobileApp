@@ -7,8 +7,10 @@ import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Patterns;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +24,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     EditText editTextForgotPasswordEmail;
     Button forgotPasswordButton;
+    Button goBackButton;
+    TextView successText;
     TextInputLayout filledTextFieldForgotPasswordEmail;
     private boolean formHasError = false;
     @Override
@@ -31,6 +35,8 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         editTextForgotPasswordEmail = findViewById(R.id.editTextForgotPasswordEmail);
         filledTextFieldForgotPasswordEmail = findViewById(R.id.filledTextFieldForgotPasswordEmail);
         forgotPasswordButton = findViewById(R.id.forgot_password_button);
+        successText = findViewById(R.id.successResetPassword);
+        goBackButton = findViewById(R.id.go_back_button);
 
         forgotPasswordButton.setOnClickListener(v -> {
             if (TextUtils.isEmpty(editTextForgotPasswordEmail.getText().toString())) {
@@ -55,9 +61,19 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                filledTextFieldForgotPasswordEmail.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(), R.color.gray));
-                filledTextFieldForgotPasswordEmail.setDefaultHintTextColor(ColorStateList.valueOf(
-                        ContextCompat.getColor(getBaseContext(), R.color.gray)));
+
+                if (TextUtils.isEmpty(charSequence) || Patterns.EMAIL_ADDRESS.matcher(charSequence).matches()) {
+                    filledTextFieldForgotPasswordEmail.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(), R.color.gray));
+                    filledTextFieldForgotPasswordEmail.setDefaultHintTextColor(ColorStateList.valueOf(
+                            ContextCompat.getColor(getBaseContext(), R.color.gray)));
+                    filledTextFieldForgotPasswordEmail.setHint("Email");
+                } else {
+                    filledTextFieldForgotPasswordEmail
+                            .setBoxStrokeColor(ContextCompat.getColor(getBaseContext(), R.color.highlight));
+                    filledTextFieldForgotPasswordEmail.setDefaultHintTextColor(ColorStateList.valueOf(
+                            ContextCompat.getColor(getBaseContext(), R.color.highlight)));
+                    filledTextFieldForgotPasswordEmail.setHint("Invalid email");
+                }
             }
 
             @Override

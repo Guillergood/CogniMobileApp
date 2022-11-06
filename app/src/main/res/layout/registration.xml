@@ -108,28 +108,27 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/filledTextFieldPassword"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/filledTextFieldPassword"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="64dp"
+                    android:layout_marginEnd="64dp"
+                    android:hint="Password"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:passwordToggleEnabled="true" app:layout_constraintTop_toBottomOf="@+id/rightTextPassword"
+                    android:layout_marginTop="16dp">
+
+                <!--this is the actual edit text which takes the input-->
+                <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/editTextPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="64dp"
-                        android:layout_marginTop="32dp"
-                        android:layout_marginEnd="64dp"
-                        android:hint="Password"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/filledTextRegistrationUsername"
-                        app:passwordToggleEnabled="true">
+                        android:inputType="textPassword"/>
 
-                    <!--this is the actual edit text which takes the input-->
-                    <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/editTextPassword"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="textPassword"/>
-
-                </com.google.android.material.textfield.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <TextView
                     android:id="@+id/agreeWithText"
@@ -217,6 +216,16 @@
                     app:layout_constraintStart_toStartOf="@+id/userRoleButton" android:visibility="visible"
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:textColor="@color/colorPrimary"/>
+            <TextView
+                    android:text="Password Must Contain 8 Characters And Less Than 20, One Uppercase, One Lowercase, One Number and One Special Case Character."
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content" android:id="@+id/rightTextPassword"
+                    app:layout_constraintEnd_toEndOf="@+id/expertRoleButton"
+                    app:layout_constraintStart_toStartOf="@+id/userRoleButton"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textColor="@color/tutorial_stroke_red" app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintTop_toBottomOf="@+id/filledTextRegistrationUsername"
+                    android:layout_marginTop="16dp" android:visibility="gone"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

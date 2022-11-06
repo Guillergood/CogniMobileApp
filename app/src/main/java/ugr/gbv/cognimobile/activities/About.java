@@ -15,7 +15,6 @@ import java.util.Calendar;
 
 import mehdi.sakout.aboutpage.AboutPage;
 import mehdi.sakout.aboutpage.Element;
-import ugr.gbv.cognimobile.BuildConfig;
 import ugr.gbv.cognimobile.R;
 
 
@@ -37,7 +36,6 @@ public class About extends AppCompatActivity {
         View aboutPage = new AboutPage(this)
                 .isRTL(false)
                 .setImage(R.mipmap.ic_launcher)
-                .addItem(new Element().setTitle(BuildConfig.VERSION_NAME))
                 .setDescription(getString(R.string.cognimobile_description))
                 .addGroup("Connect with us")
                 .addWebsite("http://guillergood.github.io/")

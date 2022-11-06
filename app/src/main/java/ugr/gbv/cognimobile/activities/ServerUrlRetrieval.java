@@ -1,16 +1,17 @@
 package ugr.gbv.cognimobile.activities;
 
-import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Patterns;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -18,12 +19,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.PermissionChecker;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
+import com.google.android.material.textfield.TextInputLayout;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.dto.QrDTO;
@@ -31,8 +32,12 @@ import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.interfaces.ServerLinkRetrieval;
 import ugr.gbv.cognimobile.qr_reader.ReadQR;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
-import ugr.gbv.cognimobile.utilities.CustomObjectMapper;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 
 public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkRetrieval, LoadDialog {
 
@@ -50,6 +55,42 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
         LinearLayout qrScannerButton = findViewById(R.id.qrScannerContainer);
         FloatingActionButton qrScannerFabButton = findViewById(R.id.qrScannerButton);
         EditText inputUrlText = findViewById(R.id.editTextServerUrl);
+        TextInputLayout placeHolderInput = findViewById(R.id.filledTextFieldServerUrl);
+
+        inputUrlText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence charSequence, final int i, final int i1, final int i2) {
+                if(Patterns.WEB_URL.matcher(charSequence).matches()) {
+                    placeHolderInput.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
+                            R.color.gray));
+                    placeHolderInput.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
+                            R.color.gray)));
+                    placeHolderInput.setHint("Url");
+                    sendUrlButton.setClickable(true);
+                    sendUrlFabButton.setClickable(true);
+                }
+                else{
+                    placeHolderInput.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
+                            R.color.vivid_red));
+                    placeHolderInput.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
+                            R.color.vivid_red)));
+                    placeHolderInput.setHint("Invalid url");
+                    sendUrlButton.setClickable(false);
+                    sendUrlFabButton.setClickable(false);
+                }
+
+            }
+
+            @Override
+            public void afterTextChanged(final Editable editable) {
+
+            }
+        });
 
         ErrorHandler.setCallback(this);
 
