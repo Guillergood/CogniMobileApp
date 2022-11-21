@@ -140,12 +140,14 @@ public class Introduction extends Activity {
      * This method allows to get to the main menu activity.
      */
     private void redirectToTheRightActivity() {
-        if(TextUtils.isEmpty(CognimobilePreferences.getServerUrl(this))){
-            Intent intent = new Intent(this, ServerUrlRetrieval.class);
+        if (TextUtils.isEmpty(CognimobilePreferences.getServerUrl(this)) ||
+                CognimobilePreferences.getFirstTimeLaunch(this)) {
+            Intent intent = new Intent(this,
+                    ServerUrlRetrieval.class);
             startActivity(intent);
-        }
-        else if(TextUtils.isEmpty(CognimobilePreferences.getLogin(this))){
-            Intent intent = new Intent(this, LoginActivity.class);
+        } else if (TextUtils.isEmpty(CognimobilePreferences.getLogin(this))) {
+            Intent intent = new Intent(this,
+                    LoginActivity.class);
             startActivity(intent);
         }
         else{

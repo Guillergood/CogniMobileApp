@@ -1,5 +1,6 @@
 package ugr.gbv.cognimobile.activities;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 
@@ -8,6 +9,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,6 +39,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         forgotPasswordButton = findViewById(R.id.forgot_password_button);
         successText = findViewById(R.id.successResetPassword);
         goBackButton = findViewById(R.id.go_back_button);
+        goBackButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this,LoginActivity.class);
+            startActivity(intent);
+            finish();
+        });
 
         forgotPasswordButton.setOnClickListener(v -> {
             if (TextUtils.isEmpty(editTextForgotPasswordEmail.getText().toString())) {
@@ -87,5 +94,12 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         DataSender.getInstance()
                 .postToServer("",getBaseContext(), "/api/auth/forgotPassword?email="+
                         editTextForgotPasswordEmail.getText().toString().trim(),null);
+
+        editTextForgotPasswordEmail.setVisibility(View.GONE);
+        filledTextFieldForgotPasswordEmail.setVisibility(View.GONE);
+        forgotPasswordButton.setVisibility(View.GONE);
+        successText.setVisibility(View.VISIBLE);
+        goBackButton.setVisibility(View.VISIBLE);
+
     }
 }

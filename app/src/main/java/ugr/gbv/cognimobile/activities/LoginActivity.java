@@ -4,9 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +47,8 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
         Button loginButton = findViewById(R.id.login_button);
         Button registerButton = findViewById(R.id.register_button);
         Button forgotPasswordButton = findViewById(R.id.forgot_password_button);
+        ImageButton backButton = findViewById(R.id.backButton);
+        Button backButtonText = findViewById(R.id.backButtonText);
 
         if(savedInstanceState != null) {
             studyName = savedInstanceState.getString("studyName");
@@ -58,6 +58,14 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
         }
 
         ErrorHandler.setCallback(this);
+
+        backButton.setOnClickListener( view -> {
+            goBack();
+        });
+
+        backButtonText.setOnClickListener( view -> {
+            goBack();
+        });
 
         loginButton.setOnClickListener(view -> {
             if(TextUtils.isEmpty(editTextUsername.getText().toString())){
@@ -79,6 +87,12 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
         forgotPasswordButton.setOnClickListener(view -> {
             goToForgotPasswordActivity();
         });
+    }
+
+    private void goBack() {
+        Intent intent = new Intent(this,ServerUrlRetrieval.class);
+        startActivity(intent);
+        finish();
     }
 
     private void goToForgotPasswordActivity() {

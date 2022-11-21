@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 
 public class RegistrationActivity extends AppCompatActivity implements LoadDialog, CredentialsCallback {
 
-	private boolean formHasError = false;
 
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -175,7 +174,6 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 				Matcher m = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$")
 						.matcher(charSequence.toString());
 				if (!m.matches()) {
-					formHasError = true;
 					placeHolderPassword.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 							R.color.highlight));
 					placeHolderPassword.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
@@ -208,79 +206,59 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 		});
 
 		registerButton.setOnClickListener(v -> {
+			StringBuilder builder = new StringBuilder();
 			if (TextUtils.isEmpty(editTextFirstName.getText().toString())) {
-				formHasError = true;
 				placeHolderFirstName.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight));
 				placeHolderFirstName.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight)));
-				Toast.makeText(this,
-						"First name is empty",
-						Toast.LENGTH_LONG).show();
+				builder.append("First name is empty").append('\n');
 			}
 			if (TextUtils.isEmpty(editTextLastName.getText().toString())) {
-				formHasError = true;
 				placeHolderLastName.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight));
 				placeHolderLastName.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight)));
-				Toast.makeText(this,
-						"Last name is empty",
-						Toast.LENGTH_LONG).show();
+				builder.append("Last name is empty").append('\n');
 			}
 			if (TextUtils.isEmpty(editTextRegistrationEmail.getText().toString())) {
-				formHasError = true;
 				placeHolderRegistrationEmail.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight));
 				placeHolderRegistrationEmail.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight)));
-				Toast.makeText(this,
-						"Email is empty",
-						Toast.LENGTH_LONG).show();
+				builder.append("Email is empty").append('\n');
 			}
 			if (TextUtils.isEmpty(editTextRegistrationUsername.getText().toString())) {
-				formHasError = true;
 				placeHolderRegistrationUsername.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight));
 				placeHolderRegistrationUsername.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight)));
-				Toast.makeText(this,
-						"Username is empty",
-						Toast.LENGTH_LONG).show();
+				builder.append("Username is empty").append('\n');
 			}
 			if (TextUtils.isEmpty(editTextPassword.getText().toString())) {
-				formHasError = true;
 				placeHolderPassword.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight));
 				placeHolderPassword.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight)));
-				Toast.makeText(this,
-						"Password is empty",
-						Toast.LENGTH_LONG).show();
+				builder.append("Password is empty").append('\n');
 			} else {
 				Matcher m = Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#&()–[{}]:;',?/*~$^+=<>]).{8,20}$")
 						.matcher(editTextPassword.getText().toString());
 				if (!m.matches()) {
-					formHasError = true;
 					placeHolderPassword.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
 							R.color.highlight));
 					placeHolderPassword.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 							R.color.highlight)));
-					Toast.makeText(this,
-							"Password Must Contain 8 Characters And Less Than 20, One Uppercase, One Lowercase, One Number and One Special Case Character",
-							Toast.LENGTH_LONG).show();
+					builder.append("Password Must Contain 8 Characters And Less Than 20, One Uppercase, One Lowercase, One Number and One Special Case Character").append('\n');
 				}
 			}
 			if (!checkBox.isChecked()) {
-				formHasError = true;
 				checkBox.setButtonTintList(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
 						R.color.highlight)));
-				Toast.makeText(this,
-						"The Terms And Conditions must be accepted",
-						Toast.LENGTH_LONG).show();
+				builder.append("The Terms And Conditions must be accepted").append('\n');
 			}
 
-			if (!formHasError) {
+			if (builder.length() == 0) {
 				SignupRequest request = new SignupRequest();
 				request.setFirstname(editTextFirstName.getText().toString());
 				request.setLastname(editTextLastName.getText().toString());
@@ -292,6 +270,9 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 						getApplicationContext(),
 						"/api/auth/signup",
 						this);
+			}
+			else {
+				loadDialog(builder.toString());
 			}
 		});
 

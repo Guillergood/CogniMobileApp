@@ -238,7 +238,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         hideKeyboard(this);
         if (index < fragments.size()) {
             loadFragment(fragments.get(index));
-        } else{
+        } else if (index == fragments.size()){
             Intent intent = new Intent();
             intent.putExtra("name", testAnswerDTO.getTestName());
             setResult(RESULT_OK, intent);
@@ -248,6 +248,9 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/test/result/answer", this);
             DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/test/result/event", this);
             showTestCompletedDialog();
+        }
+        else {
+            finish();
         }
     }
 

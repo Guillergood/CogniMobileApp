@@ -77,24 +77,46 @@
             android:textColor="@color/black"/>
 
     <LinearLayout
+            android:id="@+id/refreshButtonContainer"
+            style="@style/QuickActionButtonContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@+id/doTestButtonContainer"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="24dp">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/refreshButton"
+                style="@style/QuickActionButton"
+                android:padding="@dimen/small_padding"
+                android:src="@drawable/ic_baseline_refresh_24"
+                android:contentDescription="Refresh"/>
+
+        <TextView
+                android:id="@+id/refreshButtonContainerLabel"
+                style="@style/QuickActionButtonLabel"
+                android:textColor="@color/gray"
+                android:text="Refresh"/>
+    </LinearLayout>
+    <LinearLayout
             android:id="@+id/doTestButtonContainer"
             style="@style/QuickActionButtonContainer"
             android:layout_marginBottom="24dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent" android:layout_width="wrap_content">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/doTestButton"
                 style="@style/QuickActionButton"
                 android:padding="@dimen/small_padding"
                 android:src="@drawable/ic_baseline_chevron_right_24"
-                android:contentDescription="Continue" />
+                android:contentDescription="Continue"/>
 
         <TextView
                 android:id="@+id/doTestButtonContainerLabel"
                 style="@style/QuickActionButtonLabel"
                 android:textColor="@color/gray"
-                android:text="Continue" />
+                android:text="Continue"/>
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

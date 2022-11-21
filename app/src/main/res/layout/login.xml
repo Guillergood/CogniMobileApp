@@ -131,6 +131,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register_button" />
+    <Button
+            android:id="@+id/backButtonText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style='@style/Widget.MaterialComponents.Button.TextButton'
+            android:text="BACK"
+            android:textColor="@color/black"
+            app:layout_constraintStart_toEndOf="@+id/backButton"
+            app:layout_constraintBottom_toBottomOf="@+id/backButton"
+            app:layout_constraintTop_toTopOf="@+id/backButton"/>
+    <ImageButton
+            android:layout_width="wrap_content"
+            android:background="@null"
+            android:padding="8dp"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_baseline_chevron_left_24"
+            android:id="@+id/backButton"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp" android:contentDescription="Back to url link retrieval"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

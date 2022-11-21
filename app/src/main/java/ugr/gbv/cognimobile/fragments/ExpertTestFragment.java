@@ -32,6 +32,7 @@ public class ExpertTestFragment extends Fragment implements StudyCallback, Crede
     private AutoCompleteTextView testPicker;
     private AutoCompleteTextView subjectPicker;
     private FloatingActionButton doTestButton;
+    private FloatingActionButton refreshButton;
     private String study;
     private String test;
     private String subject;
@@ -51,6 +52,19 @@ public class ExpertTestFragment extends Fragment implements StudyCallback, Crede
         testPicker = view.findViewById(R.id.tests_dropdown);
         subjectPicker = view.findViewById(R.id.users_dropdown);
         doTestButton = view.findViewById(R.id.doTestButton);
+        refreshButton = view.findViewById(R.id.refreshButton);
+        refreshButton.setOnClickListener(buttonView -> {
+            studyPicker.setText("");
+            testPicker.setText("");
+            subjectPicker.setText("");
+            studyPicker.clearListSelection();
+            testPicker.clearListSelection();
+            subjectPicker.clearListSelection();
+            studyPicker.clearFocus();
+            testPicker.clearFocus();
+            subjectPicker.clearFocus();
+            DataSender.getInstance().getAllStudies(getContext(),this, this);
+        });
         doTestButton.setEnabled(false);
         doTestButton.setOnClickListener(buttonView -> {
             Intent intent = new Intent(getContext(), Test.class);
@@ -64,7 +78,7 @@ public class ExpertTestFragment extends Fragment implements StudyCallback, Crede
     }
 
     private void enableStudyList() {
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_dropdown_item, studies.stream().map(Study::getName).collect(Collectors.toList()));
         studyPicker.setEnabled(true);
         studyPicker.setAdapter(adapter);
@@ -85,9 +99,9 @@ public class ExpertTestFragment extends Fragment implements StudyCallback, Crede
         Study selectedStudy = studies.stream()
                 .filter(theStudy -> theStudy.getName().equals(study)).findFirst().orElse(null);
         if(selectedStudy != null){
-            ArrayAdapter<String> adapterTest = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
+            ArrayAdapter<String> adapterTest = new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_spinner_dropdown_item, selectedStudy.getTests());
-            ArrayAdapter<String> adapterSubject = new ArrayAdapter<>(Objects.requireNonNull(getContext()),
+            ArrayAdapter<String> adapterSubject = new ArrayAdapter<>(requireContext(),
                     android.R.layout.simple_spinner_dropdown_item, selectedStudy.getSubjects());
             testPicker.setEnabled(true);
             testPicker.setAdapter(adapterTest);
