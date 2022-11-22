@@ -270,6 +270,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 						getApplicationContext(),
 						"/api/auth/signup",
 						this);
+				onBackPressed();
 			}
 			else {
 				loadDialog(builder.toString());

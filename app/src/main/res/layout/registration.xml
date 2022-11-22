@@ -95,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="64dp"
                     android:layout_marginEnd="64dp"
-                    android:hint="Username"
+                    android:hint="New Username"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/userRoleButton" android:layout_marginTop="64dp">
@@ -115,7 +115,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="64dp"
                     android:layout_marginEnd="64dp"
-                    android:hint="Password"
+                    android:hint="New Password"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:passwordToggleEnabled="true" app:layout_constraintTop_toBottomOf="@+id/rightTextPassword"

@@ -104,6 +104,9 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
             goToLoginActivity(null);
         });
 
+        sendUrlButton.setClickable(false);
+        sendUrlFabButton.setClickable(false);
+
         qrScannerButton.setOnClickListener(view -> {
             goToChooseQrOrTextActivity();
         });
