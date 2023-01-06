@@ -64,6 +64,13 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
         startActivity(intent);
     }
 
+    @Override
+    protected void onResume() {
+        ErrorHandler.setCallback(this);
+        super.onResume();
+    }
+
+
     private void loadFragment() {
         if (actualFragment != null) {
             getSupportFragmentManager()
@@ -74,7 +81,7 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
     }
 
     @Override
-    public void loadDialog(String message) {
+    public void loadDialog(String message, Object... args) {
         runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(ExpertActivity.this);
 
@@ -110,6 +117,14 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
     @Override
     public void finishActivity(){
         finish();
+    }
+
+    @Override
+    public void changeServer() {
+        Intent i = new Intent(ExpertActivity.this, ServerUrlRetrieval.class);
+        // set the new task and clear flags
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
     }
 
     @Override

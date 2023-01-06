@@ -86,7 +86,7 @@ public class DataSender implements Serializable {
      */
     public void postToServer(@NonNull Object data, Context context, String subPath, CredentialsCallback credentialCallback) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                CognimobilePreferences.getServerUrl(context) + subPath,
+                processUrl(CognimobilePreferences.getServerUrl(context) + subPath),
                 response -> {
                     Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
                 },
@@ -96,7 +96,9 @@ public class DataSender implements Serializable {
                         if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             refreshAccessToken(context);
                         } else {
-                            ErrorHandler.displayError("Error sending the data.");
+                            ErrorHandler.displayError("Error sending the data.",
+                                    data,
+                                    subPath);
                         }
                     }
                     else{
@@ -134,12 +136,17 @@ public class DataSender implements Serializable {
 
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         //adding the string request to request queue
+        stringRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 1, 1.0f));
         requestQueue.add(stringRequest);
+    }
+
+    private String processUrl(final String url) {
+        return url.replaceAll("//", "/");
     }
 
     public void enrollInStudy(@NonNull StudyEnrollRequest data, Context context) {
         StringRequest stringRequest = new StringRequest(Request.Method.PATCH,
-                CognimobilePreferences.getServerUrl(context) + "/study/enroll",
+                processUrl(CognimobilePreferences.getServerUrl(context) + "/study/enroll"),
                 response -> {
                     Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
                 },
@@ -208,7 +215,7 @@ public class DataSender implements Serializable {
 
     public void getAllStudies(Context context, StudyCallback callback, CredentialsCallback credentialCallback) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                CognimobilePreferences.getServerUrl(context) + "/study/all",
+                processUrl(CognimobilePreferences.getServerUrl(context) + "/study/all"),
                 response -> {
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {
@@ -255,7 +262,7 @@ public class DataSender implements Serializable {
 
     public void getTestToBeDone(Context context, String testName, TestCallback callback, CredentialsCallback credentialCallback) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                CognimobilePreferences.getServerUrl(context) + "/test/getTest/" + testName,
+                processUrl(CognimobilePreferences.getServerUrl(context) + "/test/getTest/" + testName),
                 response -> {
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {

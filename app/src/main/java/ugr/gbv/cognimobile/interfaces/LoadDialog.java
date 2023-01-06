@@ -9,5 +9,5 @@ public interface LoadDialog {
      *
      * @param message the message to be displayed on the pop-up message.
      */
-    void loadDialog(String message);
+    void loadDialog(String message, Object ...args);
 }

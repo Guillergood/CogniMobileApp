@@ -86,4 +86,5 @@
     <string name="memory_instructions_last">Te volveré a preguntar al final de esta prueba cuantas palabras recuerdas.</string>
     <string name="pref_logout_title">Cerrar sesión</string>
     <string name="pref_change_server_title">Cambiar servidor</string>
+    <string name="send_again">ENVIAR</string>
 </resources>

@@ -229,7 +229,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
     }
 
     @Override
-    public void loadDialog(String message) {
+    public void loadDialog(String message, Object... args) {
         runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(ServerUrlRetrieval.this);
 

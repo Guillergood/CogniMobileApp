@@ -90,9 +90,10 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
     }
 
     private void goBack() {
-        Intent intent = new Intent(this,ServerUrlRetrieval.class);
-        startActivity(intent);
-        finish();
+        Intent i = new Intent(LoginActivity.this, ServerUrlRetrieval.class);
+        // set the new task and clear flags
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
     }
 
     private void goToForgotPasswordActivity() {
@@ -145,7 +146,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
     }
 
     @Override
-    public void loadDialog(String message) {
+    public void loadDialog(String message, Object... args) {
         runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
 

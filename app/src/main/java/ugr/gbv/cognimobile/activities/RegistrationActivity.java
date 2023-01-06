@@ -280,7 +280,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 	}
 
 	@Override
-	public void loadDialog(String message) {
+	public void loadDialog(String message, Object... args) {
 		runOnUiThread(() -> {
 			AlertDialog.Builder builder = new AlertDialog.Builder(RegistrationActivity.this);
 			builder.setTitle(RegistrationActivity.this.getString(R.string.error_occurred));

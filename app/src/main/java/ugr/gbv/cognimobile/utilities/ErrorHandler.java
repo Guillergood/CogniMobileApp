@@ -18,7 +18,6 @@ public class ErrorHandler {
         callback = handler;
     }
 
-
     /**
      * Allows the app to display a message showing the error message.
      *
@@ -26,7 +25,18 @@ public class ErrorHandler {
      */
     public static void displayError(String message) {
         if (callback != null)
-            callback.loadDialog(message);
+            callback.loadDialog(message,
+                    (Object[]) null);
+    }
+
+    /**
+     * Allows the app to display a message showing the error message.
+     *
+     * @param message the error that have just happened.
+     */
+    public static void displayError(String message, Object ...args) {
+        if (callback != null)
+            callback.loadDialog(message, args);
     }
 
 

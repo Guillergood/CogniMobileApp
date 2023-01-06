@@ -501,6 +501,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     @Override
     protected void onStop() {
         super.onStop();
+        ErrorHandler.setCallback(null);
         finish();
     }
 
@@ -514,6 +515,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
+            ErrorHandler.setCallback(null);
             finish();
         } else {
             Toast.makeText(this, R.string.click_back, Toast.LENGTH_SHORT).show();
@@ -524,10 +526,10 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     }
 
     /**
-     * Override of the method {@link LoadDialog#loadDialog(String)}
+     * Override of the method {@link LoadDialog#loadDialog(String, Object... args)}
      */
     @Override
-    public void loadDialog(String message) {
+    public void loadDialog(String message, Object... args) {
         runOnUiThread(() -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
 

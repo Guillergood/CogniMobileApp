@@ -69,9 +69,7 @@ public class SettingsFragments extends PreferenceFragmentCompat implements Share
                     if (getString(R.string.pref_change_server).equals(key)){
                         preference.setOnPreferenceClickListener(preference1 -> {
                             CognimobilePreferences.setServerUrl(context, "");
-                            Intent intent = new Intent(context, ServerUrlRetrieval.class);
-                            startActivity(intent);
-                            callback.finishActivity();
+                            callback.changeServer();
                             return true;
                         });
                     }

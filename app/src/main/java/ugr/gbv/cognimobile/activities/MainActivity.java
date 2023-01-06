@@ -17,12 +17,14 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.fragments.SettingsFragments;
 import ugr.gbv.cognimobile.fragments.StudyFragment;
 import ugr.gbv.cognimobile.fragments.TestsFragment;
 import ugr.gbv.cognimobile.interfaces.*;
 import ugr.gbv.cognimobile.sync.WorkerManager;
+import ugr.gbv.cognimobile.utilities.DataSender;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
 /**
@@ -31,7 +33,7 @@ import ugr.gbv.cognimobile.utilities.ErrorHandler;
  */
 public class MainActivity extends AppCompatActivity
         implements NavigationBarView.OnItemSelectedListener,
-        ServerLinkRetrieval,TestClickHandler, LoadDialog, SettingsCallback {
+        ServerLinkRetrieval,TestClickHandler, LoadDialog, SettingsCallback, CredentialsCallback {
 
     private static final String TEST_NAME = "name";
     private ActivityResultLauncher<Intent> testFinalization;
@@ -85,6 +87,12 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
+    }
+
+    @Override
+    protected void onResume() {
+        ErrorHandler.setCallback(this);
+        super.onResume();
     }
 
     /**
@@ -217,16 +225,44 @@ public class MainActivity extends AppCompatActivity
      * Displays the error from {@link ErrorHandler#displayError(String)}}.
      */
     @Override
-    public void loadDialog(String message) {
-        runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+    public void loadDialog(String message, Object... args) {
+        if (args != null && args.length > 0) {
+            runOnUiThread(() -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(MainActivity.this.getString(R.string.error_occurred));
+                builder.setMessage(message);
+                builder.setCancelable(false);
+                builder.setNegativeButton(MainActivity.this.getString(R.string.send_again),
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.setPositiveButton(MainActivity.this.getString(R.string.send_again),
+                        (dialog, which) -> {
+                            DataSender.getInstance().postToServer(args[0],
+                                    getApplicationContext(),
+                                    (String) args[1],
+                                    this);
+                        });
+                builder.show();
+            });
+        }
+        else{
+            runOnUiThread(() -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(MainActivity.this.getString(R.string.error_occurred));
+                builder.setMessage(message);
+                builder.setCancelable(false);
+                builder.setPositiveButton(MainActivity.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
+                builder.show();
+            });
+        }
+    }
 
-            builder.setTitle(MainActivity.this.getString(R.string.error_occurred));
-            builder.setMessage(message);
-            builder.setCancelable(false);
-            builder.setPositiveButton(MainActivity.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
-            builder.show();
-        });
+    @Override
+    public void doLogout() {
+        Intent intent = new Intent(this,LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     /**
@@ -256,6 +292,14 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void finishActivity(){
         finish();
+    }
+
+    @Override
+    public void changeServer() {
+        Intent i = new Intent(MainActivity.this, ServerUrlRetrieval.class);
+        // set the new task and clear flags
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(i);
     }
 }
 
