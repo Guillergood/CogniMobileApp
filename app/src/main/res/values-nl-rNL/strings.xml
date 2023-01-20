@@ -2,7 +2,7 @@
 <resources>
     <string name="graph_instructions">Tik achtereenvolgens een cijfer en een letter aan, begin bij 1, ga naar A, vervolgens naar 2 enzovoort. Er zal een lijn ontstaan tussen twee opeenvolgende stappen. U eindigt dan bij E. Als u klaar bent tikt u op ‘volgende</string>
     <string name="cube_instructions">Teken deze figuur zo nauwkeurig mogelijk na, in de ruimte hieronder</string>
-    <string name="clock_instructions">%1$s. Plaats er alle cijfers in en zet de wijzers op tien over tien.</string>
+    <string name="clock_instructions">Teken een klok, plaats alle cijfers er in en zet de wijzers op %1$s.</string>
     <string name="animal_instructions">Hoe heet dit dier?</string>
     <string name="memory_instructions">Ik ga een rij woorden voorlezen die u moet onthouden, nu maar ook straks. Luister goed. Als ik klaar ben, vertelt u me alle woorden die u hebt onthouden. Het maakt niet uit in welke volgorde u ze opnoemt</string>
     <string name="numbers_instructions">Ik ga een aantal cijfers opnoemen en als ik klaar ben, moet u ze in dezelfde volgorde nazeggen als ik ze heb gezegd</string>
@@ -87,4 +87,6 @@
     <string name="pref_logout_title">Uitloggen</string>
     <string name="pref_change_server_title">Wijzig server</string>
     <string name="send_again">VERSTUREN</string>
+    <string name="retry_sending">Fout bij het verzenden van de gegevens. Wil je het opnieuw proberen te verzenden?
+    </string>
 </resources>

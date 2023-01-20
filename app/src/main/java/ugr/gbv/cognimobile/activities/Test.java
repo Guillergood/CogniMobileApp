@@ -530,15 +530,38 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
      */
     @Override
     public void loadDialog(String message, Object... args) {
-        runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
-
-            builder.setTitle(Test.this.getString(R.string.error_occurred));
-            builder.setMessage(message);
-            builder.setCancelable(false);
-            builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
-            builder.show();
-        });
+        if (args != null && args.length > 0) {
+            runOnUiThread(() -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
+                builder.setTitle(Test.this.getString(R.string.error_occurred));
+                builder.setMessage(message);
+                builder.setCancelable(false);
+                builder.setNegativeButton(Test.this.getString(R.string.cancel),
+                        (dialog, which) -> {
+                            dialog.dismiss();
+                        });
+                builder.setPositiveButton(Test.this.getString(R.string.send_again),
+                        (dialog, which) -> {
+                            DataSender.getInstance().postToServer(args[0],
+                                    getApplicationContext(),
+                                    (String) args[1],
+                                    this);
+                        });
+                builder.show();
+            });
+        }
+        else{
+            runOnUiThread(() -> {
+                runOnUiThread(() -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
+                    builder.setTitle(Test.this.getString(R.string.error_occurred));
+                    builder.setMessage(message);
+                    builder.setCancelable(false);
+                    builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
+                    builder.show();
+                });
+            });
+        }
     }
 
     @Override

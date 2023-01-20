@@ -525,7 +525,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             }
 
         });
-
         enumeration();
     }
 
@@ -673,6 +672,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private void countDownTask(int millis) {
         handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(() -> {
+            submitAnswerButton.performClick();
             taskEnded = true;
             resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
             hideInputs();
@@ -1026,6 +1026,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         final Handler handler = new Handler(Looper.getMainLooper());
         if (taskType != ATTENTION_LETTERS) {
             handler.post(this::showUserInput);
+            handler.post(this::enableContinueButton);
             switch (CognimobilePreferences.getConfig(context)) {
                 case DEFAULT:
                     if (taskType == ATTENTION_NUMBERS || taskType == ATTENTION_SUBTRACTION) {
@@ -1046,7 +1047,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             resultEvent.setGenericTimeEndTask(ContextDataRetriever.addTimeStamp());
             handler.postDelayed(this::taskIsEnded, context.getResources().getInteger(R.integer.one_seg_millis));
         }
-
     }
 
     private void changeBannerText() {
@@ -1078,7 +1078,20 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      * Text-to-Speech enumeration.
      */
     private void enumeration() {
+        disableContinueButton();
         TextToSpeechLocal.enumerate(array);
+    }
+
+    private void disableContinueButton() {
+        if(rightButton.isEnabled()) {
+            rightButton.setEnabled(false);
+        }
+    }
+
+    private void enableContinueButton() {
+        if(!rightButton.isEnabled()) {
+            rightButton.setEnabled(true);
+        }
     }
 
     /**
@@ -1087,6 +1100,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      * @param phrase to be spoken
      */
     private void speakPhrase(String phrase) {
+        disableContinueButton();
         TextToSpeechLocal.readOutLoud(phrase);
     }
 
@@ -1560,6 +1574,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
         }
         //if onePoint = true -> 1, otherwise -> 0
         score = goOn ? score + 1 : score;
+        answers.clear();
     }
 
     private void checkReverseAnswerArray() {

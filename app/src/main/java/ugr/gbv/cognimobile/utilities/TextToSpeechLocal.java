@@ -150,7 +150,7 @@ public class TextToSpeechLocal {
 
             @Override
             public void onError(String utteranceId) {
-
+                ErrorHandler.displayError("It seems that the reader have some problem reading the text");
             }
         });
 

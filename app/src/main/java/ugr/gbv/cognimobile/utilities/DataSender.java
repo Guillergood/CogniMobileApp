@@ -34,10 +34,7 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
-import ugr.gbv.cognimobile.callbacks.LoginCallback;
-import ugr.gbv.cognimobile.callbacks.StudyCallback;
-import ugr.gbv.cognimobile.callbacks.TestCallback;
+import ugr.gbv.cognimobile.callbacks.*;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.dto.Study;
@@ -96,7 +93,7 @@ public class DataSender implements Serializable {
                         if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             refreshAccessToken(context);
                         } else {
-                            ErrorHandler.displayError("Error sending the data.",
+                            ErrorHandler.displayError("Error sending the data. Do you want to try to send it again?",
                                     data,
                                     subPath);
                         }
@@ -343,203 +340,6 @@ public class DataSender implements Serializable {
 
         //adding the string request to request queue
         requestQueue.add(refreshTokenRequest);
-    }
-
-    /**
-     * Send data with http url
-     *
-     * @param url    url where the data will be sent
-     * @param params parameters to send
-     * @return http connection
-     * @throws IOException in case that there is no connection established.
-     */
-    private int sendWithHttp(URL url, HashMap<String, Object> params) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-        conn.connect();
-
-
-        String postInformation = buildPostInformation(params);
-
-
-        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-        wr.writeBytes(postInformation);
-        wr.flush();
-        wr.close();
-
-        int value = conn.getResponseCode();
-        conn.disconnect();
-        return value;
-    }
-
-    /**
-     * Send data with https url
-     *
-     * @param url    url where the data will be sent
-     * @param params parameters to send
-     * @return http connection
-     * @throws IOException in case that there is no connection established.
-     */
-    private int sendWithHttps(URL url, HashMap<String, Object> params) throws IOException {
-        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoOutput(true);
-        conn.connect();
-
-
-        String postInformation = buildPostInformation(params);
-
-
-        DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
-        wr.writeBytes(postInformation);
-        wr.flush();
-        wr.close();
-
-        return conn.getResponseCode();
-    }
-
-    /**
-     * Checks if the test is in the local database
-     *
-     * @param context Parent context
-     * @param name    of the test to check
-     * @return true if it is, false if not.
-     */
-    private boolean isItAlreadyOnTheDatabase(Context context, String name) {
-
-        boolean value = false;
-
-        String[] projection = new String[]{Provider.Cognimobile_Data.NAME};
-        String whereClause = Provider.Cognimobile_Data.NAME + " LIKE ? ";
-
-        String[] whereArgs = new String[]{
-                name,
-        };
-        Cursor cursor = context.getContentResolver().query(Provider.CONTENT_URI_TESTS, projection, whereClause, whereArgs, null);
-        if (cursor != null && cursor.getCount() > 0) {
-            cursor.close();
-            value = true;
-        }
-        return value;
-    }
-
-    /**
-     * Get thirty days ahead of the current time in milliseconds
-     *
-     * @return thirty days ahead of the current time in milliseconds
-     */
-    private long getMillisThirtyDaysAhead() {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(c.get(Calendar.MILLISECOND));
-
-        c.add(Calendar.DAY_OF_YEAR, R.integer.thirty);
-        return c.getTimeInMillis();
-    }
-
-
-    /**
-     * Update values to mark those tests that has been sent successfully to the server.
-     *
-     * @param values  to update
-     * @param context from the parent activity
-     * @param data    to get the name of the test
-     * @throws JSONException in case that the json is invalid.
-     */
-    private void updateValues(ContentValues values, Context context, JSONArray data) throws JSONException {
-        String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
-        String[] selectionArgs = {data.getJSONObject(0).getString("name")};
-
-        context.getContentResolver().update(Provider.CONTENT_URI_TESTS, values, where, selectionArgs);
-
-    }
-
-    /**
-     * Delete results that has been sent successfully to the server.
-     *
-     * @param context from the parent activity
-     * @param data    to get the name of the test
-     * @throws JSONException in case that the json is invalid.
-     */
-    private void deleteResult(Context context, JSONArray data) throws JSONException {
-        String where = Provider.Cognimobile_Data.NAME + " LIKE ?";
-        String[] selectionArgs = {data.getJSONObject(0).getString("name")};
-        context.getContentResolver().delete(Provider.CONTENT_URI_RESULTS, where, selectionArgs);
-    }
-
-
-    /**
-     * Formats the json data field from AWARE database.
-     *
-     * @param data to put in the server database.
-     * @throws JSONException in case that the json is invalid.
-     */
-    private String formatData(JSONArray data) throws JSONException {
-
-        double timestamp = System.currentTimeMillis() / 1000.0;
-
-
-        JSONObject jsonParam = new JSONObject();
-        jsonParam.put("timestamp", timestamp);
-        jsonParam.put("data", data);
-
-        JSONArray realData = new JSONArray();
-
-        realData.put(jsonParam);
-
-        return realData.toString();
-    }
-
-    /**
-     * Append parameters to the url where the information will be sent
-     *
-     * @param params to put inside the url
-     * @return the complete url with parameters
-     */
-    private String buildPostInformation(HashMap<String, Object> params) {
-        StringBuilder postVariables = new StringBuilder();
-        int i = 0;
-
-        for (String key : params.keySet()) {
-
-            if (i != 0) {
-                postVariables.append("&");
-            }
-            postVariables.append(key).append("=")
-                    .append(params.get(key));
-            i++;
-        }
-
-        return postVariables.toString();
-    }
-
-
-    /**
-     * Build the url where the information will be sent
-     *
-     * @return the complete url with parameters
-     */
-    private String buildURL(String table, String command, Context context) {
-//        Cursor studies = Aware.getStudy(context, "");
-//        studies.moveToFirst();
-//        String urlDb = studies.getString(studies.getColumnIndex(Aware_Provider.Aware_Studies.STUDY_URL));
-//        Uri studyUri = Uri.parse(urlDb);
-//        Uri.Builder urlBuilder = new Uri.Builder();
-//        List<String> paths = studyUri.getPathSegments();
-//
-//        urlBuilder.scheme(studyUri.getScheme())
-//                .authority(studyUri.getAuthority());
-//
-//        for (String path: paths) {
-//            urlBuilder.appendPath(path);
-//        }
-//
-//        urlBuilder.appendPath(table)
-//                .appendPath(command);
-//
-//
-//        return urlBuilder.build().toString().replaceAll("%3A",":");
-        return "";
     }
 
 }
