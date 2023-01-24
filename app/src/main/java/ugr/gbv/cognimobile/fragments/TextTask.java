@@ -1078,20 +1078,18 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
      * Text-to-Speech enumeration.
      */
     private void enumeration() {
-        disableContinueButton();
+        if(taskType == MEMORY || taskType == LANGUAGE){
+            disableContinueButton();
+        }
         TextToSpeechLocal.enumerate(array);
     }
 
     private void disableContinueButton() {
-        if(rightButton.isEnabled()) {
-            rightButton.setEnabled(false);
-        }
+        rightButton.setEnabled(false);
     }
 
     private void enableContinueButton() {
-        if(!rightButton.isEnabled()) {
-            rightButton.setEnabled(true);
-        }
+        rightButton.setEnabled(true);
     }
 
     /**
