@@ -229,6 +229,7 @@ public abstract class Task extends Fragment {
                 builder.show();
             }
             else{
+                TextToSpeechLocal.stop();
                 try {
                     saveResults();
                 } catch (JSONException e) {

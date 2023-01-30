@@ -135,26 +135,47 @@ public class TextToSpeechLocal {
             @Override
             // this method will always called from a background thread.
             public void onDone(String utteranceId) {
-                index++;
-                textToSpeech.playSilentUtterance(delayTts, TextToSpeech.QUEUE_ADD, null);
-                if (index < array.length) {
-                    callback.setIndex(index);
-                    textToSpeech.speak(array[index], TextToSpeech.QUEUE_ADD, null, Integer.toString(index));
-                    callback.registerTimeStamp();
-                } else {
+                if(array != null && array.length > 0){
+                    index++;
+                    textToSpeech.playSilentUtterance(delayTts,
+                            TextToSpeech.QUEUE_ADD,
+                            null);
+                    if (index < array.length) {
+                        callback.setIndex(index);
+                        textToSpeech.speak(array[index],
+                                TextToSpeech.QUEUE_ADD,
+                                null,
+                                Integer.toString(index));
+                        callback.registerTimeStamp();
+                    } else {
+                        index = 0;
+                        callback.TTSEnded();
+                    }
+                }
+                else {
                     index = 0;
+                    stop();
                     callback.TTSEnded();
                 }
-
             }
 
             @Override
             public void onError(String utteranceId) {
-                ErrorHandler.displayError("It seems that the reader have some problem reading the text");
+                stop();
+                callback.TTSEnded();
             }
         });
-
-        textToSpeech.speak(array[index], TextToSpeech.QUEUE_ADD, null, Integer.toString(index));
+        if(array != null && array.length > 0) {
+            textToSpeech.speak(array[index],
+                    TextToSpeech.QUEUE_ADD,
+                    null,
+                    Integer.toString(index));
+        }
+        else {
+            index = 0;
+            stop();
+            callback.TTSEnded();
+        }
     }
 
     /**

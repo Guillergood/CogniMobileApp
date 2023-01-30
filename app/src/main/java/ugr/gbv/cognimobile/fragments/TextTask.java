@@ -1245,6 +1245,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                         resultEvent.setSpecificAttentionNumbersItemPositionBackwards( ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
                         resultEvent.setSpecificAttentionNumbersStartWriting( ContextDataRetriever.retrieveInformationFromLongArrayList(startWritingTimes));
                         resultEvent.setSpecificAttentionNumbersSubmitAnswer( ContextDataRetriever.retrieveInformationFromLongArrayList(submitAnswerTimes));
+                        answers.clear();
                     } else {
                         resultTask.setAnswer(answers);
                         resultEvent.setSpecificAttentionNumbersItemPosition( ContextDataRetriever.retrieveInformationFromIntegerArrayList(positionFilling));
@@ -1565,7 +1566,9 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
         boolean goOn = true;
 
-        for(int i = 0; i < answers.size() && goOn; ++i) {
+
+
+        for(int i = 0; i < answers.size() && i < array.length && goOn; ++i) {
             if (!array[i].equals(answers.get(i))) {
                 goOn = false;
             }
@@ -1578,10 +1581,11 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private void checkReverseAnswerArray() {
         boolean goOn = true;
 
-        int lastElement = answers.size() - 1;
-
-        for (int i = 0; i < answers.size() && goOn; ++i) {
-            if (!array[lastElement - i].equals(answers.get(i))) {
+        List<String> reversedArray = Arrays.asList(array);
+        Collections.reverse(reversedArray);
+        for (int i = 0; i < answers.size() && i < reversedArray.size() && goOn; ++i) {
+            if (!Objects.equals(reversedArray.get(i),
+                    answers.get(i))) {
                 goOn = false;
             }
         }
