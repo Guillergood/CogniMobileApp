@@ -215,23 +215,24 @@ public class DrawTask extends Task implements LoadDraw {
             button.setId(View.generateViewId());
             button.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_no_fill, context.getTheme()));
             button.setText(tags[i]);
+            button.setTextSize(20);
             button.setTag(points.get(i).getLabel());
             button.setOnClickListener(v -> {
-                Button button1 = (Button) v;
+                Button graphCircle = (Button) v;
                 boolean continua = true;
-                for (int i1 = 0; i1 < sequence.size() && continua; ++i1) {
-                    if (button1.getTag().equals(sequence.get(i1).getLabel())) {
-                        if(!answer.contains(button1.getTag().toString())){
-                            button1.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_with_fill, context.getTheme()));
-                            button1.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
-                            answer.add(button1.getTag().toString());
-                            drawingView.drawToPoint(sequence.get(i1));
+                for (int k = 0; k < sequence.size() && continua; ++k) {
+                    if (graphCircle.getTag().equals(sequence.get(k).getLabel())) {
+                        if(!answer.contains(graphCircle.getTag().toString())){
+                            graphCircle.setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_with_fill, context.getTheme()));
+                            graphCircle.setTextColor(getResources().getColor(R.color.white,context.getTheme()));
+                            answer.add(graphCircle.getTag().toString());
+                            drawingView.drawToPoint(sequence.get(k));
                             continua = false;
-                            pressedButtons.add(button1);
+                            pressedButtons.add(graphCircle);
                             timeBetweenClicks.add(ContextDataRetriever.addTimeStamp());
                             startedTask();
                         } else {
-                            alreadyPressedButtons.add(button1.getTag().toString());
+                            alreadyPressedButtons.add(graphCircle.getTag().toString());
                         }
                     }
                 }
