@@ -33,24 +33,24 @@ repositories {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.android.gms:play-services-plus:17.0.0'
-    implementation 'androidx.annotation:annotation:1.5.0'
-    implementation "androidx.preference:preference:1.2.0"
+    implementation 'androidx.annotation:annotation:1.7.1'
+    implementation "androidx.preference:preference:1.2.1"
     implementation 'io.github.medyo:android-about-page:2.0.0'
     implementation('me.dm7.barcodescanner:zbar:1.9.8') {
         exclude group: 'com.android.support', module: "support-v4"
     }
     implementation "com.airbnb.android:lottie:3.4.0"
-    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation 'androidx.work:work-runtime:2.9.0'
     implementation 'com.android.volley:volley:1.2.1'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3'
 }
