@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 33
+    compileSdk 34
     defaultConfig {
         applicationId "ugr.gbv.cognimobile"
         minSdkVersion 24
@@ -22,7 +22,7 @@ android {
         sourceCompatibility = 1.8
         targetCompatibility = 1.8
     }
-    buildToolsVersion = '30.0.3'
+    namespace 'ugr.gbv.cognimobile'
 }
 
 repositories {
