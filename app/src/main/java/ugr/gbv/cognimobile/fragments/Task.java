@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -161,13 +162,13 @@ public abstract class Task extends Fragment {
         boolean skipped = false;
         switch (taskType) {
             case GRAPH:
-                skipped = resultEvent.getSpecificATMPoints().size() == 0;
+                skipped = resultEvent.getSpecificATMPoints().isEmpty();
                 break;
             case CUBE:
-                skipped = resultEvent.getSpecificVSCubePoints().size() == 0;
+                skipped = resultEvent.getSpecificVSCubePoints().isEmpty();
                 break;
             case WATCH:
-                skipped = resultEvent.getSpecificVSClockPoints().size() == 0;
+                skipped = resultEvent.getSpecificVSClockPoints().isEmpty();
                 break;
             case IMAGE:
                 skipped = TextUtils.isEmpty(resultEvent.getSpecificNamingCharacterChange());
@@ -468,5 +469,30 @@ public abstract class Task extends Fragment {
         resultEvent.setGenericTimeBeforeTask(ContextDataRetriever.addTimeStamp());
         resultEvent.setGenericTimeStartTask(ContextDataRetriever.addTimeStamp());
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            taskType = savedInstanceState.getInt("taskType");
+            index = savedInstanceState.getInt("index");
+            lastIndex = savedInstanceState.getInt("lastIndex");
+            length = savedInstanceState.getInt("length");
+            score = savedInstanceState.getInt("score");
+            loaded = savedInstanceState.getBoolean("loaded");
+            providedTask = savedInstanceState.getBoolean("providedTask");
+            taskEnded = savedInstanceState.getBoolean("taskEnded");
+        }
     }
+
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("taskType", taskType);
+        outState.putInt("index", index);
+        outState.putInt("lastIndex", lastIndex);
+        outState.putInt("length", length);
+        outState.putInt("score", score);
+        outState.putBoolean("loaded", loaded);
+        outState.putBoolean("providedTask", providedTask);
+        outState.putBoolean("taskEnded", taskEnded);
+    }
+
 }

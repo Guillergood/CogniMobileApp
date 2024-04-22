@@ -68,6 +68,50 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     private String wordToCheck;
     private boolean doubleBackToExitPressedOnce;
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        CustomObjectMapper objectMapper = new CustomObjectMapper();
+        outState.putInt("idValue", getIntent().getIntExtra("id", 0));
+        outState.putInt("index", index);
+        outState.putString("language", language.toString());
+        try {
+            outState.putString("testAnswerDTO", objectMapper.writeValueAsString(testAnswerDTO));
+            outState.putString("testEventDTO", objectMapper.writeValueAsString(testEventDTO));
+        }
+        catch (JsonProcessingException ignored) {
+
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if(savedInstanceState != null) {
+            CustomObjectMapper objectMapper = new CustomObjectMapper();
+            int idValue = savedInstanceState.getInt("idValue");
+            getIntent().putExtra("id", idValue);
+            getFragmentsFromTestDTO();
+            index = savedInstanceState.getInt("index");
+            String testAnswerDTOString = savedInstanceState.getString("testAnswerDTO");
+            String testEventDTOString = savedInstanceState.getString("language");
+            try {
+                if(testAnswerDTOString != null) {
+                    testAnswerDTO = objectMapper.readValue(testAnswerDTOString, TestAnswerDTO.class);
+                }
+                if(testEventDTOString != null) {
+                    testEventDTO = objectMapper.readValue(testEventDTOString, TestEventDTO.class);
+                }
+            } catch (JsonProcessingException ignored) {
+
+            }
+            String languageString = savedInstanceState.getString("language");
+            if (languageString != null) {
+                language = new Locale(languageString);
+            }
+        }
+    }
+
     /**
      * OnCreate method to create the view and instantiate all the elements and put the info,
      * Also retrieves the test information from with the
@@ -500,9 +544,8 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
     @Override
     protected void onStop() {
-        super.onStop();
         ErrorHandler.setCallback(null);
-        finish();
+        super.onStop();
     }
 
 
