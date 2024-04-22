@@ -1142,35 +1142,45 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
                 ArrayList<String> results = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 if (results != null) {
-                    String answer = null;
-                    for (Object result : results) {
-                        String option = result.toString();
-                        if (onlyNumbersInputAccepted) {
-                            if (answer == null || answer.isEmpty())
-                                answer = option.replaceAll("\\D", "");
-                        } else {
-                            if (answer == null || answer.isEmpty())
-                                answer = option.replaceAll("\\d", "");
-                        }
-
-                    }
-
-                    if(answer !=null) {
-                        if (variousInputs != null && variousInputs.size() > 0) {
-                            if(index > variousInputs.size() ) index = 0;
-                            String[] tokens = answer.split("(?!^)");
-                            for (int k = 0; k < tokens.length && index < variousInputs.size(); ++index, ++k) {
-                                if (tokens[k].isEmpty() || tokens[k].equals("")) {
-                                    ++k;
-                                } else {
-                                    variousInputs.get(index).setText(tokens[k]);
-                                }
+                    if(taskType == MEMORY || taskType == FLUENCY || taskType == RECALL) {
+                        for (Object result : results) {
+                            String option = result.toString();
+                            String[] words = option.split("\\s+");
+                            for(String word : words){
+                                adapter.addWord(word);
                             }
-                        } else {
-                            firstInput.setText(answer);
                         }
                     }
+                    else {
+                        String answer = null;
+                        for (Object result : results) {
+                            String option = result.toString();
+                            if (onlyNumbersInputAccepted) {
+                                if (answer == null || answer.isEmpty())
+                                    answer = option.replaceAll("\\D", "");
+                            } else {
+                                if (answer == null || answer.isEmpty())
+                                    answer = option.replaceAll("\\d", "");
+                            }
 
+                        }
+
+                        if(answer !=null) {
+                            if (variousInputs != null && !variousInputs.isEmpty()) {
+                                if(index > variousInputs.size() ) index = 0;
+                                String[] tokens = answer.split("(?!^)");
+                                for (int k = 0; k < tokens.length && index < variousInputs.size(); ++index, ++k) {
+                                    if (tokens[k].isEmpty()) {
+                                        ++k;
+                                    } else {
+                                        variousInputs.get(index).setText(tokens[k]);
+                                    }
+                                }
+                            } else {
+                                firstInput.setText(answer);
+                            }
+                        }
+                    }
                 }
             }
 
