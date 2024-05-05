@@ -4,10 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyLog;
+import com.android.volley.*;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,6 +12,7 @@ import org.json.JSONArray;
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
 import ugr.gbv.cognimobile.dto.StudyDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.mocks.MockedHttpStack;
 import ugr.gbv.cognimobile.payload.request.LoginRequest;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 import ugr.gbv.cognimobile.utilities.CustomObjectMapper;
@@ -91,7 +89,13 @@ public class ContentProvider implements Serializable {
         };
 
         //creating a request queue
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
 
         //adding the string request to request queue
         requestQueue.add(stringRequest);
@@ -193,7 +197,13 @@ public class ContentProvider implements Serializable {
 
 
         //creating a request queue
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
 
         //adding the string request to request queue
         requestQueue.add(testRequest);
@@ -252,8 +262,13 @@ public class ContentProvider implements Serializable {
             }
         };
 
-        //creating a request queue
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
 
         //adding the string request to request queue
         requestQueue.add(studyRequest);

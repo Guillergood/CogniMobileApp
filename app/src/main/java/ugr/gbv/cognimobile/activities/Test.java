@@ -32,6 +32,7 @@ import androidx.fragment.app.Fragment;
 import com.airbnb.lottie.LottieAnimationView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
@@ -69,12 +70,14 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     private boolean doubleBackToExitPressedOnce;
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
         CustomObjectMapper objectMapper = new CustomObjectMapper();
         outState.putInt("idValue", getIntent().getIntExtra("id", 0));
         outState.putInt("index", index);
-        outState.putString("language", language.toString());
+        if(language != null) {
+            outState.putString("language", language.toString());
+        }
         try {
             outState.putString("testAnswerDTO", objectMapper.writeValueAsString(testAnswerDTO));
             outState.putString("testEventDTO", objectMapper.writeValueAsString(testEventDTO));

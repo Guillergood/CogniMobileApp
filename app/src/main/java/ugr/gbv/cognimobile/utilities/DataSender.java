@@ -1,16 +1,12 @@
 package ugr.gbv.cognimobile.utilities;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.icu.util.Calendar;
 
 import android.text.TextUtils;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.android.volley.*;
-import com.android.volley.Request.Method;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -18,28 +14,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.Nullable;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.net.ssl.HttpsURLConnection;
-
-import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.callbacks.*;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.dto.Study;
 import ugr.gbv.cognimobile.dto.StudyEnrollRequest;
 import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.mocks.MockedHttpStack;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 
 /**
@@ -131,7 +119,13 @@ public class DataSender implements Serializable {
             }
         };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
         //adding the string request to request queue
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(20 * 1000, 1, 1.0f));
         requestQueue.add(stringRequest);
@@ -188,7 +182,13 @@ public class DataSender implements Serializable {
             }
         };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
         //adding the string request to request queue
         requestQueue.add(stringRequest);
     }
@@ -252,7 +252,13 @@ public class DataSender implements Serializable {
             }
         };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
         //adding the string request to request queue
         requestQueue.add(stringRequest);
     }
@@ -299,7 +305,13 @@ public class DataSender implements Serializable {
             }
         };
 
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
         //adding the string request to request queue
         requestQueue.add(stringRequest);
     }
@@ -336,7 +348,13 @@ public class DataSender implements Serializable {
             CognimobilePreferences.setLogin(context, "");
         });
         //creating a request queue
-        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        RequestQueue requestQueue;
+        if(CognimobilePreferences.isMockedHttp()) {
+            requestQueue = Volley.newRequestQueue(context, new MockedHttpStack());
+        }
+        else {
+            requestQueue = Volley.newRequestQueue(context);
+        }
 
         //adding the string request to request queue
         requestQueue.add(refreshTokenRequest);

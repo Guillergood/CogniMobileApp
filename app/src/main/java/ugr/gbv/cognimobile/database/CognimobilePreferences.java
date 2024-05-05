@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.activities.Introduction;
+import ugr.gbv.cognimobile.dto.TestDTO;
 
 
 /**
@@ -14,6 +14,7 @@ import ugr.gbv.cognimobile.activities.Introduction;
  */
 public class CognimobilePreferences {
 
+    private static TestDTO mockedHttp;
     /**
      * Get preference for the first time launch
      *
@@ -212,5 +213,17 @@ public class CognimobilePreferences {
 
         editor.putString(config, value);
         editor.apply();
+    }
+
+    public static void setMockedHttp(TestDTO value) {
+        mockedHttp = value;
+    }
+
+    public static boolean isMockedHttp() {
+        return mockedHttp != null;
+    }
+
+    public static TestDTO getMockedHttp() {
+        return mockedHttp;
     }
 }

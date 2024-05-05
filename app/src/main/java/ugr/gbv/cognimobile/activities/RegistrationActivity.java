@@ -87,7 +87,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 
 		userButton.performClick();
 
-		editTextFirstName.addTextChangedListener(new TextWatcher() {
+		TextWatcher textWatcher = new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -105,64 +105,12 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 			public void afterTextChanged(Editable editable) {
 
 			}
-		});
-		editTextLastName.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+		};
 
-			}
-
-			@Override
-			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-				placeHolderLastName.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
-						R.color.gray));
-				placeHolderLastName.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
-						R.color.gray)));
-			}
-
-			@Override
-			public void afterTextChanged(Editable editable) {
-
-			}
-		});
-		editTextRegistrationEmail.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-				placeHolderRegistrationEmail.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
-						R.color.gray));
-				placeHolderRegistrationEmail.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
-						R.color.gray)));
-			}
-
-			@Override
-			public void afterTextChanged(Editable editable) {
-
-			}
-		});
-		editTextRegistrationUsername.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-				placeHolderRegistrationUsername.setBoxStrokeColor(ContextCompat.getColor(getBaseContext(),
-						R.color.gray));
-				placeHolderRegistrationUsername.setDefaultHintTextColor(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
-						R.color.gray)));
-			}
-
-			@Override
-			public void afterTextChanged(Editable editable) {
-
-			}
-		});
+		editTextFirstName.addTextChangedListener(textWatcher);
+		editTextLastName.addTextChangedListener(textWatcher);
+		editTextRegistrationEmail.addTextChangedListener(textWatcher);
+		editTextRegistrationUsername.addTextChangedListener(textWatcher);
 		editTextPassword.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
