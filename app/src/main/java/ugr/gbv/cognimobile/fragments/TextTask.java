@@ -1556,7 +1556,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private void checkPhrases() {
         int errors = 0;
 
-        for(int i = 0; i < answers.size(); ++i) {
+        for(int i = 0; i < answers.size() && i < array.length; ++i) {
             if (!answers.get(i).equalsIgnoreCase(array[i])) {
                 ++errors;
             }
