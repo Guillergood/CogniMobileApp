@@ -25,8 +25,14 @@ public class MockedHttpStack extends BaseHttpStack {
                 return new HttpResponse(200, new ArrayList<>(), objectMapper.writeValueAsBytes(jwtResponse));
             }
             if (request.getUrl().contains("/study/all")) {
-                String study = "{\"id\":1,\"name\":\"Study\",\"description\":\"Cognimobile study\",\"tests\":[\"Test\"],\"collaborators\":[\"user1\"],\"subjects\":[\"user1\"]}";
-                List<Study> studies = Collections.singletonList(objectMapper.readValue(study, Study.class));
+                Study study = new Study();
+                study.setId(1L);
+                study.setName("Study");
+                study.setDescription("Cognimobile study");
+                study.setTests(Collections.singletonList("Test"));
+                study.setCollaborators(Collections.singletonList("user1"));
+                study.setSubjects(Collections.singletonList("user1"));
+                List<Study> studies = Collections.singletonList(study);
                 return new HttpResponse(200, new ArrayList<>(), objectMapper.writeValueAsBytes(studies));
             }
             if (request.getUrl().contains("/test/getTest/Test")) {
