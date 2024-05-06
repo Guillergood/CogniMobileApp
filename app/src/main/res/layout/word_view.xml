@@ -26,7 +26,7 @@
             android:maxLines="6"
             android:scaleType="centerCrop"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@android:color/black"
             app:layout_constraintBottom_toBottomOf="@+id/icon_edit"
             app:layout_constraintDimensionRatio="H,16:9"
             app:layout_constraintEnd_toStartOf="@+id/icon_edit"

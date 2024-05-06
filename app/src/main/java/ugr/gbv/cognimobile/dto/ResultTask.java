@@ -3,6 +3,7 @@ package ugr.gbv.cognimobile.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Objects;
 
 
 public class ResultTask {
@@ -243,6 +244,20 @@ public class ResultTask {
 
     public int getNumberWords() {
         return numberWords;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ResultTask that = (ResultTask) o;
+        return taskType == that.taskType &&
+                score == that.score;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskType, score);
     }
 }
 

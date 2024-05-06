@@ -7,7 +7,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.dto.Study;
+import ugr.gbv.cognimobile.dto.TestAnswerDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.dto.TestEventDTO;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 
 import java.io.IOException;
@@ -37,6 +39,14 @@ public class MockedHttpStack extends BaseHttpStack {
             }
             if (request.getUrl().contains("/test/getTest/Test")) {
                 return new HttpResponse(200, new ArrayList<>(), objectMapper.writeValueAsBytes(CognimobilePreferences.getMockedHttp()));
+            }
+            if (request.getUrl().contains("/test/result/answer")) {
+                CognimobilePreferences.setTestAnswerDTO(objectMapper.readValue(request.getBody(), TestAnswerDTO.class));
+                return new HttpResponse(201, new ArrayList<>());
+            }
+            if (request.getUrl().contains("/test/result/event")) {
+                CognimobilePreferences.setTestEventDTO(objectMapper.readValue(request.getBody(), TestEventDTO.class));
+                return new HttpResponse(201, new ArrayList<>());
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

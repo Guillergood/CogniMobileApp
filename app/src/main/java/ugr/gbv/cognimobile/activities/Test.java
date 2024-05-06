@@ -72,6 +72,10 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     @Override
     protected void onSaveInstanceState(@NotNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        saveState(outState);
+    }
+
+    public Bundle saveState(Bundle outState) {
         CustomObjectMapper objectMapper = new CustomObjectMapper();
         outState.putInt("idValue", getIntent().getIntExtra("id", 0));
         outState.putInt("index", index);
@@ -85,6 +89,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         catch (JsonProcessingException ignored) {
 
         }
+        return outState;
     }
 
     @Override
@@ -97,7 +102,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             getFragmentsFromTestDTO();
             index = savedInstanceState.getInt("index");
             String testAnswerDTOString = savedInstanceState.getString("testAnswerDTO");
-            String testEventDTOString = savedInstanceState.getString("language");
+            String testEventDTOString = savedInstanceState.getString("testEventDTO");
             try {
                 if(testAnswerDTOString != null) {
                     testAnswerDTO = objectMapper.readValue(testAnswerDTOString, TestAnswerDTO.class);
@@ -127,6 +132,14 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            Bundle outState = getIntent().getExtras().getBundle("outState");
+            if (outState != null) {
+                // Restaura el estado de la actividad
+                onRestoreInstanceState(outState);
+            }
+        }
 
         ErrorHandler.setCallback(this);
         setContentView(R.layout.activity_test);

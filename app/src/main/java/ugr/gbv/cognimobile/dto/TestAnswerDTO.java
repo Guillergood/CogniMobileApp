@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 public class TestAnswerDTO {
@@ -75,5 +76,21 @@ public class TestAnswerDTO {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestAnswerDTO that = (TestAnswerDTO) o;
+        return  Objects.equals(studyName, that.studyName) &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(tasks, that.tasks) &&
+                Objects.equals(language, that.language);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(studyName, userName, tasks, language);
     }
 }

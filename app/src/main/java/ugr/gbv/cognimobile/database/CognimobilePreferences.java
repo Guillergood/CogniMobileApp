@@ -6,7 +6,9 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 
 import ugr.gbv.cognimobile.R;
+import ugr.gbv.cognimobile.dto.TestAnswerDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.dto.TestEventDTO;
 
 
 /**
@@ -15,6 +17,8 @@ import ugr.gbv.cognimobile.dto.TestDTO;
 public class CognimobilePreferences {
 
     private static TestDTO mockedHttp;
+    private static TestAnswerDTO testAnswerDTO;
+    private static TestEventDTO testEventDTO;
     /**
      * Get preference for the first time launch
      *
@@ -225,5 +229,21 @@ public class CognimobilePreferences {
 
     public static TestDTO getMockedHttp() {
         return mockedHttp;
+    }
+
+    public static TestAnswerDTO getTestAnswerDTO() {
+        return testAnswerDTO;
+    }
+
+    public static void setTestAnswerDTO(TestAnswerDTO testAnswerDTO) {
+        CognimobilePreferences.testAnswerDTO = testAnswerDTO;
+    }
+
+    public static TestEventDTO getTestEventDTO() {
+        return testEventDTO;
+    }
+
+    public static void setTestEventDTO(TestEventDTO testEventDTO) {
+        CognimobilePreferences.testEventDTO = testEventDTO;
     }
 }

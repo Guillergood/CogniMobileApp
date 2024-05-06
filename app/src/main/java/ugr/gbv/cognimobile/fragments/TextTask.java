@@ -738,7 +738,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
             editText.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
             editText.setImeOptions(EditorInfo.IME_ACTION_DONE);
             editText.setGravity(Gravity.CENTER_HORIZONTAL);
-            editText.setKeyListener(DigitsKeyListener.getInstance("123456789"));
+            editText.setKeyListener(DigitsKeyListener.getInstance("0123456789"));
             InputFilter[] inputArray = new InputFilter[1];
             inputArray[0] = new InputFilter.LengthFilter(1);
             editText.setFilters(inputArray);

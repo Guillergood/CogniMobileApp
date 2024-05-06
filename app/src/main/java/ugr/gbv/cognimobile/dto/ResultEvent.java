@@ -3,6 +3,7 @@ package ugr.gbv.cognimobile.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ResultEvent {
     private Long id;
@@ -512,5 +513,13 @@ public class ResultEvent {
 
     public void setTaskType(TaskType taskType) {
         this.taskType = taskType;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ResultEvent that = (ResultEvent) o;
+        return Objects.equals(taskType, that.taskType);
     }
 }

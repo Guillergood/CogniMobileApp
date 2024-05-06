@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TestEventDTO {
     private String testName;
@@ -62,5 +63,21 @@ public class TestEventDTO {
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TestEventDTO that = (TestEventDTO) o;
+        return  Objects.equals(studyName, that.studyName) &&
+                Objects.equals(userName, that.userName) &&
+                Objects.equals(events, that.events) &&
+                Objects.equals(language, that.language);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(studyName, userName, events, language);
     }
 }
