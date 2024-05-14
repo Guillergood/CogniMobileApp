@@ -1,14 +1,21 @@
 package ugr.gbv.cognimobile;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.view.View;
+import androidx.core.content.ContextCompat;
 import androidx.test.espresso.*;
 import androidx.test.espresso.intent.Intents;
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -36,12 +43,17 @@ import static androidx.test.espresso.action.ViewActions.*;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static java.lang.Thread.sleep;
 
 @LargeTest
 public class CognimobileInstrumentedTest {
 
     @Rule
     public ActivityScenarioRule<Introduction> intentsTestRule = new ActivityScenarioRule<>(Introduction.class);
+
+    private static final int PERMISSIONS_DIALOG_DELAY = 3000;
+    private static final int GRANT_BUTTON_INDEX = 1;
 
 
     @Before
@@ -65,7 +77,45 @@ public class CognimobileInstrumentedTest {
                 .perform(click());
     }
 
+    public static void allowPermissionsIfNeeded(String permissionNeeded) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hasNeededPermission(permissionNeeded)) {
+                sleep(PERMISSIONS_DIALOG_DELAY);
+                UiDevice device = UiDevice.getInstance(getInstrumentation());
+                UiObject allowPermissions = device.findObject(new UiSelector()
+                        .clickable(true)
+                        .checkable(false)
+                        .index(GRANT_BUTTON_INDEX));
+                if (allowPermissions.exists()) {
+                    allowPermissions.click();
+                }
+            }
+        } catch (UiObjectNotFoundException e) {
+            System.out.println("There is no permissions dialog to interact with");
+        }
+    }
+
+    private static boolean hasNeededPermission(String permissionNeeded) {
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        int permissionStatus = ContextCompat.checkSelfPermission(context, permissionNeeded);
+        return permissionStatus == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private static void sleep(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Cannot execute Thread.sleep()");
+        }
+    }
+
     public void fulfillServerUrl() {
+        onView(withId(R.id.qrScannerButton)).perform(click());
+
+        allowPermissionsIfNeeded("android.permission.CAMERA");
+
+        onView(isRoot()).perform(pressBack());
+
         onView(withId(R.id.editTextServerUrl))
                 .perform(typeText("https://ugr.gbv.com/"), closeSoftKeyboard());
 
@@ -76,7 +126,7 @@ public class CognimobileInstrumentedTest {
     }
 
     public void login() {
-        CognimobilePreferences.setFirstTimeLaunch(InstrumentationRegistry.getInstrumentation().getTargetContext(), false);
+        CognimobilePreferences.setFirstTimeLaunch(getInstrumentation().getTargetContext(), false);
         onView(withId(R.id.editTextUsername))
                 .perform(typeText("user"), closeSoftKeyboard());
         onView(withId(R.id.editTextPassword))
@@ -351,7 +401,7 @@ public class CognimobileInstrumentedTest {
     }
 
     private @NotNull String getStringFromFile(String file) throws IOException {
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        Context context = getInstrumentation().getContext();
         AssetManager assetManager = context.getAssets();
         InputStream inputStream = assetManager.open(file);
         return convertStreamToString(inputStream);

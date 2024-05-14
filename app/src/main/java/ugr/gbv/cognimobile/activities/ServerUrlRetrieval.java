@@ -34,15 +34,13 @@ import ugr.gbv.cognimobile.qr_reader.ReadQR;
 import ugr.gbv.cognimobile.utilities.ContextDataRetriever;
 import ugr.gbv.cognimobile.utilities.ErrorHandler;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import static ugr.gbv.cognimobile.qr_reader.ReadQR.INTENT_LINK_LABEL;
 
 public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkRetrieval, LoadDialog {
 
     private final int LINK_CODE = 1;
-    private final int CAMERA_PERMISSION_CODE = 3;
+    private ActivityResultLauncher<String> requestCameraPermissionLauncher;
     private ActivityResultLauncher<Intent> qrTextRetrieval;
 
 
@@ -50,6 +48,11 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_test_link_retrieval);
+        initializeComponents();
+        setupPermissionRequestLauncher();
+    }
+
+    private void initializeComponents() {
         LinearLayout sendUrlButton = findViewById(R.id.typeUrlContainer);
         FloatingActionButton sendUrlFabButton = findViewById(R.id.typeUrlButton);
         LinearLayout qrScannerButton = findViewById(R.id.qrScannerContainer);
@@ -111,10 +114,6 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
             goToChooseQrOrTextActivity();
         });
 
-        qrScannerFabButton.setOnClickListener(view -> {
-            goToChooseQrOrTextActivity();
-        });
-
         qrTextRetrieval = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -135,6 +134,23 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
                         }
                     }
                 });
+
+        qrScannerFabButton.setOnClickListener(view -> {
+            goToChooseQrOrTextActivity();
+        });
+    }
+
+    private void setupPermissionRequestLauncher() {
+        requestCameraPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    if (isGranted) {
+                        goToQrReadActivity();
+                    } else {
+                        Toast.makeText(ServerUrlRetrieval.this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
     }
 
     private void goToLoginActivity(QrDTO extraData) {
@@ -145,34 +161,6 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
         startActivity(intent);
     }
 
-    /**
-     * onRequestPermissionsResult method allows to catch information from a requested permission.
-     * Using the {@link #requestPermissions(String[], int)} method:
-     *
-     * @param requestCode  Application specific request code to match with a result
-     *                     reported to {@link #onRequestPermissionsResult(int, String[], int[])}.
-     *                     Should be >= 0.
-     * @param permissions  The requested permissions. Must be non-null and not empty.
-     * @param grantResults The requested permissions granted. Must be non-null and not empty.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-
-        //        if (requestCode == CAMERA_PERMISSION_CODE) {
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-
-            // Checking whether user granted the permission or not.
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                goToQrReadActivity();
-            }
-            else {
-                Toast.makeText(ServerUrlRetrieval.this, "Camera Permission Denied", Toast.LENGTH_SHORT).show();
-            }
-        }
-        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
-    }
 
     /**
      * This method allows to go the ReadQR activity. Where the user is allowed to get the link
@@ -180,12 +168,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
      */
     @Override
     public void goToChooseQrOrTextActivity() {
-        boolean permissionNotGranted = PermissionChecker.checkSelfPermission(this, Manifest.permission.CAMERA) != PermissionChecker.PERMISSION_GRANTED;
-        if (permissionNotGranted) {
-            ActivityCompat.requestPermissions(ServerUrlRetrieval.this, new String[] { Manifest.permission.CAMERA }, CAMERA_PERMISSION_CODE);
-        } else {
-            goToQrReadActivity();
-        }
+        requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
     }
 
     private void goToQrReadActivity() {

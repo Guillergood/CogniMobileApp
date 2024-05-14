@@ -6,6 +6,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- needed for Android 28 P -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- needed for Android 28 P -->
 
     <queries>
         <intent>

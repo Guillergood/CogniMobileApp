@@ -13,8 +13,8 @@ android {
         applicationId "ugr.gbv.cognimobile"
         minSdkVersion 24
         targetSdkVersion 33
-        versionCode 27
-        versionName "alpha-27"
+        versionCode 30
+        versionName "alpha-30"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
