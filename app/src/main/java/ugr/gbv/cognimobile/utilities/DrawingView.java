@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class DrawingView extends View {
      * @param canvas the canvas on which the background will be drawn
      */
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
         canvas.drawPath(drawPath, drawPaint);

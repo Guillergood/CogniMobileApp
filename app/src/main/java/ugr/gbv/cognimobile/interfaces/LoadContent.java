@@ -3,7 +3,6 @@ package ugr.gbv.cognimobile.interfaces;
 import android.app.Activity;
 import android.view.textservice.SentenceSuggestionsInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -60,7 +59,7 @@ public interface LoadContent {
      * Method that checks if the user has submitted correct words.
      * Uses {@link ugr.gbv.cognimobile.activities.Test#onGetSentenceSuggestions(SentenceSuggestionsInfo[])
      * to check every word.
-     *
+     * <p>
      * @param input Array of the user words.
      */
     int checkTypos(List<String> words);

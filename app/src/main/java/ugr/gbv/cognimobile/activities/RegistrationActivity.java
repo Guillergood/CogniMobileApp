@@ -15,8 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.core.content.ContextCompat;
-import com.android.volley.Request;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.google.android.material.textfield.TextInputLayout;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
@@ -142,16 +141,12 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 			}
 		});
 
-		checkBox.setOnCheckedChangeListener((compoundButton, b) -> {
-			checkBox.setButtonTintList(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
-					R.color.gray)));
-		});
+		checkBox.setOnCheckedChangeListener((compoundButton, b) -> checkBox.setButtonTintList(ColorStateList.valueOf(ContextCompat.getColor(getBaseContext(),
+                R.color.gray))));
 
-		textViewTermsAndConditions.setOnClickListener(v -> {
-			startActivity(new Intent(Intent.ACTION_VIEW,
-					Uri.parse(CognimobilePreferences.getServerUrl(this).replace("/backend",
-							"/terms"))));
-		});
+		textViewTermsAndConditions.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW,
+                Uri.parse(CognimobilePreferences.getServerUrl(this).replace("/backend",
+                        "/terms")))));
 
 		registerButton.setOnClickListener(v -> {
 			StringBuilder builder = new StringBuilder();

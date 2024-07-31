@@ -563,6 +563,10 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     private void repeatPhrase(String[] phrases) {
         array = phrases;
         firstInput.setOnEditorActionListener((v, actionId, event) -> handleSubmitKeyboardButton(actionId));
+        firstInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+        firstInput.setMaxLines(30);
+        firstInput.setHorizontallyScrolling(false);
+        firstInput.setEllipsize(null);
         View.OnClickListener clickListener = v -> {
             addSubmitTime();
             answers.add(firstInput.getText().toString());

@@ -37,6 +37,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.*;
@@ -44,7 +45,6 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
-import static java.lang.Thread.sleep;
 
 @LargeTest
 public class CognimobileInstrumentedTest {
@@ -80,7 +80,7 @@ public class CognimobileInstrumentedTest {
     public static void allowPermissionsIfNeeded(String permissionNeeded) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !hasNeededPermission(permissionNeeded)) {
-                sleep(PERMISSIONS_DIALOG_DELAY);
+                sleep();
                 UiDevice device = UiDevice.getInstance(getInstrumentation());
                 UiObject allowPermissions = device.findObject(new UiSelector()
                         .clickable(true)
@@ -101,9 +101,9 @@ public class CognimobileInstrumentedTest {
         return permissionStatus == PackageManager.PERMISSION_GRANTED;
     }
 
-    private static void sleep(long millis) {
+    private static void sleep() {
         try {
-            Thread.sleep(millis);
+            Thread.sleep(CognimobileInstrumentedTest.PERMISSIONS_DIALOG_DELAY);
         } catch (InterruptedException e) {
             throw new RuntimeException("Cannot execute Thread.sleep()");
         }
@@ -188,10 +188,10 @@ public class CognimobileInstrumentedTest {
         onView(withId(R.id.rightButton)).check(matches(isDisplayed())).perform(click());
     }
 
-    private void doMemoryTask() {
+    private void doMemoryTask() throws Exception {
         List<String> sentences = Arrays.asList("FACE","VELVET","CHURCH","DAISY","RED");
         dismissTutorial();
-        onView(withId(R.id.startButton)).check(matches(isDisplayed())).perform(click());
+        loopStatement(o -> onView(withId(R.id.startButton)).check(matches(isDisplayed())).perform(click()));
         waitViewShown(withId(R.id.additional_task_input));
         for (int i = 0; i < 2; i++) {
             for (String sentence : sentences) {
@@ -202,6 +202,23 @@ public class CognimobileInstrumentedTest {
             onView(withId(R.id.rightButton))
                     .check(matches(isDisplayed()))
                     .perform(click());
+        }
+    }
+
+    private static void loopStatement(Function function) throws Exception {
+        Exception e;
+        int i = 0;
+        do {
+            try {
+                function.apply("");
+                e = null;
+            } catch (Exception ex) {
+                e = ex;
+                i++;
+            }
+        } while (i < 5 && e != null);
+        if (e != null) {
+            throw e;
         }
     }
 
@@ -360,7 +377,7 @@ public class CognimobileInstrumentedTest {
     }
 
     @Test
-    public void completeFlow() throws IOException {
+    public void completeFlow() throws Exception {
         prepareTest();
 
         swipeIntroductionThroughPages();

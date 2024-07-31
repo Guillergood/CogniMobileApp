@@ -3,7 +3,6 @@ package ugr.gbv.cognimobile.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,13 +13,11 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.content.PermissionChecker;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -110,9 +107,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
         sendUrlButton.setClickable(false);
         sendUrlFabButton.setClickable(false);
 
-        qrScannerButton.setOnClickListener(view -> {
-            goToChooseQrOrTextActivity();
-        });
+        qrScannerButton.setOnClickListener(view -> goToChooseQrOrTextActivity());
 
         qrTextRetrieval = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -135,9 +130,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
                     }
                 });
 
-        qrScannerFabButton.setOnClickListener(view -> {
-            goToChooseQrOrTextActivity();
-        });
+        qrScannerFabButton.setOnClickListener(view -> goToChooseQrOrTextActivity());
     }
 
     private void setupPermissionRequestLauncher() {

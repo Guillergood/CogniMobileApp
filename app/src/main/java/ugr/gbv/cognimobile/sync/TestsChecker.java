@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import ugr.gbv.cognimobile.database.ContentProvider;
+
 import ugr.gbv.cognimobile.database.Provider;
 import ugr.gbv.cognimobile.utilities.NotificationUtils;
 

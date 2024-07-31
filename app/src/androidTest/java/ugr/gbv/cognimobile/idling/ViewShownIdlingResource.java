@@ -49,6 +49,7 @@ public class ViewShownIdlingResource implements IdlingResource {
             Field finderField = viewInteraction.getClass().getDeclaredField("viewFinder");
             finderField.setAccessible(true);
             ViewFinder finder = (ViewFinder) finderField.get(viewInteraction);
+            assert finder != null;
             return finder.getView();
         } catch (Exception e) {
             return null;

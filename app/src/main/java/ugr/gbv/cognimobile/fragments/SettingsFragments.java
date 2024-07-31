@@ -13,7 +13,6 @@ import androidx.preference.PreferenceScreen;
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.activities.About;
 import ugr.gbv.cognimobile.activities.LoginActivity;
-import ugr.gbv.cognimobile.activities.ServerUrlRetrieval;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.interfaces.SettingsCallback;
 

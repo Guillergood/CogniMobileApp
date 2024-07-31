@@ -8,18 +8,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ugr.gbv.cognimobile.database.Provider;
-import ugr.gbv.cognimobile.dto.TaskType;
 import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.fragments.DrawTask;
 import ugr.gbv.cognimobile.fragments.ImageTask;
@@ -28,8 +24,6 @@ import ugr.gbv.cognimobile.fragments.TextTask;
 import ugr.gbv.cognimobile.interfaces.LoadContent;
 
 import static ugr.gbv.cognimobile.dto.TaskType.*;
-import static ugr.gbv.cognimobile.dto.TaskType.CUBE;
-import static ugr.gbv.cognimobile.dto.TaskType.GRAPH;
 
 /**
  * Class to manage the test json

@@ -44,7 +44,7 @@ public class PathGenerator {
         points.add(new Point(0.27148438f * width, 0.0902778f * height, Integer.toString(numbers[9])));
 
 
-        Collections.sort(points, (o1, o2) -> {
+        points.sort((o1, o2) -> {
             int value = 1;
             if (Integer.parseInt(o1.getLabel()) < Integer.parseInt(o2.getLabel())) {
                 value = -1;

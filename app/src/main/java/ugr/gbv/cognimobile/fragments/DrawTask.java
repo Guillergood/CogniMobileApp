@@ -180,7 +180,7 @@ public class DrawTask extends Task implements LoadDraw {
      */
     private void undoLastButton() {
 
-        if (answer.size() > 0) {
+        if (!answer.isEmpty()) {
             answer.remove(answer.size() - 1);
             pressedButtons.get(pressedButtons.size() - 1).setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.circle_no_fill, context.getTheme()));
             pressedButtons.get(pressedButtons.size() - 1).setTextColor(getResources().getColor(R.color.black, context.getTheme()));

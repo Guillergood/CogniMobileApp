@@ -1,6 +1,5 @@
 package ugr.gbv.cognimobile.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,13 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.json.JSONArray;
 
 import ugr.gbv.cognimobile.R;
 import ugr.gbv.cognimobile.callbacks.LoginCallback;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.ContentProvider;
-import ugr.gbv.cognimobile.dto.QrDTO;
 import ugr.gbv.cognimobile.dto.StudyEnrollRequest;
 import ugr.gbv.cognimobile.interfaces.LoadDialog;
 import ugr.gbv.cognimobile.payload.request.LoginRequest;
@@ -59,13 +56,9 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
 
         ErrorHandler.setCallback(this);
 
-        backButton.setOnClickListener( view -> {
-            goBack();
-        });
+        backButton.setOnClickListener( view -> goBack());
 
-        backButtonText.setOnClickListener( view -> {
-            goBack();
-        });
+        backButtonText.setOnClickListener( view -> goBack());
 
         loginButton.setOnClickListener(view -> {
             if(TextUtils.isEmpty(editTextUsername.getText().toString())){
@@ -80,13 +73,9 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
                             editTextPassword.getText().toString()),this);
         });
 
-        registerButton.setOnClickListener(view -> {
-            goToRegistrationActivity();
-        });
+        registerButton.setOnClickListener(view -> goToRegistrationActivity());
 
-        forgotPasswordButton.setOnClickListener(view -> {
-            goToForgotPasswordActivity();
-        });
+        forgotPasswordButton.setOnClickListener(view -> goToForgotPasswordActivity());
     }
 
     private void goBack() {

@@ -52,11 +52,7 @@ public class MainActivity extends AppCompatActivity
         initBottomNavBar();
         ErrorHandler.setCallback(this);
 
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            runOnUiThread(() -> {
-                WorkerManager.getInstance().initiateWorkers(getApplicationContext());
-            });
-        }, 3000);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> runOnUiThread(() -> WorkerManager.getInstance().initiateWorkers(getApplicationContext())), 3000);
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();
@@ -233,16 +229,12 @@ public class MainActivity extends AppCompatActivity
                 builder.setMessage(message);
                 builder.setCancelable(false);
                 builder.setNegativeButton(MainActivity.this.getString(R.string.send_again),
-                        (dialog, which) -> {
-                            dialog.dismiss();
-                        });
+                        (dialog, which) -> dialog.dismiss());
                 builder.setPositiveButton(MainActivity.this.getString(R.string.send_again),
-                        (dialog, which) -> {
-                            DataSender.getInstance().postToServer(args[0],
-                                    getApplicationContext(),
-                                    (String) args[1],
-                                    this);
-                        });
+                        (dialog, which) -> DataSender.getInstance().postToServer(args[0],
+                                getApplicationContext(),
+                                (String) args[1],
+                                this));
                 builder.show();
             });
         }

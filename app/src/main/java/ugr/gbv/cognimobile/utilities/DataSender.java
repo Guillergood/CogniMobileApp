@@ -72,9 +72,7 @@ public class DataSender implements Serializable {
     public void postToServer(@NonNull Object data, Context context, String subPath, CredentialsCallback credentialCallback) {
         StringRequest stringRequest = new StringRequest(Request.Method.POST,
                 processUrl(CognimobilePreferences.getServerUrl(context) + subPath),
-                response -> {
-                    Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
-                },
+                response -> Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show(),
                 error -> {
                     //displaying the error in toast if occur
                     if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
@@ -89,7 +87,9 @@ public class DataSender implements Serializable {
                     else{
                         if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             ErrorHandler.displayError("Invalid credentials or inactive account.");
-                            credentialCallback.doLogout();
+                            if(credentialCallback != null) {
+                                credentialCallback.doLogout();
+                            }
                         }
                     }
                 }) {
@@ -138,9 +138,7 @@ public class DataSender implements Serializable {
     public void enrollInStudy(@NonNull StudyEnrollRequest data, Context context) {
         StringRequest stringRequest = new StringRequest(Request.Method.PATCH,
                 processUrl(CognimobilePreferences.getServerUrl(context) + "/study/enroll"),
-                response -> {
-                    Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show();
-                },
+                response -> Toast.makeText(context,"Operation done successfully",Toast.LENGTH_LONG).show(),
                 error -> {
                     //displaying the error in toast if occur
                     if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
@@ -344,9 +342,7 @@ public class DataSender implements Serializable {
                 // this will never happen but if so, show error to user.
                 ErrorHandler.displayError("Error refreshing the authentication.");
             }
-        }, error -> {
-            CognimobilePreferences.setLogin(context, "");
-        });
+        }, error -> CognimobilePreferences.setLogin(context, ""));
         //creating a request queue
         RequestQueue requestQueue;
         if(CognimobilePreferences.isMockedHttp()) {

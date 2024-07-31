@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.dto.Study;
 import ugr.gbv.cognimobile.dto.TestAnswerDTO;
-import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.dto.TestEventDTO;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 

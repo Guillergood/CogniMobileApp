@@ -93,30 +93,28 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if(savedInstanceState != null) {
-            CustomObjectMapper objectMapper = new CustomObjectMapper();
-            int idValue = savedInstanceState.getInt("idValue");
-            getIntent().putExtra("id", idValue);
-            getFragmentsFromTestDTO();
-            index = savedInstanceState.getInt("index");
-            String testAnswerDTOString = savedInstanceState.getString("testAnswerDTO");
-            String testEventDTOString = savedInstanceState.getString("testEventDTO");
-            try {
-                if(testAnswerDTOString != null) {
-                    testAnswerDTO = objectMapper.readValue(testAnswerDTOString, TestAnswerDTO.class);
-                }
-                if(testEventDTOString != null) {
-                    testEventDTO = objectMapper.readValue(testEventDTOString, TestEventDTO.class);
-                }
-            } catch (JsonProcessingException ignored) {
+        CustomObjectMapper objectMapper = new CustomObjectMapper();
+        int idValue = savedInstanceState.getInt("idValue");
+        getIntent().putExtra("id", idValue);
+        getFragmentsFromTestDTO();
+        index = savedInstanceState.getInt("index");
+        String testAnswerDTOString = savedInstanceState.getString("testAnswerDTO");
+        String testEventDTOString = savedInstanceState.getString("testEventDTO");
+        try {
+            if(testAnswerDTOString != null) {
+                testAnswerDTO = objectMapper.readValue(testAnswerDTOString, TestAnswerDTO.class);
+            }
+            if(testEventDTOString != null) {
+                testEventDTO = objectMapper.readValue(testEventDTOString, TestEventDTO.class);
+            }
+        } catch (JsonProcessingException ignored) {
 
-            }
-            String languageString = savedInstanceState.getString("language");
-            if (languageString != null) {
-                language = new Locale(languageString);
-            }
+        }
+        String languageString = savedInstanceState.getString("language");
+        if (languageString != null) {
+            language = new Locale(languageString);
         }
     }
 
@@ -596,30 +594,24 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
                 builder.setMessage(message);
                 builder.setCancelable(false);
                 builder.setNegativeButton(Test.this.getString(R.string.cancel),
-                        (dialog, which) -> {
-                            dialog.dismiss();
-                        });
+                        (dialog, which) -> dialog.dismiss());
                 builder.setPositiveButton(Test.this.getString(R.string.send_again),
-                        (dialog, which) -> {
-                            DataSender.getInstance().postToServer(args[0],
-                                    getApplicationContext(),
-                                    (String) args[1],
-                                    this);
-                        });
+                        (dialog, which) -> DataSender.getInstance().postToServer(args[0],
+                                getApplicationContext(),
+                                (String) args[1],
+                                this));
                 builder.show();
             });
         }
         else{
-            runOnUiThread(() -> {
-                runOnUiThread(() -> {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
-                    builder.setTitle(Test.this.getString(R.string.error_occurred));
-                    builder.setMessage(message);
-                    builder.setCancelable(false);
-                    builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
-                    builder.show();
-                });
-            });
+            runOnUiThread(() -> runOnUiThread(() -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(Test.this);
+                builder.setTitle(Test.this.getString(R.string.error_occurred));
+                builder.setMessage(message);
+                builder.setCancelable(false);
+                builder.setPositiveButton(Test.this.getString(R.string.continue_next_task), (dialog, which) -> dialog.dismiss());
+                builder.show();
+            }));
         }
     }
 

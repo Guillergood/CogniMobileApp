@@ -1,7 +1,5 @@
 package ugr.gbv.cognimobile.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 
 import java.util.List;
 

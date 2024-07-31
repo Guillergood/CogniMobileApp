@@ -12,17 +12,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import ugr.gbv.cognimobile.R;
-import ugr.gbv.cognimobile.activities.LoginActivity;
 import ugr.gbv.cognimobile.activities.Test;
 import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
 import ugr.gbv.cognimobile.callbacks.StudyCallback;
-import ugr.gbv.cognimobile.callbacks.TestCallback;
 import ugr.gbv.cognimobile.dto.Study;
-import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.utilities.DataSender;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ExpertTestFragment extends Fragment implements StudyCallback, CredentialsCallback {

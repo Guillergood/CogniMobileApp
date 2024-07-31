@@ -109,7 +109,7 @@ public class NotificationUtils {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                 | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         final PendingIntent pendingIntent = PendingIntent.getActivity(context, ACTION_IGNORE_PENDING_INTENT_ID,
-                intent, PendingIntent.FLAG_ONE_SHOT);
+                intent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
 
 
         Notification.Action action = new Notification.Action.Builder(

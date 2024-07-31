@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 
-import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
