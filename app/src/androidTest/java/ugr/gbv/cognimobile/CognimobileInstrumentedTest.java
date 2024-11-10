@@ -30,10 +30,7 @@ import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.dto.TestEventDTO;
 import ugr.gbv.cognimobile.idling.ViewShownIdlingResource;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -406,9 +403,26 @@ public class CognimobileInstrumentedTest {
         String testAnswerDto = getStringFromFile("test_answer_dto.json");
         String testEventDto = getStringFromFile("test_event_dto.json");
         ObjectMapper objectMapper = new ObjectMapper();
-        assert (objectMapper.readValue(testAnswerDto, TestAnswerDTO.class).equals(CognimobilePreferences.getTestAnswerDTO()));
-        assert (objectMapper.readValue(testEventDto, TestEventDTO.class).equals(CognimobilePreferences.getTestEventDTO()));
+
+        TestAnswerDTO expectedTestAnswerDTO = objectMapper.readValue(testAnswerDto, TestAnswerDTO.class);
+        TestAnswerDTO actualTestAnswerDTO = CognimobilePreferences.getTestAnswerDTO();
+        TestEventDTO expectedTestEventDTO = objectMapper.readValue(testEventDto, TestEventDTO.class);
+        TestEventDTO actualTestEventDTO = CognimobilePreferences.getTestEventDTO();
+
+        // Checking the assertions and writing to a file if they are not equal
+        if (!expectedTestAnswerDTO.equals(actualTestAnswerDTO) || !expectedTestEventDTO.equals(actualTestEventDTO)) {
+            try (FileWriter writer = new FileWriter("output_differences.txt")) {
+                writer.write("Expected TestAnswerDTO: " + objectMapper.writeValueAsString(expectedTestAnswerDTO) + "\n");
+                writer.write("Actual TestAnswerDTO: " + objectMapper.writeValueAsString(actualTestAnswerDTO) + "\n\n");
+                writer.write("Expected TestEventDTO: " + objectMapper.writeValueAsString(expectedTestEventDTO) + "\n");
+                writer.write("Actual TestEventDTO: " + objectMapper.writeValueAsString(actualTestEventDTO) + "\n");
+            }
+        }
+
+        assert expectedTestAnswerDTO.equals(actualTestAnswerDTO);
+        assert expectedTestEventDTO.equals(actualTestEventDTO);
     }
+
 
     private void prepareTest() throws IOException {
         String studyContent = getStringFromFile("test_data.json");
