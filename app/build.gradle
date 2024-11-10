@@ -14,8 +14,8 @@ android {
         minSdkVersion 24
         //noinspection EditedTargetSdkVersion
         targetSdkVersion 34
-        versionCode 30
-        versionName "alpha-30"
+        versionCode 32
+        versionName "alpha-32"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
