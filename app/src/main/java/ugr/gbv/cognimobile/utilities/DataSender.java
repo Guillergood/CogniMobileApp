@@ -2,10 +2,12 @@ package ugr.gbv.cognimobile.utilities;
 
 import android.content.Context;
 
+import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 
+import androidx.preference.PreferenceManager;
 import com.android.volley.*;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
@@ -17,16 +19,16 @@ import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import ugr.gbv.cognimobile.callbacks.*;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
-import ugr.gbv.cognimobile.dto.Study;
-import ugr.gbv.cognimobile.dto.StudyEnrollRequest;
-import ugr.gbv.cognimobile.dto.TestDTO;
+import ugr.gbv.cognimobile.dto.*;
 import ugr.gbv.cognimobile.mocks.MockedHttpStack;
 import ugr.gbv.cognimobile.payload.response.JwtResponse;
 
@@ -35,6 +37,8 @@ import ugr.gbv.cognimobile.payload.response.JwtResponse;
  */
 public class DataSender implements Serializable {
 
+    private static final String PENDING_DATA_ANSWER_KEY = "PENDING_DATA_ANSWER";
+    private static final String PENDING_DATA_EVENT_KEY = "PENDING_DATA_EVENT";
 
     private static volatile DataSender instantiated;
 
@@ -87,7 +91,7 @@ public class DataSender implements Serializable {
                     else{
                         if (error.networkResponse != null && error.networkResponse.statusCode == 401) {
                             ErrorHandler.displayError("Invalid credentials or inactive account.");
-                            if(credentialCallback != null) {
+                            if (credentialCallback != null) {
                                 credentialCallback.doLogout();
                             }
                         }
@@ -191,6 +195,18 @@ public class DataSender implements Serializable {
         requestQueue.add(stringRequest);
     }
 
+    public String getStackTraceAsString(Throwable throwable) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        throwable.printStackTrace(pw);
+        return sw.toString();
+    }
+
+    public ErrorReportDTO convert(Throwable throwable) {
+        String errorData = getStackTraceAsString(throwable);
+        return new ErrorReportDTO(throwable.getMessage() != null ? throwable.getMessage():throwable.getClass().getSimpleName(), errorData);
+    }
+
     @Nullable
     private Map<String, String> getAuthHeaders(final Context context) {
         if(!TextUtils.isEmpty(CognimobilePreferences.getLogin(context))) {
@@ -226,6 +242,7 @@ public class DataSender implements Serializable {
                             refreshAccessToken(context);
                         } else {
                             ErrorHandler.displayError("Error getting the studies.");
+                            credentialCallback.doLogout();
                         }
                     }
                     else{

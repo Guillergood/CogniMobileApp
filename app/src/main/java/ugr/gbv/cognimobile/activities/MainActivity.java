@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.MenuItem;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -50,7 +51,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_actividad_principal);
         initBottomNavBar();
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> runOnUiThread(() -> WorkerManager.getInstance().initiateWorkers(getApplicationContext())), 3000);
 
@@ -83,11 +84,19 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            Bundle outState = getIntent().getExtras().getBundle("error_bundle");
+            if(outState != null) {
+                Intent intent = new Intent(this, Test.class);
+                testFinalization.launch(intent);
+            }
+        }
+
     }
 
     @Override
     protected void onResume() {
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
         super.onResume();
     }
 
@@ -259,12 +268,12 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * This method overrides {@link Activity#onStart}, adding the
-     * {@link ErrorHandler#setCallback(LoadDialog)} routine to it.
+     * {@link ErrorHandler#setLoadDialogCallback(LoadDialog)} routine to it.
      */
     @Override
     protected void onStart() {
         super.onStart();
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
     }
 
     @Override

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,9 +146,16 @@ public class Introduction extends Activity {
             Intent intent = new Intent(this,
                     ServerUrlRetrieval.class);
             startActivity(intent);
+
         } else if (TextUtils.isEmpty(CognimobilePreferences.getLogin(this))) {
             Intent intent = new Intent(this,
                     LoginActivity.class);
+            if (getIntent() != null && getIntent().getExtras() != null) {
+                Bundle outState = getIntent().getExtras().getBundle("error_bundle");
+                if(outState != null && outState.containsKey("error_exception")) {
+                    intent.putExtra("error_bundle", outState);
+                }
+            }
             startActivity(intent);
         }
         else{
@@ -160,6 +168,12 @@ public class Introduction extends Activity {
                 }
                 else {
                     intent = new Intent(this, MainActivity.class);
+                }
+                if (getIntent() != null && getIntent().getExtras() != null) {
+                    Bundle outState = getIntent().getExtras().getBundle("error_bundle");
+                    if(outState != null && outState.containsKey("error_exception")) {
+                        intent.putExtra("error_bundle", outState);
+                    }
                 }
                 startActivity(intent);
             } catch (JsonProcessingException e) {

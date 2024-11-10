@@ -2,6 +2,7 @@ package ugr.gbv.cognimobile.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +30,7 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
     protected void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.expert);
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
 
         if (CognimobilePreferences.getFirstTimeLaunch(this)) {
             displayTutorialDialog();
@@ -41,6 +42,15 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
         actualFragment = new ExpertTestFragment(this);
 
         loadFragment();
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            Bundle outState = getIntent().getExtras().getBundle("error_bundle");
+            if(outState != null) {
+                Intent intent = new Intent(this, Test.class);
+                intent.putExtra("outState",outState);
+                startActivity(intent);
+            }
+        }
+
     }
 
 
@@ -66,7 +76,7 @@ public class ExpertActivity extends AppCompatActivity implements LoadDialog,
 
     @Override
     protected void onResume() {
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
         super.onResume();
     }
 

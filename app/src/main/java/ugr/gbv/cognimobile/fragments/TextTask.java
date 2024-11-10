@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -128,7 +129,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     /**
-     * Overrides {@link androidx.fragment.app.Fragment#onViewCreated(View, Bundle)}
+     * Overrides {@link Fragment#onViewCreated(View, Bundle)}
      *
      * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
@@ -142,7 +143,7 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     }
 
     /**
-     * Overrides {@link androidx.fragment.app.Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
+     * Overrides {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}
      * Also sets all the necessary elements for the task to be displayed and be completed.
      *
      * @param inflater           The LayoutInflater object that can be used to inflate
@@ -1121,7 +1122,6 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
     @Override
     public void onStop() {
         TextToSpeechLocal.stop();
-        TextToSpeechLocal.clear();
         super.onStop();
     }
 
@@ -1559,15 +1559,19 @@ public class TextTask extends Task implements TTSHandler, TextTaskCallback {
 
     private void checkPhrases() {
         int errors = 0;
+        Set<String> answerSet = new HashSet<>();
 
-        for(int i = 0; i < answers.size() && i < array.length; ++i) {
-            if (!answers.get(i).equalsIgnoreCase(array[i])) {
+        // Añadimos las respuestas al HashSet en minúsculas para que la comparación sea insensible a mayúsculas
+        for (String answer : answers) {
+            answerSet.add(answer.trim().toLowerCase());
+        }
+
+        for (int i = 0; i < answers.size() && i < array.length; ++i) {
+            // Comprobamos si la respuesta está en el set, usando trim() y toLowerCase() en el array
+            if (!answerSet.contains(array[i].trim().toLowerCase())) {
                 ++errors;
             }
         }
-        /*
-            Allocate 1 point for each sentence correctly repeated. Repetition must be exact.
-         */
 
         score = answers.size() - errors;
     }

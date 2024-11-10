@@ -56,7 +56,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoadDialo
 
 		AtomicReference<String> role = new AtomicReference<>();
 
-		ErrorHandler.setCallback(this);
+		ErrorHandler.setLoadDialogCallback(this);
 
 		userButton.setOnClickListener(view -> {
 			expertButton.setBackgroundColor(ContextCompat.getColor(getBaseContext(),

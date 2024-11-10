@@ -102,6 +102,7 @@
     <string name="pref_login" translatable="false">pref_login</string>
     <string name="pref_logout" translatable="false">pref_logout</string>
     <string name="pref_change_server" translatable="false">pref_change_server</string>
+    <string name="error_bundle" translatable="false">error_bundle</string>
     <string name="pref_change_server_title">Change server</string>
     <string name="pref_logout_title">Logout</string>
     <string name="send_again">SEND</string>

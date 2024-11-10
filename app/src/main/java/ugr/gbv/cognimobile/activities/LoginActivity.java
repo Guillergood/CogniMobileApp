@@ -54,7 +54,7 @@ public class LoginActivity extends AppCompatActivity implements LoginCallback, L
             studyName = getIntent().getStringExtra("studyName");
         }
 
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
 
         backButton.setOnClickListener( view -> goBack());
 

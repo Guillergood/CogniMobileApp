@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -92,7 +93,7 @@ public class ServerUrlRetrieval extends AppCompatActivity implements ServerLinkR
             }
         });
 
-        ErrorHandler.setCallback(this);
+        ErrorHandler.setLoadDialogCallback(this);
 
         sendUrlButton.setOnClickListener(view -> {
             CognimobilePreferences.setServerUrl(this, inputUrlText.getText().toString());

@@ -1,7 +1,9 @@
 package ugr.gbv.cognimobile.activities;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +13,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.*;
 import android.speech.tts.TextToSpeech;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -39,6 +43,7 @@ import ugr.gbv.cognimobile.callbacks.CredentialsCallback;
 import ugr.gbv.cognimobile.callbacks.TestCallback;
 import ugr.gbv.cognimobile.database.CognimobilePreferences;
 import ugr.gbv.cognimobile.database.Provider;
+import ugr.gbv.cognimobile.dto.ErrorReportDTO;
 import ugr.gbv.cognimobile.dto.TestAnswerDTO;
 import ugr.gbv.cognimobile.dto.TestDTO;
 import ugr.gbv.cognimobile.dto.TestEventDTO;
@@ -52,6 +57,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+
 /**
  * Test allows the user to do a test from the local database.
  */
@@ -63,6 +70,8 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     private View mContentView;
     private TestAnswerDTO testAnswerDTO;
     private TestEventDTO testEventDTO;
+    private ErrorReportDTO errorReportDTO;
+    private TestDTO testDTO;
     private Locale language;
 
     private int typos;
@@ -85,6 +94,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         try {
             outState.putString("testAnswerDTO", objectMapper.writeValueAsString(testAnswerDTO));
             outState.putString("testEventDTO", objectMapper.writeValueAsString(testEventDTO));
+            outState.putString("conductingTest", objectMapper.writeValueAsString(testDTO));
         }
         catch (JsonProcessingException ignored) {
 
@@ -97,18 +107,24 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         super.onRestoreInstanceState(savedInstanceState);
         CustomObjectMapper objectMapper = new CustomObjectMapper();
         int idValue = savedInstanceState.getInt("idValue");
-        getIntent().putExtra("id", idValue);
-        getFragmentsFromTestDTO();
-        index = savedInstanceState.getInt("index");
         String testAnswerDTOString = savedInstanceState.getString("testAnswerDTO");
         String testEventDTOString = savedInstanceState.getString("testEventDTO");
+        String testErrorException = savedInstanceState.getString("error_exception");
+        String conductingTest = savedInstanceState.getString("conductingTest");
         try {
+            if(conductingTest != null) {
+                getTest(objectMapper.readValue(conductingTest, TestDTO.class));
+            }
             if(testAnswerDTOString != null) {
                 testAnswerDTO = objectMapper.readValue(testAnswerDTOString, TestAnswerDTO.class);
             }
             if(testEventDTOString != null) {
                 testEventDTO = objectMapper.readValue(testEventDTOString, TestEventDTO.class);
             }
+            if(testErrorException != null) {
+                errorReportDTO = objectMapper.readValue(testErrorException, ErrorReportDTO.class);
+            }
+
         } catch (JsonProcessingException ignored) {
 
         }
@@ -116,6 +132,12 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         if (languageString != null) {
             language = new Locale(languageString);
         }
+        String login = savedInstanceState.getString("login");
+        if (login != null) {
+            CognimobilePreferences.setLogin(getApplicationContext(), login);
+        }
+        getIntent().putExtra("id", idValue);
+        index = savedInstanceState.getInt("index");
     }
 
     /**
@@ -131,15 +153,43 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getIntent() != null && getIntent().getExtras() != null) {
-            Bundle outState = getIntent().getExtras().getBundle("outState");
-            if (outState != null) {
-                // Restaura el estado de la actividad
-                onRestoreInstanceState(outState);
-            }
-        }
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            this.runOnUiThread(() -> {
+                ErrorReportDTO errorLog = DataSender.getInstance().convert(throwable);
+                ObjectMapper objectMapper = new CustomObjectMapper();
 
-        ErrorHandler.setCallback(this);
+                Bundle bundle = new Bundle();
+                saveState(bundle);
+                try {
+                    if(errorReportDTO != null) {
+                        String message = TextUtils.isEmpty(errorLog.getErrorMessage()) &&
+                                TextUtils.isEmpty(errorReportDTO.getErrorMessage()) ?
+                                "" : errorLog.getErrorMessage() + System.lineSeparator() + errorReportDTO.getErrorMessage();
+
+                        String exception = TextUtils.isEmpty(errorLog.getStackTrace()) &&
+                                TextUtils.isEmpty(errorReportDTO.getStackTrace()) ?
+                                "" : errorLog.getStackTrace() + System.lineSeparator() + errorReportDTO.getStackTrace();
+
+                        errorLog.setErrorMessage(message);
+                        errorLog.setStackTrace(exception);
+                    }
+
+                    bundle.putString("login", CognimobilePreferences.getLogin(getApplicationContext()));
+                    bundle.putString("error_exception", objectMapper.writeValueAsString(errorLog));
+                } catch (JsonProcessingException e) {
+                    // Do nothing
+                }
+
+                Intent intent = new Intent(getApplicationContext(), Introduction.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.putExtra("error_bundle", bundle);
+                getApplicationContext().startActivity(intent);
+                android.os.Process.killProcess(android.os.Process.myPid());
+                System.exit(10);
+            });
+        });
+
+        ErrorHandler.setLoadDialogCallback(this);
         setContentView(R.layout.activity_test);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -152,6 +202,21 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
         doubleBackToExitPressedOnce = false;
 
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            Bundle outState = getIntent().getExtras().getBundle("outState");
+            if (outState != null) {
+                onRestoreInstanceState(outState);
+            }
+            else {
+                getTests();
+            }
+        }
+        else {
+            getTests();
+        }
+    }
+
+    private void getTests() {
         JwtResponse jwt;
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -172,10 +237,12 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
         } catch (JsonProcessingException e) {
             ErrorHandler.displayError("Some error happened when trying to login, please try again.");
         }
-
     }
 
     private void startTTSInitialization() {
+        if(TextToSpeechLocal.isInitialized()) {
+            TextToSpeechLocal.instantiate(this, null, Locale.forLanguageTag(testDTO.getLanguage()));
+        }
         Intent checkIntent = new Intent();
         checkIntent.setAction(TextToSpeech.Engine.ACTION_CHECK_TTS_DATA);
         startActivityForResult(checkIntent, MY_DATA_CHECK_CODE);
@@ -206,9 +273,6 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             this.language = new Locale(test.getLanguage());
             testAnswerDTO = new TestAnswerDTO();
             testEventDTO = new TestEventDTO();
-            getIntent().getStringExtra("subjectName");
-            getIntent().getStringExtra("testName");
-            getIntent().getStringExtra("studyName");
             if(getIntent().hasExtra("studyName")){
                 testAnswerDTO.setStudyName(getIntent().getStringExtra("studyName"));
                 testEventDTO.setStudyName(getIntent().getStringExtra("studyName"));
@@ -303,6 +367,9 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
             String currentDate = ContextDataRetriever.getCurrentDateString(language);
             testEventDTO.setCreatedAt(currentDate);
             testAnswerDTO.setCreatedAt(currentDate);
+            if(errorReportDTO != null) {
+                DataSender.getInstance().postToServer(errorReportDTO,getApplicationContext(), "/error/report", this);
+            }
             DataSender.getInstance().postToServer(testAnswerDTO, getApplicationContext(), "/test/result/answer", this);
             DataSender.getInstance().postToServer(testEventDTO, getApplicationContext(), "/test/result/event", this);
             showTestCompletedDialog();
@@ -558,7 +625,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
 
     @Override
     protected void onStop() {
-        ErrorHandler.setCallback(null);
+        ErrorHandler.setLoadDialogCallback(null);
         super.onStop();
     }
 
@@ -572,7 +639,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
-            ErrorHandler.setCallback(null);
+            ErrorHandler.setLoadDialogCallback(null);
             finish();
         } else {
             Toast.makeText(this, R.string.click_back, Toast.LENGTH_SHORT).show();
@@ -619,6 +686,7 @@ public class Test extends AppCompatActivity implements LoadContent, LoadDialog, 
     public void getTest(TestDTO test) {
         try {
             fragments = JsonParserTests.getInstance().parseTestToTasks(test,this);
+            testDTO = test;
             initKeyBoardListener();
             initiateAllAnswersWrappers(test);
             startTTSInitialization();

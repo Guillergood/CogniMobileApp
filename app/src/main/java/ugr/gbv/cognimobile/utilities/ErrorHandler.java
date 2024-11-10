@@ -6,7 +6,7 @@ import ugr.gbv.cognimobile.interfaces.LoadDialog;
  * Singleton static class that displays errors.
  */
 public class ErrorHandler {
-    private static LoadDialog callback;
+    private static LoadDialog loadingDialogCallback;
 
     /**
      * Sets the callback from the actual activity
@@ -14,8 +14,8 @@ public class ErrorHandler {
      *
      * @param handler the callback to call the method.
      */
-    public static void setCallback(LoadDialog handler) {
-        callback = handler;
+    public static void setLoadDialogCallback(LoadDialog handler) {
+        loadingDialogCallback = handler;
     }
 
     /**
@@ -24,8 +24,8 @@ public class ErrorHandler {
      * @param message the error that have just happened.
      */
     public static void displayError(String message) {
-        if (callback != null)
-            callback.loadDialog(message,
+        if (loadingDialogCallback != null)
+            loadingDialogCallback.loadDialog(message,
                     (Object[]) null);
     }
 
@@ -35,8 +35,8 @@ public class ErrorHandler {
      * @param message the error that have just happened.
      */
     public static void displayError(String message, Object ...args) {
-        if (callback != null)
-            callback.loadDialog(message, args);
+        if (loadingDialogCallback != null)
+            loadingDialogCallback.loadDialog(message, args);
     }
 
 
